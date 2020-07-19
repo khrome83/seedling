@@ -154,13 +154,18 @@ export const data = async (
         }
 
         // Ensure request is not malformed
-        if (result.type === "SUCCESS" && result.response !== undefined) {
+        if (result.response !== undefined) {
           break;
         } else {
           return Promise.reject(
             error("Something went wrong with the response, invalid structure")
           );
         }
+      }
+
+      // Exceeded Retries
+      if (result.type === "RETRY") {
+        return Promise.reject("Reached max number of retries");
       }
 
       // Cache and Return
