@@ -81,7 +81,7 @@ export interface Request {
   body?: string;
 }
 
-const buildRequest = (attrs: object, body: string): Request => ({
+const buildRequest = (attrs: object = {}, body: string = ""): Request => ({
   attrs,
   body,
 });
