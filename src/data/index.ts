@@ -1,4 +1,6 @@
 import { v5 } from "https://deno.land/std/uuid/mod.ts";
+import { delay } from "https://deno.land/std/async/delay.ts";
+import { Deferred, deferred } from "https://deno.land/std/async/deferred.ts";
 import { Identifier } from "https://deno.land/x/dash/util.ts";
 import cache from "./cache.ts";
 
@@ -6,28 +8,44 @@ const namespace = "f6360cb2-cdac-4d8d-a269-a5f65b054128";
 
 export interface Skip {
   type: "SKIP";
+  response: object;
 }
 
-const skip = (): Skip => ({
+const skip = (response: object): Skip => ({
   type: "SKIP",
+  response,
 });
 
 export interface End {
   type: "END";
+  response: object;
 }
 
-const end = (): End => ({
+const end = (response: object): End => ({
   type: "END",
+  response,
+});
+
+export interface Success {
+  type: "SUCCESS";
+  response: object;
+}
+
+const success = (response: object): Success => ({
+  type: "SUCCESS",
+  response,
 });
 
 export interface Retry {
   type: "RETRY";
   msg: string;
+  delay: number;
 }
 
-const retry = (msg: string): Retry => ({
+const retry = (msg: string, delay: number = 1000): Retry => ({
   type: "RETRY",
   msg,
+  delay,
 });
 
 export interface Error {
@@ -40,16 +58,6 @@ const error = (msg: string, stack?: TypeError): Error => ({
   type: "ERROR",
   msg,
   stack,
-});
-
-export interface Success {
-  type: "SUCCESS";
-  response: object;
-}
-
-const success = (response: object): Success => ({
-  type: "SUCCESS",
-  response,
 });
 
 export interface Response {
@@ -78,12 +86,24 @@ const buildRequest = (attrs: object, body: string): Request => ({
   body,
 });
 
+export interface DataResponse {
+  type: "SKIP" | "END" | "SUCCESS";
+  response: object;
+  retries: number;
+  meta: {
+    cacheKey: Identifier;
+    cacheHit: boolean;
+  };
+}
+
 export const data = async (
   processor: string,
   attrs: object,
   body: string = "",
   root: string = Deno.cwd()
-): Promise<object> => {
+): Promise<DataResponse> => {
+  // const d = deferred<DataResponse>();
+
   // Generate Cache Key (v5 UUID)
   const cacheKeyOptions = {
     value: JSON.stringify({ processor, attrs, body }),
@@ -113,35 +133,51 @@ export const data = async (
   // Either return from Cache or Request New Data
   if (!cache.has(cacheKey)) {
     try {
+      let retries = 0;
       const dataProcessor = await import(importPath);
-      const result = await dataProcessor.default(
-        buildRequest(attrs, body),
-        response
-      );
+      let result;
 
-      // Retries
-      // Need to create Error Handler
-      // Need to create data structure for
-      // - SKIP
-      // - ERROR
-      // - END
-      // - DATA
-      // - RETRY
-      // Or do we not....
+      while (retries < 4) {
+        result = await dataProcessor.default(
+          buildRequest(attrs, body),
+          response
+        );
 
-      cache.set(cacheKey, result);
-      return {
+        // Handle Retry and Errors
+        if (result.type === "RETRY") {
+          console.log(result.msg);
+          retries++;
+          await delay(result.delay);
+          continue;
+        } else if (result.type === "ERROR") {
+          return Promise.reject(result);
+        }
+
+        // Ensure request is not malformed
+        if (result.type === "SUCCESS" && result.response !== undefined) {
+          break;
+        } else {
+          return Promise.reject(
+            error("Something went wrong with the response, invalid structure")
+          );
+        }
+      }
+
+      // Cache and Return
+      cache.set(cacheKey, result.response);
+      return Promise.resolve({
         ...result,
+        retries,
         meta: { cacheHit: false, cacheKey },
-      };
+      });
     } catch (e) {
-      throw e;
+      return Promise.reject(e);
     }
   } else {
-    return {
-      type: "DATA",
-      response: cache.get(cacheKey),
+    return Promise.resolve({
+      ...success(cache.get(cacheKey)),
+      retries: 0,
       meta: { cacheHit: true, cacheKey },
-    };
+    });
   }
 };

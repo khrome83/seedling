@@ -16,8 +16,8 @@ Deno.test("Data GraphCMS", async () => {
   const root = `${Deno.cwd()}/src/data`;
   const output = await data("graphcms", attrs, body, root);
   const expected = {
-    type: "DATA",
-    data: {
+    type: "SUCCESS",
+    response: {
       data: {
         marketingSocialProof: {
           __typename: "MarketingSocialProof",
@@ -25,8 +25,10 @@ Deno.test("Data GraphCMS", async () => {
         },
       },
     },
+    retries: 0,
     meta: { cacheHit: false, cacheKey: "52f87475-22be-520d-bf94-df92785be507" },
   };
 
+  console.log(JSON.stringify(output));
   assertEquals(output, expected);
 });
