@@ -2014,11 +2014,11 @@ export class Parser {
   }
 
   // Throw Error
-  private throwError(message: string, help?: string): string {
-    return `\n${message} at position ${yellow(bold(`${this.pos}`))}
+  private throwError(message: string, help?: string): Error {
+    return new Error(`\n${message} at position ${yellow(bold(`${this.pos}`))}
 
       ${this.template.substring(0, 20)}
       ${red("^")}${help ? `\n\n     ${yellow(bold("TIP - "))}${help}` : ""}  
-    `;
+    `);
   }
 }

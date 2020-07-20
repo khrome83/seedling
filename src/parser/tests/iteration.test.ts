@@ -1,5 +1,5 @@
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
-import { Parser } from "./index.ts";
+import { Parser } from "../index.ts";
 
 Deno.test("Each Loop", () => {
   const html = `
