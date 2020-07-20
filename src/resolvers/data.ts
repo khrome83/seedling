@@ -1,10 +1,5 @@
-import { v5 } from "https://deno.land/std/uuid/mod.ts";
 import { delay } from "https://deno.land/std/async/delay.ts";
-import { Deferred, deferred } from "https://deno.land/std/async/deferred.ts";
-import { Identifier } from "https://deno.land/x/dash/util.ts";
-import cache from "./cache.ts";
-
-const namespace = "f6360cb2-cdac-4d8d-a269-a5f65b054128";
+import { cache, getCacheKey, Identifier } from "../cache/index.ts";
 
 export interface Skip {
   type: "SKIP";
@@ -96,20 +91,14 @@ export interface DataResponse {
   };
 }
 
-export const data = async (
+export const resolveData = async (
   processor: string,
   attrs: object,
   body: string = "",
   root: string = Deno.cwd()
 ): Promise<DataResponse> => {
-  // const d = deferred<DataResponse>();
-
   // Generate Cache Key (v5 UUID)
-  const cacheKeyOptions = {
-    value: JSON.stringify({ processor, attrs, body }),
-    namespace,
-  };
-  const cacheKey = v5.generate(cacheKeyOptions) as Identifier;
+  const cacheKey = getCacheKey(processor, attrs, body);
 
   // Determine correct path to process under
   const tsPath = `${root}/data/${processor}.ts`;
