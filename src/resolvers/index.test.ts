@@ -1,5 +1,6 @@
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 import { denock } from "https://deno.land/x/denock/mod.ts";
+import "https://deno.land/x/dotenv/load.ts";
 import { resolveData } from "./data.ts";
 import { resolveComponent } from "./component.ts";
 
@@ -18,16 +19,13 @@ Deno.test("Data Resolver - GraphCMS", async () => {
     }
   }`;
 
-  const token =
-    "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImdjbXMtbWFpbi1wcm9kdWN0aW9uIn0.eyJ2ZXJzaW9uIjozLCJpYXQiOjE1OTI4NTMwMTYsImF1ZCI6WyJodHRwczovL2FwaS11cy1lYXN0LTEuZ3JhcGhjbXMuY29tL3YyL2NrOXVoYmcxZjA1cGgwMXhvNWZzNmZxaWgvbWFzdGVyIl0sImlzcyI6Imh0dHBzOi8vbWFuYWdlbWVudC5ncmFwaGNtcy5jb20vIiwic3ViIjoiNTcxNzAzNzYtODQyMC00OTNkLWE1YTAtYWUxM2Y0YjVjZGNlIiwianRpIjoiY2ticXZrNTlsMDAyZDAxeHhobG84Y2gybyJ9.po69oTfVxTSKj2AFWexoBJ1NJ4EnNKjEOiRq3KuLmVYM6kGc2ZBBj5ASolcSHbzGreklnzB39nvS4bfPrgs7iLoVqQMaBS-xwyhB5JOvcXk-cboSEJbPp5P0thcj9LxYxkGvi-VfX-HZoBpagYKUZy9QqrpAoSz7OsKPWFXRg_TZsYeb3PjzBKb9QAkJTFnonoJOdN7lYiRuAAjyVzm7NQSxhaXQy24iHiBBRsWwz2L5K6OxKh4Q5SVSWZI0AsLN_IMMp-IavwW-ls_cgoNCl8RpngbAaZU111p9TQcDsXysxMrCQqfzUO8VGxOu2s-xtDB6BO7cLLmFT_AKqxlUJ_6HSd5tktErfnVWbFaxegY9rJWUTxRVgeDosa_1In0Si37EE-B-yzc4kDoq4GbrnoNFgmmsJti89XW4B4rCRns7WFYMQo0VN29cDfzeJF_O-d5_YhDbDvfySJiaUC3FSqh1ZAFIzBjdku02krQTRCxs811GM5HbwhpSb_gS4ppc6lBHfkUk6YQFtA9udUaFxmpSm2ipnOgui686fMfgtIj_hirnpfmUedc5_TkfPJlyC5Sg8D4fw2yMoDqj7Q6lp-_5WW1efJ9QTgCfNIKyDPFOWGwWI_NGTjy0JNg7qldIGxZMz4-8YCPMEKlwoW97DQWrjmz3Z2dHBg4wWaKojD4";
-
   denock({
     method: "POST",
     protocol: "https",
     host: "api-us-east-1.graphcms.com",
     headers: [
       { header: "content-type", value: "application/json" },
-      { header: "authorization", value: `Bearer ${token}` },
+      { header: "authorization", value: `Bearer ${Deno.env.get("TOKEN")}` },
     ],
     path: "/v2/ck9uhbg1f05ph01xo5fs6fqih/master",
     requestBody: {
