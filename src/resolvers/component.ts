@@ -1,4 +1,5 @@
 import { readFileStr } from "https://deno.land/std/fs/read_file_str.ts";
+import { bold, cyan } from "https://deno.land/std/fmt/colors.ts";
 import { cache, getCacheKey, Identifier } from "../cache/index.ts";
 import { Parser, RootAST } from "../parser/index.ts";
 
@@ -20,7 +21,7 @@ export const resolveComponent = async (
   // Determine correct path to process under
   const htmlPath = `${root}/components/${name}.html`;
   const seedPath = `${root}/components/${name}.seed`;
-  const importPath = await Deno.lstat(htmlPath)
+  const localPath = await Deno.lstat(htmlPath)
     .then(() => {
       return htmlPath;
     })
@@ -30,16 +31,67 @@ export const resolveComponent = async (
           return seedPath;
         })
         .catch((e) => {
-          throw new Error(
-            "Invalid use argument for component directive, file not found"
-          );
+          return "";
         });
     });
+
+  // Local Check failed, check for Remote Components
+  const tsPath = `${root}/components/${name}.ts`;
+  const jsPath = `${root}/components/${name}.js`;
+  let importPath;
+
+  if (!localPath) {
+    importPath = await Deno.lstat(tsPath)
+      .then(() => {
+        return tsPath;
+      })
+      .catch(async () => {
+        return await Deno.lstat(jsPath)
+          .then(() => {
+            return jsPath;
+          })
+          .catch((e) => {
+            throw new Error(
+              `Invalid use argument for component directive ${bold(
+                cyan(name)
+              )}, file not found`
+            );
+          });
+      });
+  }
 
   // Either return from Cache or Request New Data
   if (!cache.has(cacheKey)) {
     try {
-      const component = await readFileStr(importPath, { encoding: "utf8" });
+      let component;
+
+      if (localPath) {
+        // Local Component
+        component = await readFileStr(localPath, { encoding: "utf8" });
+      } else if (importPath) {
+        // Remote Component
+        const path = await import(importPath).then((c) => {
+          if (!c.default) {
+            throw new Error(
+              `Remote component path not exported as default for ${bold(
+                cyan(name)
+              )}`
+            );
+          }
+
+          return c.default;
+        });
+        const response = await fetch(path);
+        component = await response.text();
+      }
+
+      if (!component) {
+        throw new Error(
+          `Could not resolve component directive ${bold(
+            cyan(name)
+          )}, request for file failed`
+        );
+      }
 
       // Parse AST for Component
       const p = new Parser(component);
