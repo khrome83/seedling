@@ -1,6 +1,7 @@
 import { bold, cyan, yellow, red } from "https://deno.land/std/fmt/colors.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
+import alpineAttributes from "../dict/alpineAttributes.ts";
 
 // AST Structure
 export type Type =
@@ -1192,7 +1193,11 @@ export class Parser {
     while ((parts = regex.exec(template)) !== null) {
       const [full, name, eq, value, ...rest] = parts;
 
-      if (full.indexOf("{") > -1 && full.indexOf("}") > -1) {
+      if (
+        !alpineAttributes.has(name) &&
+        full.indexOf("{") > -1 &&
+        full.indexOf("}") > -1
+      ) {
         // Attribute has Expression
         if (full.indexOf("...") > -1) {
           // Spread Opperator
