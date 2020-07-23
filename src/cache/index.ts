@@ -1,6 +1,4 @@
-import { v5 } from "https://deno.land/std/uuid/mod.ts";
-import { Cache } from "https://deno.land/x/dash/mod.ts";
-import { Identifier } from "https://deno.land/x/dash/util.ts";
+import { v5, Cache, Identifier } from "../deps.ts";
 
 const namespace = "f6360cb2-cdac-4d8d-a269-a5f65b054128";
 

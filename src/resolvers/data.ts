@@ -1,4 +1,4 @@
-import { delay } from "https://deno.land/std/async/delay.ts";
+import { delay } from "../deps.ts";
 import { cache, getCacheKey, Identifier } from "../cache/index.ts";
 
 export interface Skip {

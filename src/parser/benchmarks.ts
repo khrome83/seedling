@@ -3,13 +3,10 @@ import {
   bench,
   BenchmarkTimer,
   BenchmarkRunError,
-} from "https://deno.land/std/testing/bench.ts";
-import { red } from "https://deno.land/std/fmt/colors.ts";
-import {
+  red,
   prettyBenchmarkResult,
   prettyBenchmarkProgress,
-} from "https://deno.land/x/pretty_benching@v0.1.1/mod.ts";
-
+} from "../deps.ts";
 import { Parser, UpdateExpression } from "./index.ts";
 
 // Basic Benchmark to Validate Parser Speed

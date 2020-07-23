@@ -1,5 +1,5 @@
-import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
-import { Parser, Tag } from "../index.ts";
+import { assertEquals } from "../../deps.ts";
+import { Parser } from "../index.ts";
 
 Deno.test("Layout Directive", () => {
   const html = '<:layout use="h2" />';

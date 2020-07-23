@@ -1,4 +1,4 @@
-import { assertThrows } from "https://deno.land/std/testing/asserts.ts";
+import { assertThrows } from "../../deps.ts";
 import { Parser, Tag } from "../index.ts";
 
 Deno.test("Non String Template should throw a TypeError", () => {

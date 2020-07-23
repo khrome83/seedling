@@ -1,5 +1,4 @@
-import { readFileStr } from "https://deno.land/std/fs/read_file_str.ts";
-import { bold, cyan } from "https://deno.land/std/fmt/colors.ts";
+import { readFileStr, bold, cyan } from "../deps.ts";
 import { cache, getCacheKey, Identifier } from "../cache/index.ts";
 import { Parser, RootAST } from "../parser/index.ts";
 

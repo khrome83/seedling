@@ -1,7 +1,6 @@
-import { assert, assertEquals } from "https://deno.land/std/testing/asserts.ts";
-// import { denock } from "https://deno.land/x/denock/mod.ts";
-import { denock } from "https://raw.githubusercontent.com/use-seedling/denock/master/mod.ts";
-import "https://deno.land/x/dotenv/load.ts";
+import { assert, assertEquals } from "../deps.ts";
+import { denock } from "../deps.ts";
+import "https://deno.land/x/dotenv@v0.5.0/load.ts";
 import { resolveData } from "./data.ts";
 import { resolveComponent } from "./component.ts";
 
