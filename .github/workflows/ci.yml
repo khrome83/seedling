@@ -1,0 +1,35 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        config:
+          - version: 1.2.1
+    env:
+      # Used for tests, not valid host or token, just needs to exist
+      HOST: https://www.example.com
+      TOKEN: "sdf90sdf9090234sdf90sdf"
+    name: Deno ${{ matrix.config.version }}
+    steps:
+      - name: Checkout Repo
+      - uses: actions/checkout@v2
+
+      - name: Setup deno
+        uses: denolib/setup-deno@v2.1.0
+        with:
+          deno-version: ${{ matrix.config.version }}
+
+      - name: Lint
+        run: deno lint --unstable
+
+      - name: Test
+        run: deno test --allow-read --allow-net --allow-env
+
+      - name: Benchmarks
+        run: |
+          deno test src/serializer/benchmarks.ts --allow-hrtime
+          deno test src/parser/benchmarks.ts --allow-hrtime
