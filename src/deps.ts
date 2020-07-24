@@ -7,7 +7,7 @@ export {
   assert,
   assertEquals,
   assertThrows,
-} from "https://deno.land/std@0.61.0/testing/asserts.ts";
+} from "https://deno.land/std@0.62.0/testing/asserts.ts";
 
 // Benchmarks
 export {
@@ -15,10 +15,7 @@ export {
   bench,
   BenchmarkTimer,
   BenchmarkRunError,
-} from "https://deno.land/std@0.61.0/testing/bench.ts";
-
-// Read File
-export { readFileStr } from "https://deno.land/std@0.61.0/fs/mod.ts";
+} from "https://deno.land/std@0.62.0/testing/bench.ts";
 
 // Colors
 export {
@@ -26,13 +23,13 @@ export {
   cyan,
   yellow,
   red,
-} from "https://deno.land/std@0.61.0/fmt/colors.ts";
+} from "https://deno.land/std@0.62.0/fmt/colors.ts";
 
 // Async Support
-export { delay } from "https://deno.land/std@0.61.0/async/mod.ts";
+export { delay } from "https://deno.land/std@0.62.0/async/mod.ts";
 
 // UUID
-export { v5 } from "https://deno.land/std@0.61.0/uuid/mod.ts";
+export { v5 } from "https://deno.land/std@0.62.0/uuid/mod.ts";
 
 /**
  * Third Party Libaries

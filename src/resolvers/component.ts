@@ -1,4 +1,4 @@
-import { readFileStr, bold, cyan } from "../deps.ts";
+import { bold, cyan } from "../deps.ts";
 import { cache, getCacheKey, Identifier } from "../cache/index.ts";
 import { Parser, RootAST } from "../parser/index.ts";
 
@@ -66,7 +66,7 @@ export const resolveComponent = async (
 
       if (localPath) {
         // Local Component
-        component = await readFileStr(localPath, { encoding: "utf8" });
+        component = await Deno.readTextFile(localPath);
       } else if (importPath) {
         // Remote Component
         const path = await import(importPath).then((c) => {
