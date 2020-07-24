@@ -30,7 +30,7 @@ jobs:
       - name: Test
         run: deno test --allow-read --allow-net --allow-env
 
-      - name: Benchmarks
-        run: |
-          deno test src/serializer/benchmarks.ts --allow-hrtime
-          deno test src/parser/benchmarks.ts --allow-hrtime
+#       - name: Benchmarks
+#         run: |
+#           deno test src/serializer/benchmarks.ts --allow-hrtime
+#           deno test src/parser/benchmarks.ts --allow-hrtime
