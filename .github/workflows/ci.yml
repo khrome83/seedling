@@ -10,8 +10,9 @@ jobs:
         config:
           - version: 1.2.1
     env:
-      # Used for tests, not valid host or token, just needs to exist
-      HOST: https://www.example.com
+      # Used for tests, not valid host, path or token, just needs to exist
+      HOST: "example.com"
+      PATH: "/resources/master"
       TOKEN: "sdf90sdf9090234sdf90sdf"
     name: Deno ${{ matrix.config.version }}
     steps:
