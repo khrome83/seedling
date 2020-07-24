@@ -11,9 +11,9 @@ jobs:
           - version: 1.2.1
     env:
       # Used for tests, not valid host, path or token, just needs to exist
-      HOST: "example.com"
-      PATH: "/resources/master"
-      TOKEN: "sdf90sdf9090234sdf90sdf"
+      GRAPH_HOST: "example.com"
+      GRAPH_PATH: "/resources/master"
+      GRAPH_TOKEN: "sdf90sdf9090234sdf90sdf"
     name: Deno ${{ matrix.config.version }}
     steps:
       - name: Checkout Repo
