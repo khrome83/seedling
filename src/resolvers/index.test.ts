@@ -22,12 +22,12 @@ Deno.test("Data Resolver - GraphCMS", async () => {
   denock({
     method: "POST",
     protocol: "https",
-    host: "api-us-east-1.graphcms.com",
+    host: Deno.env.get("HOST") as string,
     headers: [
       { header: "content-type", value: "application/json" },
       { header: "authorization", value: `Bearer ${Deno.env.get("TOKEN")}` },
     ],
-    path: "/v2/ck9uhbg1f05ph01xo5fs6fqih/master",
+    path: Deno.env.get("PATH") as string,
     requestBody: {
       operationName: "MyQuery",
       query: body,
