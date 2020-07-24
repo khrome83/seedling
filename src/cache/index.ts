@@ -7,6 +7,7 @@ const cache = new Cache({
   serialize: true,
 });
 
+// deno-lint-ignore no-explicit-any
 const getCacheKey = (...payload: any[]): Identifier => {
   if (!payload.length) {
     throw new Error("Invalid payload for cache key, need atleast one argument");

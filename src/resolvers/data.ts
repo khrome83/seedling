@@ -37,7 +37,7 @@ export interface Retry {
   delay: number;
 }
 
-const retry = (msg: string, delay: number = 1000): Retry => ({
+const retry = (msg: string, delay = 1000): Retry => ({
   type: "RETRY",
   msg,
   delay,
@@ -76,7 +76,7 @@ export interface Request {
   body?: string;
 }
 
-const buildRequest = (attrs: object = {}, body: string = ""): Request => ({
+const buildRequest = (attrs: object = {}, body = ""): Request => ({
   attrs,
   body,
 });
@@ -94,7 +94,7 @@ export interface DataResponse {
 export const resolveData = async (
   processor: string,
   attrs: object,
-  body: string = "",
+  body = "",
   root: string = Deno.cwd()
 ): Promise<DataResponse> => {
   // Generate Cache Key (v5 UUID)
