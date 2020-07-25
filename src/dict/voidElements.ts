@@ -8,7 +8,7 @@ export default new Set([
   "hr",
   "img",
   "input",
-  "linl",
+  "link",
   "meta",
   "param",
   "source",
