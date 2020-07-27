@@ -59,6 +59,7 @@ export interface State {
 }
 
 export interface ArrayState {
+  // deno-lint-ignore no-explicit-any
   [key: string]: any;
 }
 
@@ -119,6 +120,7 @@ const attributeValue = (
 nodeTypes.set("AttributeValue", attributeValue);
 
 // AttributeExpression AST Node
+// deno-lint-ignore no-explicit-any
 const attributeExpression = (node: AttributeExpression, state: State): any => {
   return compileNode(node.expression, state);
 };
@@ -232,10 +234,7 @@ const unionAttributes = (
 
 // Hands off to the correct compile function
 // deno-lint-ignore no-explicit-any
-const compileNode = (
-  node: Node | Attribute | AttributeName | AttributeValue | AttributeSpread,
-  state: State
-): any => {
+const compileNode = (node: Node, state: State): any => {
   return nodeTypes.get(node.type)(node, state);
 };
 
