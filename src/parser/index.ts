@@ -65,7 +65,7 @@ export interface AttributeValue extends BaseAST {
 
 export interface AttributeExpression extends BaseAST {
   type: "AttributeExpression";
-  expression: ExpressionStatment;
+  expression: ExpressionStatement;
 }
 
 export interface AttributeSpread extends BaseAST {
@@ -148,39 +148,39 @@ export interface RouterDirective extends BaseTag {
 export interface IfBlock extends BaseAST {
   type: "IfBlock";
   children: Array<AST> | [];
-  expression: ExpressionStatment;
+  expression: ExpressionStatement;
   else: ElseBlock | ElseIfBlock | null;
 }
 
 export interface ElseIfBlock extends BaseAST {
   type: "ElseIfBlock";
   children: Array<AST> | [];
-  expression: ExpressionStatment;
+  expression: ExpressionStatement;
   else: ElseBlock | ElseIfBlock | null;
 }
 
 export interface SkipBlock extends BaseAST {
   type: "SkipBlock";
   children: Array<AST> | [];
-  expression: ExpressionStatment;
+  expression: ExpressionStatement;
 }
 
 export interface WhenBlock extends BaseAST {
   type: "WhenBlock";
   children: Array<IsBlock | ElseBlock> | [];
-  expression: ExpressionStatment;
+  expression: ExpressionStatement;
 }
 
 export interface IsBlock extends BaseAST {
   type: "IsBlock";
   children: Array<AST> | [];
-  expression: ExpressionStatment;
+  expression: ExpressionStatement;
 }
 
 export interface EachBlock extends BaseAST {
   type: "EachBlock";
   children: Array<AST> | [];
-  expression: ExpressionStatment;
+  expression: ExpressionStatement;
   context: Identifier;
   index: Identifier | null;
   else: ElseBlock | null;
@@ -199,7 +199,7 @@ export interface BreakStatement extends BaseAST {
   type: "BreakStatement";
 }
 
-export type ExpressionStatment =
+export type ExpressionStatement =
   | BinaryExpression
   | LogicalExpression
   | MemberExpression
@@ -233,18 +233,18 @@ export type BinaryOperator =
 
 export interface BinaryExpression extends BaseAST {
   type: "BinaryExpression";
-  left: ExpressionStatment;
+  left: ExpressionStatement;
   operator: BinaryOperator;
-  right: ExpressionStatment;
+  right: ExpressionStatement;
 }
 
 export type LogicalOperator = "&&" | "||";
 
 export interface LogicalExpression extends BaseAST {
   type: "LogicalExpression";
-  left: ExpressionStatment;
+  left: ExpressionStatement;
   operator: LogicalOperator;
-  right: ExpressionStatment;
+  right: ExpressionStatement;
 }
 
 export interface MemberExpression extends BaseAST {
@@ -259,7 +259,7 @@ export interface UnaryExpression extends BaseAST {
   type: "UnaryExpression";
   prefix: boolean;
   operator: UnaryOperator;
-  argument: ExpressionStatment;
+  argument: ExpressionStatement;
 }
 
 export type UpdateOperator = "++" | "--";
@@ -268,7 +268,7 @@ export interface UpdateExpression extends BaseAST {
   type: "UpdateExpression";
   prefix: boolean;
   operator: UpdateOperator;
-  argument: ExpressionStatment;
+  argument: ExpressionStatement;
 }
 
 export interface Identifier extends BaseAST {
@@ -301,9 +301,20 @@ export type AST =
   | ElseBlock
   | WhenBlock
   | EachBlock
-  | ExpressionStatment
+  | ExpressionStatement
   | ContinueStatement
   | BreakStatement;
+
+export type Node =
+  | AST
+  | ExpressionStatement
+  | Attribute
+  | AttributeExpression
+  | AttributeName
+  | AttributeValue
+  | AttributeSpread
+  | DynamicPathSegment
+  | StaticPathSegment;
 
 export interface RootAST {
   html: Array<AST>;
@@ -557,7 +568,7 @@ export class Parser {
                   start,
                   this.pos + endMatch.length,
                   children,
-                  expression as ExpressionStatment,
+                  expression as ExpressionStatement,
                   elseBlock
                 );
               case ":elseif":
@@ -566,7 +577,7 @@ export class Parser {
                   start,
                   this.pos,
                   children,
-                  expression as ExpressionStatment,
+                  expression as ExpressionStatement,
                   elseBlock
                 );
               case ":else":
@@ -577,7 +588,7 @@ export class Parser {
                   start,
                   this.pos + endMatch.length,
                   children,
-                  expression as ExpressionStatment
+                  expression as ExpressionStatement
                 );
               case ":when":
                 return this.getWhenBlock(
@@ -585,7 +596,7 @@ export class Parser {
                   start,
                   this.pos + endMatch.length,
                   children as (IsBlock | ElseBlock)[],
-                  expression as ExpressionStatment
+                  expression as ExpressionStatement
                 );
               case ":is":
                 return this.getIsBlock(
@@ -593,7 +604,7 @@ export class Parser {
                   start,
                   this.pos,
                   children,
-                  expression as ExpressionStatment
+                  expression as ExpressionStatement
                 );
               case ":each":
                 return this.getEachBlock(
@@ -601,7 +612,7 @@ export class Parser {
                   start,
                   this.pos + endMatch.length,
                   children,
-                  expression as ExpressionStatment,
+                  expression as ExpressionStatement,
                   elseBlock as ElseBlock | null,
                   context as Identifier,
                   index as Identifier | null
@@ -761,8 +772,8 @@ export class Parser {
   private parseExpressions(
     template: string,
     startPos: number,
-    expression?: ExpressionStatment | undefined
-  ): ExpressionStatment {
+    expression?: ExpressionStatement | undefined
+  ): ExpressionStatement {
     const reToken = /^\s*(\!|\!\!|\+|\-|\~)?(\+\+|\-\-)?('[$\w.\-\"\`\s]+'|"[$\w.\-\'\`\s]+"|`[$\w.\-\"\'\s]+`|[$\w.\-\[\]]+)(\+\+|\-\-)?\s*/gm;
     const reNested = /^\s*\(([^\)]+)\)\s*/gm;
     const reBinary = /^\s*(\||\^|\&|\=\=\=|\=\=|\!\=\=|\!\=|\>\=|\<\=|\>|\<|\<\<|\>\>|\>\>\>|\+\-|\*|\/|\%)\s*/gm;
@@ -1060,9 +1071,9 @@ export class Parser {
 
   private getBinaryExpression(
     data: string,
-    left: ExpressionStatment,
+    left: ExpressionStatement,
     operator: BinaryOperator,
-    right: ExpressionStatment
+    right: ExpressionStatement
   ): BinaryExpression {
     return {
       type: "BinaryExpression",
@@ -1077,9 +1088,9 @@ export class Parser {
 
   private getLogicalExpression(
     data: string,
-    left: ExpressionStatment,
+    left: ExpressionStatement,
     operator: LogicalOperator,
-    right: ExpressionStatment,
+    right: ExpressionStatement,
     start: number,
     end: number
   ): LogicalExpression {
@@ -1115,7 +1126,7 @@ export class Parser {
     data: string,
     prefix: boolean,
     operator: UnaryOperator,
-    argument: ExpressionStatment,
+    argument: ExpressionStatement,
     full: string,
     startPos: number
   ): UnaryExpression {
@@ -1135,7 +1146,7 @@ export class Parser {
     data: string,
     prefix: boolean,
     operator: UpdateOperator,
-    argument: ExpressionStatment,
+    argument: ExpressionStatement,
     full: string,
     startPos: number
   ): UpdateExpression {
@@ -1765,7 +1776,7 @@ export class Parser {
     start: number,
     end: number,
     children: Array<AST> = [],
-    expression: ExpressionStatment,
+    expression: ExpressionStatement,
     elseBlock: ElseBlock | ElseIfBlock | null
   ): IfBlock {
     return {
@@ -1785,7 +1796,7 @@ export class Parser {
     start: number,
     end: number,
     children: Array<AST> = [],
-    expression: ExpressionStatment,
+    expression: ExpressionStatement,
     elseBlock: ElseBlock | ElseIfBlock | null
   ): ElseIfBlock {
     return {
@@ -1821,7 +1832,7 @@ export class Parser {
     start: number,
     end: number,
     children: Array<AST> = [],
-    expression: ExpressionStatment
+    expression: ExpressionStatement
   ): SkipBlock {
     return {
       type: "SkipBlock",
@@ -1839,7 +1850,7 @@ export class Parser {
     start: number,
     end: number,
     children: Array<IsBlock | ElseBlock> = [],
-    expression: ExpressionStatment
+    expression: ExpressionStatement
   ): WhenBlock {
     return {
       type: "WhenBlock",
@@ -1857,7 +1868,7 @@ export class Parser {
     start: number,
     end: number,
     children: Array<AST> = [],
-    expression: ExpressionStatment
+    expression: ExpressionStatement
   ): IsBlock {
     return {
       type: "IsBlock",
@@ -1875,7 +1886,7 @@ export class Parser {
     start: number,
     end: number,
     children: Array<AST> = [],
-    expression: ExpressionStatment,
+    expression: ExpressionStatement,
     elseBlock: ElseBlock | null,
     context: Identifier,
     index: Identifier | null
@@ -1924,7 +1935,7 @@ export class Parser {
   // ExpressionAttribute AST Object
   private getExpressionAttribute(
     data: string,
-    expression: ExpressionStatment,
+    expression: ExpressionStatement,
     start: number,
     end: number
   ): AttributeExpression {
