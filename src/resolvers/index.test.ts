@@ -47,7 +47,7 @@ Deno.test("Data Resolver - GraphCMS", async () => {
     },
   });
 
-  const output = await resolveData("graphcms", attrs, body, root);
+  const output = await resolveData("graphcms", attrs, body, undefined, root);
   const expected = {
     type: "SUCCESS",
     response: {
@@ -59,7 +59,67 @@ Deno.test("Data Resolver - GraphCMS", async () => {
       },
     },
     retries: 0,
+    key: undefined,
     meta: { cacheHit: false, cacheKey: "c847d6db-3566-5970-aa05-09a23e82319b" },
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Data Resolver with Key - GraphCMS", async () => {
+  const attrs = {
+    id: "cka5lzgxk02s701761t7scrb0",
+  };
+
+  const body = `query MyQuery($id: ID) {
+    marketingSocialProof(where: {id: $id}) {
+      __typename
+      id
+    }
+  }`;
+
+  denock({
+    method: "POST",
+    protocol: "https",
+    host: Deno.env.get("GRAPH_HOST") as string,
+    headers: [
+      { header: "content-type", value: "application/json" },
+      {
+        header: "authorization",
+        value: `Bearer ${Deno.env.get("GRAPH_TOKEN")}`,
+      },
+    ],
+    path: Deno.env.get("GRAPH_PATH") as string,
+    requestBody: {
+      operationName: "MyQuery",
+      query: body,
+      variables: attrs,
+    },
+    replyStatus: 200,
+    responseBody: {
+      data: {
+        marketingSocialProof: {
+          __typename: "MarketingSocialProof",
+          id: "cka5lzgxk02s701761t7scrb0",
+        },
+      },
+    },
+  });
+
+  const output = await resolveData("graphcms", attrs, body, "$", root);
+  const expected = {
+    type: "SUCCESS",
+    response: {
+      data: {
+        marketingSocialProof: {
+          __typename: "MarketingSocialProof",
+          id: "cka5lzgxk02s701761t7scrb0",
+        },
+      },
+    },
+    retries: 0,
+    key: "$",
+    meta: { cacheHit: true, cacheKey: "c847d6db-3566-5970-aa05-09a23e82319b" },
   };
 
   assertEquals(output, expected);
