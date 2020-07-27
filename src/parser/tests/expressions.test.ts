@@ -112,7 +112,7 @@ Deno.test("Literal", () => {
       { type: "Text", data: " to ", start: 11, end: 15 },
       { type: "Literal", data: "4.5", value: 4.5, start: 16, end: 19 },
       { type: "Text", data: " times more likely to ", start: 20, end: 42 },
-      { type: "Literal", data: "'work'", value: "'work'", start: 43, end: 49 },
+      { type: "Literal", data: "'work'", value: "work", start: 43, end: 49 },
       { type: "Text", data: " when we enable it ", start: 50, end: 69 },
       { type: "Literal", data: "true", value: true, start: 70, end: 74 },
       { type: "Text", data: ".", start: 75, end: 76 },
@@ -423,7 +423,7 @@ Deno.test("Binary Expression", () => {
         right: {
           type: "Literal",
           data: "'foo'",
-          value: "'foo'",
+          value: "foo",
           start: 26,
           end: 31,
         },
@@ -478,7 +478,7 @@ Deno.test("Nested Expression (left)", () => {
           right: {
             type: "Literal",
             data: "'foo'",
-            value: "'foo'",
+            value: "foo",
             start: 24,
             end: 29,
           },
@@ -517,7 +517,7 @@ Deno.test("Nested Expression (right)", () => {
           right: {
             type: "Literal",
             data: "'foo'",
-            value: "'foo'",
+            value: "foo",
             start: 32,
             end: 37,
           },
@@ -572,7 +572,7 @@ Deno.test("Chained Expressions", () => {
                 right: {
                   type: "Literal",
                   data: "'foo'",
-                  value: "'foo'",
+                  value: "foo",
                   start: 37,
                   end: 42,
                 },
@@ -588,7 +588,7 @@ Deno.test("Chained Expressions", () => {
                 right: {
                   type: "Literal",
                   data: "'foo'",
-                  value: "'foo'",
+                  value: "foo",
                   start: 52,
                   end: 57,
                 },

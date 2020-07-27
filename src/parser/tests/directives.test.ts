@@ -15,7 +15,7 @@ Deno.test("Layout Directive", () => {
         expression: {
           type: "Literal",
           data: '"h2"',
-          value: '"h2"',
+          value: "h2",
           start: 14,
           end: 18,
         },
@@ -58,7 +58,7 @@ Deno.test("Element Directive - Closing Tag", () => {
         expression: {
           type: "Literal",
           data: '"h2"',
-          value: '"h2"',
+          value: "h2",
           start: 15,
           end: 19,
         },
@@ -85,7 +85,7 @@ Deno.test("Element Directive - Self Closing", () => {
         expression: {
           type: "Literal",
           data: '"br"',
-          value: '"br"',
+          value: "br",
           start: 15,
           end: 19,
         },
@@ -135,7 +135,7 @@ Deno.test("Component Directive - Self Closing", () => {
         expression: {
           type: "Literal",
           data: '"br"',
-          value: '"br"',
+          value: "br",
           start: 17,
           end: 21,
         },
@@ -503,7 +503,7 @@ Deno.test("Slot Directive - Name", () => {
         expression: {
           type: "Literal",
           data: '"foo"',
-          value: '"foo"',
+          value: "foo",
           start: 13,
           end: 18,
         },

@@ -248,7 +248,7 @@ Deno.test("Each Loop with Break", () => {
               right: {
                 type: "Literal",
                 data: "'foo'",
-                value: "'foo'",
+                value: "foo",
                 start: 47,
                 end: 52,
               },
@@ -358,7 +358,7 @@ Deno.test("Each Loop with Continue", () => {
               right: {
                 type: "Literal",
                 data: "'foo'",
-                value: "'foo'",
+                value: "foo",
                 start: 47,
                 end: 52,
               },

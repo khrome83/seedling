@@ -1171,11 +1171,21 @@ export class Parser {
     full: string,
     startPos: number
   ): Literal {
+    let modifiedValue = value;
+
+    // Remove quotes if string has quotes on edges (eg. "'example'")
+    if (typeof value === "string") {
+      const [full, unquoted] = value.match(/^["'`](.*)["'`]$/) || [];
+      if (unquoted !== undefined) {
+        modifiedValue = unquoted;
+      }
+    }
+
     const pos = full.indexOf(data);
     return {
       type: "Literal",
       data,
-      value,
+      value: modifiedValue,
       start: startPos + pos,
       end: startPos + pos + data.length,
     };

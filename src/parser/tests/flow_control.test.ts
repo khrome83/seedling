@@ -693,7 +693,7 @@ Deno.test("When / Is Block", () => {
             expression: {
               type: "Literal",
               data: '"cake"',
-              value: '"cake"',
+              value: "cake",
               start: 31,
               end: 37,
             },
@@ -718,7 +718,7 @@ Deno.test("When / Is Block", () => {
             expression: {
               type: "Literal",
               data: '"pie"',
-              value: '"pie"',
+              value: "pie",
               start: 101,
               end: 106,
             },
