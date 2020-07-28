@@ -775,3 +775,57 @@ Deno.test("Nested Member Expression with Bad Data", () => {
 
   assertEquals(output, expected);
 });
+
+Deno.test("Unary Expression", () => {
+  const ast = {
+    type: "UnaryExpression",
+    data: "!",
+    prefix: true,
+    operator: "!",
+    argument: { type: "Identifier", data: "foo", start: 16, end: 19 },
+    start: 15,
+    end: 16,
+  };
+  const data = { foo: true };
+
+  const output = compile(ast as AST, data);
+  const expected = "false";
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Update Expression (prefix)", () => {
+  const ast = {
+    type: "UpdateExpression",
+    data: "++",
+    prefix: true,
+    operator: "++",
+    argument: { type: "Identifier", data: "foo", start: 17, end: 20 },
+    start: 15,
+    end: 17,
+  };
+  const data = { foo: 100 };
+
+  const output = compile(ast as AST, data);
+  const expected = "101";
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Update Expression (postfix)", () => {
+  const ast = {
+    type: "UpdateExpression",
+    data: "++",
+    prefix: false,
+    operator: "++",
+    argument: { type: "Identifier", data: "go", start: 33, end: 35 },
+    start: 35,
+    end: 37,
+  };
+  const data = { go: 25 };
+
+  const output = compile(ast as AST, data);
+  const expected = "26";
+
+  assertEquals(output, expected);
+});

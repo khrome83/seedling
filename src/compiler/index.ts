@@ -14,6 +14,8 @@ import {
   AttributeExpression,
   AttributeSpread,
   ElementDirective,
+  UnaryExpression,
+  UpdateExpression,
 } from "../parser/index.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
@@ -50,8 +52,8 @@ import htmlElements from "../dict/htmlElements.ts";
 //   28.    [ ] BinaryExpression
 //   29.    [ ] LogicalExpression
 //   30.    [X] MemberExpression
-//   31.    [ ] UnaryExpression
-//   32.    [ ] UpdateExpression
+//   31.    [X] UnaryExpression
+//   32.    [X] UpdateExpression
 //   33.    [X] Identifier
 //   34.    [X] Literal
 
@@ -172,11 +174,82 @@ const identifier = (node: Identifier, state: State): any => {
 nodeTypes.set("Identifier", identifier);
 
 // Literal AST Node
-const literal = (node: Literal, state: State) => {
+const literal = (
+  node: Literal,
+  state: State
+): number | string | boolean | undefined => {
   return node.value;
 };
 
 nodeTypes.set("Literal", literal);
+
+// UnaryExpression AST Node
+const unaryExpression = (node: UnaryExpression, state: State) => {
+  const argument = compileNode(node.argument, state);
+  try {
+    switch (node.operator) {
+      case "!":
+        return !argument;
+      case "+":
+        return +argument;
+      case "-":
+        return -argument;
+      case "~":
+        return ~argument;
+      default:
+        emitWarning(
+          `Unknown UnaryExpression '${cyan(
+            node.operator
+          )}'. Returned argument and ignored UnaryExpression`
+        );
+        return argument;
+    }
+  } catch (e) {
+    return emitWarning(
+      `Can't process UnaryExpression '${cyan(
+        node.operator
+      )}'. Returned undefined amd ignored UnaryExpression.`
+    );
+  }
+};
+
+nodeTypes.set("UnaryExpression", unaryExpression);
+
+// UpdateExpression AST Node
+const updateExpression = (node: UpdateExpression, state: State) => {
+  let argument = compileNode(node.argument, state);
+  let output;
+  try {
+    if (node.operator === "++" && node.prefix) {
+      return ++argument;
+    } else if (node.operator === "++" && !node.prefix) {
+      // return argument++;
+      return ++argument; // Do we need to handle postfix?
+    } else if (node.operator === "--" && node.prefix) {
+      return --argument;
+    } else if (node.operator === "--" && !node.prefix) {
+      // return argument--;
+      return --argument; // Do we need to handle postfix?
+    }
+
+    // Unknonw UnaryExpression
+    emitWarning(
+      `Unknown UnaryExpression '${cyan(
+        node.operator
+      )}'. Returned argument and ignored UnaryExpression`
+    );
+    return argument;
+  } catch (e) {
+    // Something horrible went wrong
+    return emitWarning(
+      `Can't process UnaryExpression '${cyan(
+        node.operator
+      )}'. Returned undefined amd ignored UnaryExpression.`
+    );
+  }
+};
+
+nodeTypes.set("UpdateExpression", updateExpression);
 
 // Text AST Node
 const text = (node: Text, state: State) => {
