@@ -1203,3 +1203,107 @@ Deno.test("If ElseIf Else Block (ElseIf)", () => {
 
   assertEquals(output.trim(), expected);
 });
+
+Deno.test("Skip Block (false)", () => {
+  const ast = {
+    type: "SkipBlock",
+    data: ":skip",
+    children: [
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' class="test"',
+            start: 34,
+            end: 47,
+            name: {
+              type: "AttributeName",
+              data: "class",
+              start: 35,
+              end: 40,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "test",
+              start: 42,
+              end: 48,
+            },
+          },
+        ],
+        children: [
+          { type: "Text", data: "Testing Expression", start: 48, end: 66 },
+        ],
+        start: 30,
+        end: 72,
+      },
+    ],
+    expression: {
+      type: "Identifier",
+      data: "expression",
+      start: 12,
+      end: 22,
+    },
+    start: 5,
+    end: 133,
+  };
+  const data = { expression: false };
+
+  const output = compile(ast as AST, data);
+  const expected = '<div class="test">Testing Expression</div>';
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("Skip Block (true)", () => {
+  const ast = {
+    type: "SkipBlock",
+    data: ":skip",
+    children: [
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' class="test"',
+            start: 34,
+            end: 47,
+            name: {
+              type: "AttributeName",
+              data: "class",
+              start: 35,
+              end: 40,
+            },
+            value: {
+              type: "AttributeValue",
+              data: '"test"',
+              start: 42,
+              end: 48,
+            },
+          },
+        ],
+        children: [
+          { type: "Text", data: "Testing Expression", start: 48, end: 66 },
+        ],
+        start: 30,
+        end: 72,
+      },
+    ],
+    expression: {
+      type: "Identifier",
+      data: "expression",
+      start: 12,
+      end: 22,
+    },
+    start: 5,
+    end: 133,
+  };
+  const data = { expression: true };
+
+  const output = compile(ast as AST, data);
+  const expected = "";
+
+  assertEquals(output.trim(), expected);
+});

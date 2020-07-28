@@ -21,6 +21,7 @@ import {
   IfBlock,
   ElseBlock,
   ElseIfBlock,
+  SkipBlock,
 } from "../parser/index.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
@@ -47,7 +48,7 @@ import htmlElements from "../dict/htmlElements.ts";
 //   18.    [ ] SlotDirective
 //   19.    [X] IfBlock
 //   20.    [X] ElseIfBlock
-//   21.    [ ] SkipBlock
+//   21.    [X] SkipBlock
 //   22.    [ ] WhenBlock
 //   23.    [ ] IsBlock
 //   24.    [ ] EachBlock
@@ -445,6 +446,26 @@ const elseIfBlock = (node: ElseIfBlock, state: State) => {
 };
 
 nodeTypes.set("ElseIfBlock", elseIfBlock);
+
+// SkipBlock AST Node
+const skipBlock = (node: SkipBlock, state: State) => {
+  const expression = compileNode(node.expression, state);
+  let output = "";
+
+  // Skip Checks for the inverse of If
+  if (!expression) {
+    // Use Children
+    if (node.children.length) {
+      output = unionChildren(node.children, state);
+    }
+
+    return output;
+  } else {
+    return "";
+  }
+};
+
+nodeTypes.set("SkipBlock", skipBlock);
 
 // Special function process children
 const unionChildren = (children: Array<Node>, state: State): string => {
