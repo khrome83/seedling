@@ -13,8 +13,10 @@ import {
   AttributeValue,
   AttributeExpression,
   AttributeSpread,
+  ElementDirective,
 } from "../parser/index.ts";
 import voidElements from "../dict/voidElements.ts";
+import htmlElements from "../dict/htmlElements.ts";
 
 // TODO: Finish All Types
 //
@@ -28,7 +30,7 @@ import voidElements from "../dict/voidElements.ts";
 //   08.    [X] AttributeValue
 //   09.    [X] Text
 //   10.    [ ] ComponentDirective
-//   11.    [ ] ElementDirective
+//   11.    [X] ElementDirective
 //   12.    [ ] LayoutDirective
 //   13.    [ ] RouterDirective
 //   14.    [ ] PathDirective
@@ -182,6 +184,40 @@ const text = (node: Text, state: State) => {
 };
 
 nodeTypes.set("Text", text);
+
+// ElementDirective AST Node
+const elementDirective = (node: ElementDirective, state: State): string => {
+  const tagType = compileNode(node.expression, state);
+
+  // Can't Render Tag
+  if (typeof tagType !== "string") {
+    emitWarning(
+      `Element Directive '${cyan(
+        tagType
+      )}' not found in state. Could not render node.`
+    );
+    return "";
+  }
+
+  // Can render but not valid HTML element
+  if (!htmlElements.has(tagType)) {
+    emitWarning(
+      `Element Directive '${cyan(
+        tagType
+      )}' is not a valid HTML tag. Node still rendered.`
+    );
+  }
+
+  // Convert to Tag from Element Directive
+  delete node.expression;
+  const tag = (node as unknown) as Tag;
+  tag.type = "Tag";
+  tag.data = tagType;
+
+  return compileNode(tag, state);
+};
+
+nodeTypes.set("ElementDirective", elementDirective);
 
 // Member Expression AST Node
 const memberExpression = (node: MemberExpression, state: State) => {

@@ -533,6 +533,44 @@ Deno.test("Textarea Tag", () => {
   assertEquals(output, expected);
 });
 
+Deno.test("Element Directive", () => {
+  const ast = {
+    type: "ElementDirective",
+    data: ":element",
+    attributes: [
+      {
+        type: "Attribute",
+        data: ' class="foo"',
+        start: 18,
+        end: 30,
+        name: { type: "AttributeName", data: "class", start: 19, end: 24 },
+        value: {
+          type: "AttributeValue",
+          data: "foo",
+          start: 26,
+          end: 31,
+        },
+      },
+    ],
+    children: [{ type: "Text", data: "Dynamic Heading", start: 31, end: 46 }],
+    expression: {
+      type: "Literal",
+      data: '"h2"',
+      value: "h2",
+      start: 15,
+      end: 19,
+    },
+    start: 0,
+    end: 57,
+  };
+  const data = {};
+
+  const output = compile(ast as AST, data);
+  const expected = '<h2 class="foo">Dynamic Heading</h2>';
+
+  assertEquals(output, expected);
+});
+
 Deno.test("Identifier", () => {
   const ast = { type: "Identifier", data: "foobar", start: 26, end: 32 };
   const data = {
