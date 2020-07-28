@@ -16,6 +16,8 @@ import {
   ElementDirective,
   UnaryExpression,
   UpdateExpression,
+  BinaryExpression,
+  LogicalExpression,
 } from "../parser/index.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
@@ -24,7 +26,7 @@ import htmlElements from "../dict/htmlElements.ts";
 //
 //   01.    [X] Comment
 //   02.    [X] Doctype
-//   03.    [X] Tagss
+//   03.    [X] Tags
 //   04.    [X] Attribute
 //   05.    [X] AttributeExpression
 //   06.    [X] AttributeSpread
@@ -49,8 +51,8 @@ import htmlElements from "../dict/htmlElements.ts";
 //   25.    [ ] ElseBlock
 //   26.    [ ] ContinueStatement
 //   27.    [ ] BreakStatement
-//   28.    [ ] BinaryExpression
-//   29.    [ ] LogicalExpression
+//   28.    [X] BinaryExpression
+//   29.    [X] LogicalExpression
 //   30.    [X] MemberExpression
 //   31.    [X] UnaryExpression
 //   32.    [X] UpdateExpression
@@ -250,6 +252,96 @@ const updateExpression = (node: UpdateExpression, state: State) => {
 };
 
 nodeTypes.set("UpdateExpression", updateExpression);
+
+// BinaryExpression AST Node
+const binaryExpression = (node: BinaryExpression, state: State) => {
+  const left = compileNode(node.left, state);
+  const right = compileNode(node.right, state);
+  try {
+    switch (node.operator) {
+      case "|":
+        return left | right;
+      case "^":
+        return left ^ right;
+      case "&":
+        return left & right;
+      case "==":
+        return left == right;
+      case "!=":
+        return left != right;
+      case "===":
+        return left === right;
+      case "!==":
+        return left !== right;
+      case "<":
+        return left < right;
+      case ">":
+        return left > right;
+      case "<=":
+        return left <= right;
+      case ">=":
+        return left >= right;
+      case "<<":
+        return left << right;
+      case ">>":
+        return left >> right;
+      case ">>>":
+        return left >>> right;
+      case "+":
+        return left + right;
+      case "-":
+        return left - right;
+      case "*":
+        return left * right;
+      case "/":
+        return left / right;
+      case "%":
+        return left % right;
+      default:
+        return emitWarning(
+          `Unknown BinaryExpression '${cyan(
+            node.operator
+          )}'. Returned undefined amd ignored BinaryExpression.`
+        );
+    }
+  } catch (e) {
+    return emitWarning(
+      `Can't process BinaryExpression '${cyan(
+        node.operator
+      )}'. Returned undefined amd ignored BinaryExpression.`
+    );
+  }
+};
+
+nodeTypes.set("BinaryExpression", binaryExpression);
+
+// LogicalExpression AST Node
+const logicalExpression = (node: LogicalExpression, state: State) => {
+  const left = compileNode(node.left, state);
+  const right = compileNode(node.right, state);
+  try {
+    switch (node.operator) {
+      case "||":
+        return left || right;
+      case "&&":
+        return left && right;
+      default:
+        return emitWarning(
+          `Unknown LogicalExpression '${cyan(
+            node.operator
+          )}'. Returned undefined amd ignored LogicalExpression.`
+        );
+    }
+  } catch (e) {
+    return emitWarning(
+      `Can't process LogicalExpression '${cyan(
+        node.operator
+      )}'. Returned undefined amd ignored LogicalExpression.`
+    );
+  }
+};
+
+nodeTypes.set("LogicalExpression", logicalExpression);
 
 // Text AST Node
 const text = (node: Text, state: State) => {

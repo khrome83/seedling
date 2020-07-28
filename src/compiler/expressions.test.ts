@@ -829,3 +829,45 @@ Deno.test("Update Expression (postfix)", () => {
 
   assertEquals(output, expected);
 });
+
+Deno.test("Binary Expression", () => {
+  const ast = {
+    type: "BinaryExpression",
+    data: "===",
+    left: { type: "Identifier", data: "foo", start: 18, end: 21 },
+    operator: "===",
+    right: {
+      type: "Literal",
+      data: "'foo'",
+      value: "foo",
+      start: 26,
+      end: 31,
+    },
+    start: 18,
+    end: 31,
+  };
+  const data = { foo: "foo" };
+
+  const output = compile(ast as AST, data);
+  const expected = "true";
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Logical Expression", () => {
+  const ast = {
+    type: "LogicalExpression",
+    data: "&&",
+    left: { type: "Identifier", data: "foo", start: 15, end: 18 },
+    operator: "&&",
+    right: { type: "Identifier", data: "bar", start: 22, end: 25 },
+    start: 15,
+    end: 25,
+  };
+  const data = { foo: true, bar: false };
+
+  const output = compile(ast as AST, data);
+  const expected = "false";
+
+  assertEquals(output, expected);
+});
