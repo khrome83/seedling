@@ -1438,11 +1438,11 @@ Deno.test("WhenBlock / IsBlock (caught in IsBlock)", () => {
         end: 189,
       },
     ],
-    expression: { type: "Identifier", data: "desert", start: 12, end: 18 },
+    expression: { type: "Identifier", data: "dessert", start: 12, end: 18 },
     start: 5,
     end: 197,
   };
-  const data = { desert: "cake" };
+  const data = { dessert: "cake" };
 
   const output = compile(ast as AST, data);
   const expected = '<div class="test">Testing Expression</div>';
@@ -1580,14 +1580,370 @@ Deno.test("WhenBlock / IsBlock (caught in ElseBlock)", () => {
         end: 189,
       },
     ],
-    expression: { type: "Identifier", data: "desert", start: 12, end: 18 },
+    expression: { type: "Identifier", data: "dessert", start: 12, end: 18 },
     start: 5,
     end: 197,
   };
-  const data = { desert: "steak" };
+  const data = { dessert: "steak" };
 
   const output = compile(ast as AST, data);
   const expected = '<p class="what">No Cake<span>!</span></p>';
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("Each Loop", () => {
+  const ast = {
+    type: "EachBlock",
+    data: ":each",
+    children: [
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' class="test"',
+            start: 43,
+            end: 56,
+            name: {
+              type: "AttributeName",
+              data: "class",
+              start: 44,
+              end: 49,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "test",
+              start: 51,
+              end: 57,
+            },
+          },
+        ],
+        children: [{ type: "Identifier", data: "value", start: 30, end: 33 }],
+        start: 39,
+        end: 81,
+      },
+    ],
+    expression: {
+      type: "Identifier",
+      data: "desserts",
+      start: 12,
+      end: 22,
+    },
+    context: { type: "Identifier", data: "value", start: 26, end: 31 },
+    index: null,
+    else: null,
+    start: 5,
+    end: 94,
+  };
+  const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
+
+  const output = compile(ast as AST, data);
+  const expected =
+    '<div class="test">Ice Cream</div><div class="test">Brownie</div><div class="test">Fudge</div><div class="test">Cookie</div><div class="test">Pie</div>';
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("Each Loop with Index", () => {
+  const ast = {
+    type: "EachBlock",
+    data: ":each",
+    children: [
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' class="test"',
+            start: 43,
+            end: 56,
+            name: {
+              type: "AttributeName",
+              data: "class",
+              start: 44,
+              end: 49,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "test",
+              start: 51,
+              end: 57,
+            },
+          },
+        ],
+        children: [
+          { type: "Identifier", data: "index", start: 30, end: 33 },
+          { type: "Text", data: " - ", start: 134, end: 143 },
+          { type: "Identifier", data: "value", start: 30, end: 33 },
+        ],
+        start: 39,
+        end: 81,
+      },
+    ],
+    expression: {
+      type: "Identifier",
+      data: "desserts",
+      start: 12,
+      end: 22,
+    },
+    context: { type: "Identifier", data: "value", start: 26, end: 31 },
+    index: { type: "Identifier", data: "index", start: 33, end: 38 },
+    else: null,
+    start: 5,
+    end: 94,
+  };
+  const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
+
+  const output = compile(ast as AST, data);
+  const expected =
+    '<div class="test">0 - Ice Cream</div><div class="test">1 - Brownie</div><div class="test">2 - Fudge</div><div class="test">3 - Cookie</div><div class="test">4 - Pie</div>';
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("Each Loop with Else", () => {
+  const ast = {
+    type: "EachBlock",
+    data: ":each",
+    children: [
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' class="test"',
+            start: 43,
+            end: 56,
+            name: {
+              type: "AttributeName",
+              data: "class",
+              start: 44,
+              end: 49,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "test",
+              start: 51,
+              end: 57,
+            },
+          },
+        ],
+        children: [{ type: "Identifier", data: "value", start: 30, end: 33 }],
+        start: 39,
+        end: 81,
+      },
+    ],
+    expression: {
+      type: "Identifier",
+      data: "desserts",
+      start: 12,
+      end: 22,
+    },
+    context: { type: "Identifier", data: "value", start: 26, end: 31 },
+    index: null,
+    else: {
+      type: "ElseBlock",
+      data: ":else",
+      children: [
+        {
+          type: "Tag",
+          data: "div",
+          attributes: [],
+          children: [
+            { type: "Text", data: "No desserts!", start: 99, end: 108 },
+          ],
+          start: 94,
+          end: 114,
+        },
+      ],
+      start: 80,
+      end: 119,
+    },
+    start: 5,
+    end: 94,
+  };
+  const data = { desserts: [] };
+
+  const output = compile(ast as AST, data);
+  const expected = "<div>No desserts!</div>";
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("Each Loop with Break", () => {
+  const ast = {
+    type: "EachBlock",
+    data: ":each",
+    children: [
+      { type: "Text", data: "|", start: 4, end: 7 },
+      {
+        type: "IfBlock",
+        data: ":if",
+        children: [
+          { type: "Text", data: "\n        ", start: 53, end: 62 },
+          { type: "BreakStatement", data: ":break", start: 62, end: 70 },
+          { type: "Text", data: "\n      ", start: 70, end: 77 },
+        ],
+        expression: {
+          type: "BinaryExpression",
+          data: "===",
+          left: { type: "Identifier", data: "dessert", start: 38, end: 42 },
+          operator: "===",
+          right: {
+            type: "Literal",
+            data: "'foo'",
+            value: "Cookie",
+            start: 47,
+            end: 52,
+          },
+          start: 38,
+          end: 52,
+        },
+        else: {
+          type: "ElseBlock",
+          data: ":else",
+          children: [
+            {
+              type: "Tag",
+              data: "div",
+              attributes: [
+                {
+                  type: "Attribute",
+                  data: ' class="test"',
+                  start: 43,
+                  end: 56,
+                  name: {
+                    type: "AttributeName",
+                    data: "class",
+                    start: 44,
+                    end: 49,
+                  },
+                  value: {
+                    type: "AttributeValue",
+                    data: "test",
+                    start: 51,
+                    end: 57,
+                  },
+                },
+              ],
+              children: [
+                { type: "Identifier", data: "dessert", start: 30, end: 33 },
+              ],
+              start: 39,
+              end: 81,
+            },
+          ],
+          start: 77,
+          end: 142,
+        },
+        start: 33,
+        end: 148,
+      },
+      { type: "Text", data: "*", start: 82, end: 83 },
+    ],
+    expression: { type: "Identifier", data: "desserts", start: 12, end: 17 },
+    context: { type: "Identifier", data: "dessert", start: 21, end: 25 },
+    index: null,
+    else: null,
+    start: 5,
+    end: 161,
+  };
+  const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
+
+  const output = compile(ast as AST, data);
+  const expected =
+    '|<div class="test">Ice Cream</div>*|<div class="test">Brownie</div>*|<div class="test">Fudge</div>*|';
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("Each Loop with Continue", () => {
+  const ast = {
+    type: "EachBlock",
+    data: ":each",
+    children: [
+      { type: "Text", data: "|", start: 4, end: 7 },
+      {
+        type: "IfBlock",
+        data: ":if",
+        children: [
+          { type: "Text", data: "\n        ", start: 53, end: 62 },
+          { type: "ContinueStatement", data: ":continue", start: 62, end: 73 },
+          { type: "Text", data: "\n      ", start: 70, end: 77 },
+        ],
+        expression: {
+          type: "BinaryExpression",
+          data: "===",
+          left: { type: "Identifier", data: "dessert", start: 38, end: 42 },
+          operator: "===",
+          right: {
+            type: "Literal",
+            data: "'foo'",
+            value: "Cookie",
+            start: 47,
+            end: 52,
+          },
+          start: 38,
+          end: 52,
+        },
+        else: {
+          type: "ElseBlock",
+          data: ":else",
+          children: [
+            {
+              type: "Tag",
+              data: "div",
+              attributes: [
+                {
+                  type: "Attribute",
+                  data: ' class="test"',
+                  start: 43,
+                  end: 56,
+                  name: {
+                    type: "AttributeName",
+                    data: "class",
+                    start: 44,
+                    end: 49,
+                  },
+                  value: {
+                    type: "AttributeValue",
+                    data: "test",
+                    start: 51,
+                    end: 57,
+                  },
+                },
+              ],
+              children: [
+                { type: "Identifier", data: "dessert", start: 30, end: 33 },
+              ],
+              start: 39,
+              end: 81,
+            },
+          ],
+          start: 77,
+          end: 142,
+        },
+        start: 33,
+        end: 148,
+      },
+      { type: "Text", data: "*", start: 82, end: 83 },
+    ],
+    expression: { type: "Identifier", data: "desserts", start: 12, end: 17 },
+    context: { type: "Identifier", data: "dessert", start: 21, end: 25 },
+    index: null,
+    else: null,
+    start: 5,
+    end: 161,
+  };
+  const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
+
+  const output = compile(ast as AST, data);
+  const expected =
+    '|<div class="test">Ice Cream</div>*|<div class="test">Brownie</div>*|<div class="test">Fudge</div>*||<div class="test">Pie</div>*';
 
   assertEquals(output.trim(), expected);
 });

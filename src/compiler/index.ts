@@ -24,6 +24,9 @@ import {
   SkipBlock,
   IsBlock,
   WhenBlock,
+  EachBlock,
+  BreakStatement,
+  ContinueStatement,
 } from "../parser/index.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
@@ -53,10 +56,10 @@ import htmlElements from "../dict/htmlElements.ts";
 //   21.    [X] SkipBlock
 //   22.    [X] WhenBlock
 //   23.    [X] IsBlock
-//   24.    [ ] EachBlock
+//   24.    [X] EachBlock
 //   25.    [X] ElseBlock
-//   26.    [ ] ContinueStatement
-//   27.    [ ] BreakStatement
+//   26.    [X] ContinueStatement
+//   27.    [X] BreakStatement
 //   28.    [X] BinaryExpression
 //   29.    [X] LogicalExpression
 //   30.    [X] MemberExpression
@@ -498,7 +501,7 @@ const whenBlock = (node: WhenBlock, state: State): string => {
       }
     }
   } else {
-    emitWarning(`WhenBlock has not content. Skipping WhenBlock.`);
+    emitWarning(`WhenBlock has no content. Skipping WhenBlock.`);
   }
 
   return output;
@@ -515,12 +518,100 @@ const isBlock = (node: IsBlock, state: State) => {
 
 nodeTypes.set("IsBlock", isBlock);
 
+// EachBlock AST Node
+const eachBlock = (node: EachBlock, state: State): string => {
+  const expression = compileNode(node.expression, state);
+  const context = node.context.data;
+  const index = node.index === null ? null : node.index.data;
+  let output = "";
+
+  // Check for else first
+  if (
+    node.else !== null &&
+    (context === undefined || !expression || !expression.length)
+  ) {
+    return compileNode(node.else, state);
+  }
+
+  // The loop contents
+  if (expression && expression.length) {
+    for (let i = 0; i < expression.length; i++) {
+      // Setup value to defined context
+      const internal = {
+        [context]: expression[i],
+      };
+
+      // Add index is requested
+      if (index !== null) {
+        internal[index] = i;
+      }
+
+      // Process instance of children
+      try {
+        if (node.children.length) {
+          output += unionChildren(node.children, scopeState(state, internal));
+        }
+      } catch (capture) {
+        if (Array.isArray(capture)) {
+          const [code, append] = capture;
+
+          if (code === "BREAK") {
+            output += append;
+            break;
+          } else if (code === "CONTINUE") {
+            output += append;
+            continue;
+          } else {
+            emitError(`Uncaught Error - ${capture}`);
+          }
+        } else {
+          emitError(`Uncaught Error - ${capture}`);
+        }
+      }
+    }
+  } else {
+    emitWarning(
+      `EachBlock for '${cyan(
+        String(node.expression.data)
+      )}' has no content. Skipping EachBlock.`
+    );
+  }
+
+  return output;
+};
+
+nodeTypes.set("EachBlock", eachBlock);
+
+// BreakStatement AST Node
+const breakStatement = (node: BreakStatement, state: State): void => {
+  throw ["BREAK"];
+};
+
+nodeTypes.set("BreakStatement", breakStatement);
+
+// ContinueStatement AST Node
+const continueStatement = (node: ContinueStatement, state: State): void => {
+  throw ["CONTINUE"];
+};
+
+nodeTypes.set("ContinueStatement", continueStatement);
+
+// Special function to return deep copy of state that is modified
+const scopeState = (state: State, incomingState: State): State => {
+  return { ...state, ...incomingState };
+};
+
 // Special function process children
 const unionChildren = (children: Array<Node>, state: State): string => {
   let output = "";
 
   for (let i = 0; i < children.length; i++) {
-    output += compileNode(children[i], state);
+    try {
+      output += compileNode(children[i], state);
+    } catch (capture) {
+      // Speak handling for bubbling via throws to capture the last output
+      throw [capture[0], output];
+    }
   }
 
   return output;
