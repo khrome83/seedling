@@ -209,8 +209,6 @@ export type ExpressionStatement =
   | Literal;
 
 export type BinaryOperator =
-  | "||"
-  | "&&"
   | "|"
   | "^"
   | "&"
