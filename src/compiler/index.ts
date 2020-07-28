@@ -1,4 +1,4 @@
-import { cyan, yellow, bold } from "../deps.ts";
+import { cyan, red, yellow, bold } from "../deps.ts";
 import {
   Node,
   Identifier,
@@ -22,6 +22,8 @@ import {
   ElseBlock,
   ElseIfBlock,
   SkipBlock,
+  IsBlock,
+  WhenBlock,
 } from "../parser/index.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
@@ -49,8 +51,8 @@ import htmlElements from "../dict/htmlElements.ts";
 //   19.    [X] IfBlock
 //   20.    [X] ElseIfBlock
 //   21.    [X] SkipBlock
-//   22.    [ ] WhenBlock
-//   23.    [ ] IsBlock
+//   22.    [X] WhenBlock
+//   23.    [X] IsBlock
 //   24.    [ ] EachBlock
 //   25.    [X] ElseBlock
 //   26.    [ ] ContinueStatement
@@ -467,6 +469,52 @@ const skipBlock = (node: SkipBlock, state: State) => {
 
 nodeTypes.set("SkipBlock", skipBlock);
 
+// WhenBlock AST Node
+const whenBlock = (node: WhenBlock, state: State): string => {
+  const match = compileNode(node.expression, state);
+  let output = "";
+
+  if (node.children.length) {
+    for (let i = 0; i < node.children.length; i++) {
+      if (
+        node.children[i].type !== "IsBlock" &&
+        node.children[i].type !== "ElseBlock"
+      ) {
+        continue;
+      }
+
+      if (node.children[i].type === "IsBlock") {
+        const [expression, contents] = compileNode(node.children[i], state);
+
+        if (match !== expression) {
+          continue;
+        }
+
+        return unionChildren(contents, state);
+      }
+
+      if (node.children[i].type === "ElseBlock") {
+        return compileNode(node.children[i], state);
+      }
+    }
+  } else {
+    emitWarning(`WhenBlock has not content. Skipping WhenBlock.`);
+  }
+
+  return output;
+};
+
+nodeTypes.set("WhenBlock", whenBlock);
+
+// IsBlock AST Node
+const isBlock = (node: IsBlock, state: State) => {
+  const expression = compileNode(node.expression, state);
+
+  return [expression, node.children];
+};
+
+nodeTypes.set("IsBlock", isBlock);
+
 // Special function process children
 const unionChildren = (children: Array<Node>, state: State): string => {
   let output = "";
@@ -519,6 +567,10 @@ const compileNode = (node: Node, state: State): any => {
 const emitWarning = (msg: string): undefined => {
   console.warn(`${bold(yellow("WARNING"))} - ${msg}`);
   return undefined;
+};
+
+const emitError = (msg: string): undefined => {
+  throw new Error(`${bold(red("ERROR"))} - ${msg}`);
 };
 
 // Loops over AST array or single AST object

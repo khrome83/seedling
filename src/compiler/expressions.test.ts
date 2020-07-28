@@ -1307,3 +1307,287 @@ Deno.test("Skip Block (true)", () => {
 
   assertEquals(output.trim(), expected);
 });
+
+Deno.test("WhenBlock / IsBlock (caught in IsBlock)", () => {
+  const ast = {
+    type: "WhenBlock",
+    data: ":when",
+    children: [
+      { type: "Text", data: "\n      ", start: 19, end: 26 },
+      {
+        type: "IsBlock",
+        data: ":is",
+        children: [
+          { type: "Text", data: "\n        ", start: 38, end: 47 },
+          {
+            type: "Tag",
+            data: "div",
+            attributes: [
+              {
+                type: "Attribute",
+                data: ' class="test"',
+                start: 51,
+                end: 64,
+                name: {
+                  type: "AttributeName",
+                  data: "class",
+                  start: 52,
+                  end: 57,
+                },
+                value: {
+                  type: "AttributeValue",
+                  data: "test",
+                  start: 59,
+                  end: 65,
+                },
+              },
+            ],
+            children: [
+              {
+                type: "Text",
+                data: "Testing Expression",
+                start: 65,
+                end: 83,
+              },
+            ],
+            start: 47,
+            end: 89,
+          },
+          { type: "Text", data: "\n      ", start: 89, end: 96 },
+        ],
+        expression: {
+          type: "Literal",
+          data: '"cake"',
+          value: "cake",
+          start: 31,
+          end: 37,
+        },
+        start: 26,
+        end: 96,
+      },
+      {
+        type: "IsBlock",
+        data: ":is",
+        children: [
+          { type: "Text", data: "\n        ", start: 107, end: 116 },
+          {
+            type: "Tag",
+            data: "br",
+            attributes: [],
+            children: [],
+            start: 116,
+            end: 120,
+          },
+          { type: "Text", data: "\n      ", start: 120, end: 127 },
+        ],
+        expression: {
+          type: "Literal",
+          data: '"pie"',
+          value: "pie",
+          start: 101,
+          end: 106,
+        },
+        start: 96,
+        end: 127,
+      },
+      {
+        type: "ElseBlock",
+        data: ":else",
+        children: [
+          { type: "Text", data: "\n        ", start: 134, end: 143 },
+          {
+            type: "Tag",
+            data: "p",
+            attributes: [
+              {
+                type: "Attribute",
+                data: ' class="what"',
+                start: 145,
+                end: 158,
+                name: {
+                  type: "AttributeName",
+                  data: "class",
+                  start: 146,
+                  end: 151,
+                },
+                value: {
+                  type: "AttributeValue",
+                  data: "what",
+                  start: 153,
+                  end: 159,
+                },
+              },
+            ],
+            children: [
+              { type: "Text", data: "Foo Bar", start: 159, end: 166 },
+              {
+                type: "Tag",
+                data: "span",
+                attributes: [],
+                children: [{ type: "Text", data: "!", start: 172, end: 173 }],
+                start: 166,
+                end: 180,
+              },
+            ],
+            start: 143,
+            end: 184,
+          },
+          { type: "Text", data: "\n    ", start: 184, end: 189 },
+        ],
+        start: 127,
+        end: 189,
+      },
+    ],
+    expression: { type: "Identifier", data: "desert", start: 12, end: 18 },
+    start: 5,
+    end: 197,
+  };
+  const data = { desert: "cake" };
+
+  const output = compile(ast as AST, data);
+  const expected = '<div class="test">Testing Expression</div>';
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("WhenBlock / IsBlock (caught in ElseBlock)", () => {
+  const ast = {
+    type: "WhenBlock",
+    data: ":when",
+    children: [
+      { type: "Text", data: "\n      ", start: 19, end: 26 },
+      {
+        type: "IsBlock",
+        data: ":is",
+        children: [
+          { type: "Text", data: "\n        ", start: 38, end: 47 },
+          {
+            type: "Tag",
+            data: "div",
+            attributes: [
+              {
+                type: "Attribute",
+                data: ' class="test"',
+                start: 51,
+                end: 64,
+                name: {
+                  type: "AttributeName",
+                  data: "class",
+                  start: 52,
+                  end: 57,
+                },
+                value: {
+                  type: "AttributeValue",
+                  data: "test",
+                  start: 59,
+                  end: 65,
+                },
+              },
+            ],
+            children: [
+              {
+                type: "Text",
+                data: "Testing Expression",
+                start: 65,
+                end: 83,
+              },
+            ],
+            start: 47,
+            end: 89,
+          },
+          { type: "Text", data: "\n      ", start: 89, end: 96 },
+        ],
+        expression: {
+          type: "Literal",
+          data: '"cake"',
+          value: "cake",
+          start: 31,
+          end: 37,
+        },
+        start: 26,
+        end: 96,
+      },
+      {
+        type: "IsBlock",
+        data: ":is",
+        children: [
+          { type: "Text", data: "\n        ", start: 107, end: 116 },
+          {
+            type: "Tag",
+            data: "br",
+            attributes: [],
+            children: [],
+            start: 116,
+            end: 120,
+          },
+          { type: "Text", data: "\n      ", start: 120, end: 127 },
+        ],
+        expression: {
+          type: "Literal",
+          data: '"pie"',
+          value: "pie",
+          start: 101,
+          end: 106,
+        },
+        start: 96,
+        end: 127,
+      },
+      {
+        type: "ElseBlock",
+        data: ":else",
+        children: [
+          { type: "Text", data: "\n        ", start: 134, end: 143 },
+          {
+            type: "Tag",
+            data: "p",
+            attributes: [
+              {
+                type: "Attribute",
+                data: ' class="what"',
+                start: 145,
+                end: 158,
+                name: {
+                  type: "AttributeName",
+                  data: "class",
+                  start: 146,
+                  end: 151,
+                },
+                value: {
+                  type: "AttributeValue",
+                  data: "what",
+                  start: 153,
+                  end: 159,
+                },
+              },
+            ],
+            children: [
+              { type: "Text", data: "No Cake", start: 159, end: 166 },
+              {
+                type: "Tag",
+                data: "span",
+                attributes: [],
+                children: [{ type: "Text", data: "!", start: 172, end: 173 }],
+                start: 166,
+                end: 180,
+              },
+            ],
+            start: 143,
+            end: 184,
+          },
+          { type: "Text", data: "\n    ", start: 184, end: 189 },
+        ],
+        start: 127,
+        end: 189,
+      },
+    ],
+    expression: { type: "Identifier", data: "desert", start: 12, end: 18 },
+    start: 5,
+    end: 197,
+  };
+  const data = { desert: "steak" };
+
+  const output = compile(ast as AST, data);
+  const expected = '<p class="what">No Cake<span>!</span></p>';
+
+  assertEquals(output.trim(), expected);
+});
