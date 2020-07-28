@@ -18,6 +18,9 @@ import {
   UpdateExpression,
   BinaryExpression,
   LogicalExpression,
+  IfBlock,
+  ElseBlock,
+  ElseIfBlock,
 } from "../parser/index.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
@@ -42,13 +45,13 @@ import htmlElements from "../dict/htmlElements.ts";
 //   16.    [ ] StaticPathSegment
 //   17.    [ ] DataDirective
 //   18.    [ ] SlotDirective
-//   19.    [ ] IfBlock
-//   20.    [ ] ElseIfBlock
+//   19.    [X] IfBlock
+//   20.    [X] ElseIfBlock
 //   21.    [ ] SkipBlock
 //   22.    [ ] WhenBlock
 //   23.    [ ] IsBlock
 //   24.    [ ] EachBlock
-//   25.    [ ] ElseBlock
+//   25.    [X] ElseBlock
 //   26.    [ ] ContinueStatement
 //   27.    [ ] BreakStatement
 //   28.    [X] BinaryExpression
@@ -88,9 +91,7 @@ const tag = (node: Tag, state: State): string => {
 
   // Children
   if (node.children.length) {
-    for (let i = 0; i < node.children.length; i++) {
-      children += compileNode(node.children[i], state);
-    }
+    children = unionChildren(node.children, state);
   }
 
   return `<${node.data}${attributes}>${children}</${node.data}>`;
@@ -384,7 +385,7 @@ const elementDirective = (node: ElementDirective, state: State): string => {
 
 nodeTypes.set("ElementDirective", elementDirective);
 
-// Member Expression AST Node
+// MemberExpression AST Node
 const memberExpression = (node: MemberExpression, state: State) => {
   const obj = compileNode(node.object, state);
   if (node.property.type === "Literal") {
@@ -400,6 +401,61 @@ const memberExpression = (node: MemberExpression, state: State) => {
 };
 
 nodeTypes.set("MemberExpression", memberExpression);
+
+// IfBlock AST Node
+const ifBlock = (node: IfBlock, state: State) => {
+  const expression = compileNode(node.expression, state);
+  let output = "";
+  if (expression) {
+    // Use Children
+    if (node.children.length) {
+      output = unionChildren(node.children, state);
+    }
+
+    return output;
+  } else if (node.else !== null) {
+    return compileNode(node.else, state);
+  } else {
+    return "";
+  }
+};
+
+nodeTypes.set("IfBlock", ifBlock);
+
+// ElseBlock AST Node
+const elseBlock = (node: ElseBlock, state: State) => {
+  let output = "";
+  if (node.children.length) {
+    output = unionChildren(node.children, state);
+  }
+
+  return output;
+};
+
+nodeTypes.set("ElseBlock", elseBlock);
+
+// ElseIfBlock AST Node
+const elseIfBlock = (node: ElseIfBlock, state: State) => {
+  // Convert to IfBlock and return results
+  const ifBlock = (node as unknown) as IfBlock;
+  ifBlock.type = "IfBlock";
+  ifBlock.data = ":if";
+
+  return compileNode(ifBlock, state);
+};
+
+nodeTypes.set("ElseIfBlock", elseIfBlock);
+
+// Special function process children
+const unionChildren = (children: Array<Node>, state: State): string => {
+  let output = "";
+
+  for (let i = 0; i < children.length; i++) {
+    output += compileNode(children[i], state);
+  }
+
+  return output;
+};
 
 // Special function that process attributes
 // Undefined and true (boolean) get returned without value

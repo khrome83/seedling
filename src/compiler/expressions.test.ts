@@ -871,3 +871,335 @@ Deno.test("Logical Expression", () => {
 
   assertEquals(output, expected);
 });
+
+Deno.test("If Block (true)", () => {
+  const ast = {
+    type: "IfBlock",
+    data: ":if",
+    children: [
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' class="test"',
+            start: 20,
+            end: 33,
+            name: {
+              type: "AttributeName",
+              data: "class",
+              start: 21,
+              end: 26,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "test",
+              start: 28,
+              end: 34,
+            },
+          },
+        ],
+        children: [
+          { type: "Text", data: "Testing Expression", start: 34, end: 52 },
+        ],
+        start: 16,
+        end: 58,
+      },
+    ],
+    expression: {
+      type: "Identifier",
+      data: "expression",
+      start: 5,
+      end: 15,
+    },
+    else: null,
+    start: 0,
+    end: 64,
+  };
+  const data = { expression: true };
+
+  const output = compile(ast as AST, data);
+  const expected = '<div class="test">Testing Expression</div>';
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("If Block (false)", () => {
+  const ast = {
+    type: "IfBlock",
+    data: ":if",
+    children: [
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' class="test"',
+            start: 20,
+            end: 33,
+            name: {
+              type: "AttributeName",
+              data: "class",
+              start: 21,
+              end: 26,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "test",
+              start: 28,
+              end: 34,
+            },
+          },
+        ],
+        children: [
+          { type: "Text", data: "Testing Expression", start: 34, end: 52 },
+        ],
+        start: 16,
+        end: 58,
+      },
+    ],
+    expression: {
+      type: "Identifier",
+      data: "expression",
+      start: 5,
+      end: 15,
+    },
+    else: null,
+    start: 0,
+    end: 64,
+  };
+  const data = { expression: false };
+
+  const output = compile(ast as AST, data);
+  const expected = "";
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("If Else Block (else)", () => {
+  const ast = {
+    type: "IfBlock",
+    data: ":if",
+    children: [
+      { type: "Text", data: "\n      ", start: 21, end: 28 },
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' class="test"',
+            start: 32,
+            end: 45,
+            name: {
+              type: "AttributeName",
+              data: "class",
+              start: 33,
+              end: 38,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "test",
+              start: 40,
+              end: 46,
+            },
+          },
+        ],
+        children: [
+          { type: "Text", data: "Testing Expression", start: 46, end: 64 },
+        ],
+        start: 28,
+        end: 70,
+      },
+      { type: "Text", data: "\n    ", start: 70, end: 75 },
+    ],
+    expression: {
+      type: "Identifier",
+      data: "expression",
+      start: 10,
+      end: 20,
+    },
+    else: {
+      type: "ElseBlock",
+      data: ":else",
+      children: [
+        { type: "Text", data: "\n      ", start: 82, end: 89 },
+        {
+          type: "Tag",
+          data: "p",
+          attributes: [
+            {
+              type: "Attribute",
+              data: ' class="what"',
+              start: 91,
+              end: 104,
+              name: {
+                type: "AttributeName",
+                data: "class",
+                start: 92,
+                end: 97,
+              },
+              value: {
+                type: "AttributeValue",
+                data: "what",
+                start: 99,
+                end: 105,
+              },
+            },
+          ],
+          children: [
+            { type: "Text", data: "Foo Bar", start: 105, end: 112 },
+            {
+              type: "Tag",
+              data: "span",
+              attributes: [],
+              children: [{ type: "Text", data: "!", start: 118, end: 119 }],
+              start: 112,
+              end: 126,
+            },
+          ],
+          start: 89,
+          end: 130,
+        },
+        { type: "Text", data: "\n    ", start: 130, end: 135 },
+      ],
+      start: 75,
+      end: 135,
+    },
+    start: 5,
+    end: 141,
+  };
+  const data = { expression: false };
+
+  const output = compile(ast as AST, data);
+  const expected = '<p class="what">Foo Bar<span>!</span></p>';
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("If ElseIf Else Block (ElseIf)", () => {
+  const ast = {
+    type: "IfBlock",
+    data: ":if",
+    children: [
+      { type: "Text", data: "\n      ", start: 21, end: 28 },
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' class="test"',
+            start: 32,
+            end: 45,
+            name: {
+              type: "AttributeName",
+              data: "class",
+              start: 33,
+              end: 38,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "test",
+              start: 40,
+              end: 46,
+            },
+          },
+        ],
+        children: [
+          { type: "Text", data: "Testing Expression", start: 46, end: 64 },
+        ],
+        start: 28,
+        end: 70,
+      },
+      { type: "Text", data: "\n    ", start: 70, end: 75 },
+    ],
+    expression: {
+      type: "Identifier",
+      data: "expression",
+      start: 10,
+      end: 20,
+    },
+    else: {
+      type: "ElseIfBlock",
+      data: ":elseif",
+      children: [
+        { type: "Text", data: "\n      ", start: 97, end: 104 },
+        {
+          type: "Tag",
+          data: "br",
+          attributes: [],
+          children: [],
+          start: 104,
+          end: 108,
+        },
+        { type: "Text", data: "\n    ", start: 108, end: 113 },
+      ],
+      expression: {
+        type: "Identifier",
+        data: "expression2",
+        start: 84,
+        end: 95,
+      },
+      else: {
+        type: "ElseBlock",
+        data: ":else",
+        children: [
+          { type: "Text", data: "\n      ", start: 120, end: 127 },
+          {
+            type: "Tag",
+            data: "p",
+            attributes: [
+              {
+                type: "Attribute",
+                data: ' class="what"',
+                start: 129,
+                end: 142,
+                name: {
+                  type: "AttributeName",
+                  data: "class",
+                  start: 130,
+                  end: 135,
+                },
+                value: {
+                  type: "AttributeValue",
+                  data: "what",
+                  start: 137,
+                  end: 143,
+                },
+              },
+            ],
+            children: [
+              { type: "Text", data: "Foo Bar", start: 143, end: 150 },
+              {
+                type: "Tag",
+                data: "span",
+                attributes: [],
+                children: [{ type: "Text", data: "!", start: 156, end: 157 }],
+                start: 150,
+                end: 164,
+              },
+            ],
+            start: 127,
+            end: 168,
+          },
+          { type: "Text", data: "\n    ", start: 168, end: 173 },
+        ],
+        start: 113,
+        end: 173,
+      },
+      start: 75,
+      end: 113,
+    },
+    start: 5,
+    end: 179,
+  };
+  const data = { expression: false, expression2: true };
+
+  const output = compile(ast as AST, data);
+  const expected = "<br>";
+
+  assertEquals(output.trim(), expected);
+});
