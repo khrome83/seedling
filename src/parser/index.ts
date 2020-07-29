@@ -1436,7 +1436,10 @@ export class Parser {
       }
       const expressionTemplate = use === undefined ? data : use;
       const expressionPos = use ? found.value.start : start;
-      expression = this.parseExpressions(expressionTemplate, expressionPos);
+      expression = this.parseExpressions(
+        `"${expressionTemplate}"`,
+        expressionPos
+      );
     }
 
     // Remove unneeded attributes
@@ -1490,7 +1493,10 @@ export class Parser {
         throw this.throwError("Missing Use Argument For Element Directive");
       }
 
-      expression = this.parseExpressions(found.value.data, found.value.start);
+      expression = this.parseExpressions(
+        `"${found.value.data}"`,
+        found.value.start
+      );
     }
 
     // Remove unneeded attributes
@@ -1541,7 +1547,10 @@ export class Parser {
         throw this.throwError("Missing Use Argument For Layout Directive");
       }
 
-      expression = this.parseExpressions(found.value.data, found.value.start);
+      expression = this.parseExpressions(
+        `"${found.value.data}"`,
+        found.value.start
+      );
     }
 
     // Remove unneeded attributes
@@ -1632,7 +1641,7 @@ export class Parser {
       data,
       attributes,
       children,
-      path: this.parsePathUrl(url, startPath - 1),
+      path: this.parsePathUrl(`"${url}"`, startPath - 1),
       start,
       end,
     };
@@ -1744,7 +1753,7 @@ export class Parser {
     const name = found?.value?.data;
     let expression = null;
     if (name) {
-      expression = this.parseExpressions(name, found.value.start);
+      expression = this.parseExpressions(`"${name}"`, found.value.start);
 
       // Remove unneeded attributes
       attributes = this.removeAttribute(attributes, "name");
@@ -2016,9 +2025,19 @@ export class Parser {
     start: number,
     end: number
   ): AttributeValue {
+    let modified = data;
+
+    // Remove quotes if string has quotes on edges (eg. "'example'")
+    if (typeof data === "string") {
+      const [full, unquoted] = data.match(/^["'`](.*)["'`]$/) || [];
+      if (unquoted !== undefined) {
+        modified = unquoted;
+      }
+    }
+
     return {
       type: "AttributeValue",
-      data,
+      data: modified,
       start,
       end,
     };

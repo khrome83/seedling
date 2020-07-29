@@ -141,7 +141,7 @@ Deno.test("Component Resolver - Sample (local)", async () => {
               name: { type: "AttributeName", data: "class", start: 5, end: 10 },
               value: {
                 type: "AttributeValue",
-                data: '"foo bar"',
+                data: "foo bar",
                 start: 12,
                 end: 21,
               },

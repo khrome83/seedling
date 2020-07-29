@@ -34,7 +34,7 @@ Deno.test("Each Loop", () => {
                 },
                 value: {
                   type: "AttributeValue",
-                  data: '"test"',
+                  data: "test",
                   start: 51,
                   end: 57,
                 },
@@ -99,7 +99,7 @@ Deno.test("Each Loop with Index", () => {
                 },
                 value: {
                   type: "AttributeValue",
-                  data: '"test"',
+                  data: "test",
                   start: 58,
                   end: 64,
                 },
@@ -166,7 +166,7 @@ Deno.test("Each Loop with Else", () => {
                 },
                 value: {
                   type: "AttributeValue",
-                  data: '"test"',
+                  data: "test",
                   start: 45,
                   end: 51,
                 },
@@ -277,7 +277,7 @@ Deno.test("Each Loop with Break", () => {
                       },
                       value: {
                         type: "AttributeValue",
-                        data: '"test"',
+                        data: "test",
                         start: 105,
                         end: 111,
                       },
@@ -387,7 +387,7 @@ Deno.test("Each Loop with Continue", () => {
                       },
                       value: {
                         type: "AttributeValue",
-                        data: '"test"',
+                        data: "test",
                         start: 108,
                         end: 114,
                       },

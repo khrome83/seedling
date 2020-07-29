@@ -28,7 +28,7 @@ Deno.test("If Block", () => {
                 },
                 value: {
                   type: "AttributeValue",
-                  data: '"test"',
+                  data: "test",
                   start: 28,
                   end: 34,
                 },
@@ -92,7 +92,7 @@ Deno.test("If Else Block", () => {
                 },
                 value: {
                   type: "AttributeValue",
-                  data: '"test"',
+                  data: "test",
                   start: 40,
                   end: 46,
                 },
@@ -134,7 +134,7 @@ Deno.test("If Else Block", () => {
                   },
                   value: {
                     type: "AttributeValue",
-                    data: '"what"',
+                    data: "what",
                     start: 99,
                     end: 105,
                   },
@@ -205,7 +205,7 @@ Deno.test("If Else If Block", () => {
                 },
                 value: {
                   type: "AttributeValue",
-                  data: '"test"',
+                  data: "test",
                   start: 40,
                   end: 46,
                 },
@@ -268,7 +268,7 @@ Deno.test("If Else If Block", () => {
                     },
                     value: {
                       type: "AttributeValue",
-                      data: '"what"',
+                      data: "what",
                       start: 137,
                       end: 143,
                     },
@@ -351,7 +351,7 @@ Deno.test("Nested If Blocks", () => {
                 },
                 value: {
                   type: "AttributeValue",
-                  data: '"test"',
+                  data: "test",
                   start: 40,
                   end: 46,
                 },
@@ -487,7 +487,7 @@ Deno.test("Nested If Blocks", () => {
                     },
                     value: {
                       type: "AttributeValue",
-                      data: '"what"',
+                      data: "what",
                       start: 296,
                       end: 302,
                     },
@@ -560,7 +560,7 @@ Deno.test("Skip Block", () => {
                 },
                 value: {
                   type: "AttributeValue",
-                  data: '"test"',
+                  data: "test",
                   start: 42,
                   end: 48,
                 },
@@ -590,7 +590,7 @@ Deno.test("Skip Block", () => {
                 },
                 value: {
                   type: "AttributeValue",
-                  data: '"what"',
+                  data: "what",
                   start: 89,
                   end: 95,
                 },
@@ -671,7 +671,7 @@ Deno.test("When / Is Block", () => {
                     },
                     value: {
                       type: "AttributeValue",
-                      data: '"test"',
+                      data: "test",
                       start: 59,
                       end: 65,
                     },
@@ -747,7 +747,7 @@ Deno.test("When / Is Block", () => {
                     },
                     value: {
                       type: "AttributeValue",
-                      data: '"what"',
+                      data: "what",
                       start: 153,
                       end: 159,
                     },

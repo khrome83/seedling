@@ -1,12 +1,13 @@
-import { assertEquals } from "../deps.ts";
-import { AST } from "../parser/index.ts";
+import { assertEquals, denock } from "../deps.ts";
+import "https://deno.land/x/dotenv@v0.5.0/load.ts";
+import { Node } from "../parser/index.ts";
 import compile from "./index.ts";
 
 Deno.test("Doctype", () => {
   const ast = { type: "Doctype", data: "<!DOCTYPE html>", start: 0, end: 15 };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "<!DOCTYPE html>";
 
   assertEquals(output, expected);
@@ -16,7 +17,7 @@ Deno.test("Comment", () => {
   const ast = { type: "Comment", data: " Testing ", start: 0, end: 16 };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "<!-- Testing -->";
 
   assertEquals(output, expected);
@@ -26,7 +27,7 @@ Deno.test("Text", () => {
   const ast = { type: "Text", data: "This is ", start: 0, end: 8 };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "This is ";
 
   assertEquals(output, expected);
@@ -43,7 +44,7 @@ Deno.test("Self Closing Tag", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "<br>";
 
   assertEquals(output, expected);
@@ -60,7 +61,7 @@ Deno.test("Tag With No Children", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "<ul></ul>";
 
   assertEquals(output, expected);
@@ -108,7 +109,7 @@ Deno.test("Tag With Children", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "<ul><li>FOO</li><li>BAR</li></ul>";
 
   assertEquals(output, expected);
@@ -139,7 +140,7 @@ Deno.test("Void Elements", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = '<meta charset="UTF-8">';
 
   assertEquals(output, expected);
@@ -183,7 +184,7 @@ Deno.test("Attribute", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = '<br class="foo" disabled>';
 
   assertEquals(output, expected);
@@ -267,7 +268,7 @@ Deno.test("Attribute Expression", () => {
     longitude: -97.73333,
   };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = '<div lat="30.266666" lng="-97.73333" distance="10"></div>';
 
   assertEquals(output, expected);
@@ -311,7 +312,7 @@ Deno.test("Attribute Spread", () => {
     },
   };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected =
     '<div lat="30.266666" lng="-97.73333" distance="10" class="foo"></div>';
 
@@ -346,7 +347,7 @@ Deno.test("Attribute Spread with Nested Object", () => {
     },
   };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected =
     '<div lat="30.266666" lng="-97.73333" distance="10" nested="[object Object]"></div>';
 
@@ -418,7 +419,7 @@ Deno.test("Attribute Overrides (ordering)", () => {
     },
   };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = '<div lat="30.266666" lng="-97.73333" distance="10"></div>';
 
   assertEquals(output, expected);
@@ -442,7 +443,7 @@ Deno.test("Script Tag", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "<script>console.log('hello world');</script>";
 
   assertEquals(output, expected);
@@ -467,7 +468,7 @@ Deno.test("Style Tag", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected =
     "<style>.border { border: 1px solid transparent; } .border-blue-100 { border-color: #3434; }</style>";
 
@@ -523,7 +524,7 @@ Deno.test("Textarea Tag", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = `<textarea class="border border-blue-100" rows="5" cols="33">
         It was a dark and stormy night...
         and lighting was striking all around.
@@ -565,11 +566,94 @@ Deno.test("Element Directive", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = '<h2 class="foo">Dynamic Heading</h2>';
 
   assertEquals(output, expected);
 });
+
+// Deno.test("Data Directive", () => {
+//   const attrs = {
+//     id: "cka5lzgxk02s701761t7scrb0",
+//   };
+
+//   const body =
+//     "query MyQuery($id: ID) {\n      marketingSocialProof(where: {id: $id}) {\n        __typename\n        id\n      }\n    }";
+
+//   denock({
+//     method: "POST",
+//     protocol: "https",
+//     host: Deno.env.get("GRAPH_HOST") as string,
+//     headers: [
+//       { header: "content-type", value: "application/json" },
+//       {
+//         header: "authorization",
+//         value: `Bearer ${Deno.env.get("GRAPH_TOKEN")}`,
+//       },
+//     ],
+//     path: Deno.env.get("GRAPH_PATH") as string,
+//     requestBody: {
+//       operationName: "MyQuery",
+//       query: body,
+//       variables: attrs,
+//     },
+//     replyStatus: 200,
+//     responseBody: {
+//       data: {
+//         marketingSocialProof: {
+//           __typename: "MarketingSocialProof",
+//           id: "cka5lzgxk02s701761t7scrb0",
+//         },
+//       },
+//     },
+//   });
+
+//   const ast = [
+//     {
+//       type: "DataDirective",
+//       data: ":data",
+//       attributes: [
+//         {
+//           type: "Attribute",
+//           data: ' id="cka5lzgxk02s701761t7scrb0"',
+//           start: 11,
+//           end: 49,
+//           name: { type: "AttributeName", data: "id", start: 12, end: 14 },
+//           value: {
+//             type: "AttributeValue",
+//             data: "cka5lzgxk02s701761t7scrb0",
+//             start: 16,
+//             end: 50,
+//           },
+//         },
+//       ],
+//       children: [
+//         {
+//           type: "Text",
+//           data:
+//             "query MyQuery($id: ID) {\n      marketingSocialProof(where: {id: $id}) {\n        __typename\n        id\n      }\n    }",
+//           start: 50,
+//           end: 159,
+//         },
+//       ],
+//       key: undefined,
+//       start: 5,
+//       end: 167,
+//     },
+//     { type: "Text", data: "This is ", start: 0, end: 8 },
+//     { type: "Identifier", data: "__typename", start: 9, end: 19 },
+//     { type: "Text", data: " for ID '", start: 20, end: 29 },
+//     { type: "Identifier", data: "id", start: 30, end: 32 },
+//     { type: "Text", data: "'.", start: 33, end: 35 },
+//   ];
+//   const data = {};
+
+//   const output = compile(ast as Array<Node>, data);
+//   const expected =
+//     "This is MarketingSocialProof for ID 'cka5lzgxk02s701761t7scrb0'.";
+
+//   assertEquals(output, expected);
+// });
 
 Deno.test("Identifier", () => {
   const ast = { type: "Identifier", data: "foobar", start: 26, end: 32 };
@@ -577,7 +661,7 @@ Deno.test("Identifier", () => {
     foobar: "barfoo",
   };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "barfoo";
 
   assertEquals(output, expected);
@@ -587,7 +671,7 @@ Deno.test("Identifier with Bad Data", () => {
   const ast = { type: "Identifier", data: "foobar", start: 26, end: 32 };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "undefined";
 
   assertEquals(output, expected);
@@ -597,7 +681,7 @@ Deno.test("Literal (int)", () => {
   const ast = { type: "Literal", data: "4", value: 4, start: 9, end: 10 };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "4";
 
   assertEquals(output, expected);
@@ -607,7 +691,7 @@ Deno.test("Literal (float)", () => {
   const ast = { type: "Literal", data: "4.5", value: 4.5, start: 9, end: 12 };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "4.5";
 
   assertEquals(output, expected);
@@ -617,7 +701,7 @@ Deno.test("Literal (boolean)", () => {
   const ast = { type: "Literal", data: "true", value: true, start: 9, end: 13 };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "true";
 
   assertEquals(output, expected);
@@ -633,7 +717,7 @@ Deno.test("Literal (string)", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "work";
 
   assertEquals(output, expected);
@@ -654,7 +738,7 @@ Deno.test("Member Expression", () => {
     },
   };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "foobar";
 
   assertEquals(output, expected);
@@ -721,7 +805,7 @@ Deno.test("Nested Member Expression", () => {
     },
   };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "success";
 
   assertEquals(output, expected);
@@ -770,7 +854,7 @@ Deno.test("Nested Member Expression with Bad Data", () => {
   };
   const data = {};
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "undefined";
 
   assertEquals(output, expected);
@@ -788,7 +872,7 @@ Deno.test("Unary Expression", () => {
   };
   const data = { foo: true };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "false";
 
   assertEquals(output, expected);
@@ -806,7 +890,7 @@ Deno.test("Update Expression (prefix)", () => {
   };
   const data = { foo: 100 };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "101";
 
   assertEquals(output, expected);
@@ -824,7 +908,7 @@ Deno.test("Update Expression (postfix)", () => {
   };
   const data = { go: 25 };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "26";
 
   assertEquals(output, expected);
@@ -848,7 +932,7 @@ Deno.test("Binary Expression", () => {
   };
   const data = { foo: "foo" };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "true";
 
   assertEquals(output, expected);
@@ -866,7 +950,7 @@ Deno.test("Logical Expression", () => {
   };
   const data = { foo: true, bar: false };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "false";
 
   assertEquals(output, expected);
@@ -919,7 +1003,7 @@ Deno.test("If Block (true)", () => {
   };
   const data = { expression: true };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = '<div class="test">Testing Expression</div>';
 
   assertEquals(output.trim(), expected);
@@ -972,7 +1056,7 @@ Deno.test("If Block (false)", () => {
   };
   const data = { expression: false };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "";
 
   assertEquals(output.trim(), expected);
@@ -1073,7 +1157,7 @@ Deno.test("If Else Block (else)", () => {
   };
   const data = { expression: false };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = '<p class="what">Foo Bar<span>!</span></p>';
 
   assertEquals(output.trim(), expected);
@@ -1198,7 +1282,7 @@ Deno.test("If ElseIf Else Block (ElseIf)", () => {
   };
   const data = { expression: false, expression2: true };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "<br>";
 
   assertEquals(output.trim(), expected);
@@ -1250,7 +1334,7 @@ Deno.test("Skip Block (false)", () => {
   };
   const data = { expression: false };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = '<div class="test">Testing Expression</div>';
 
   assertEquals(output.trim(), expected);
@@ -1302,7 +1386,7 @@ Deno.test("Skip Block (true)", () => {
   };
   const data = { expression: true };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "";
 
   assertEquals(output.trim(), expected);
@@ -1444,7 +1528,7 @@ Deno.test("WhenBlock / IsBlock (caught in IsBlock)", () => {
   };
   const data = { dessert: "cake" };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = '<div class="test">Testing Expression</div>';
 
   assertEquals(output.trim(), expected);
@@ -1586,7 +1670,7 @@ Deno.test("WhenBlock / IsBlock (caught in ElseBlock)", () => {
   };
   const data = { dessert: "steak" };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = '<p class="what">No Cake<span>!</span></p>';
 
   assertEquals(output.trim(), expected);
@@ -1639,7 +1723,7 @@ Deno.test("Each Loop", () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected =
     '<div class="test">Ice Cream</div><div class="test">Brownie</div><div class="test">Fudge</div><div class="test">Cookie</div><div class="test">Pie</div>';
 
@@ -1697,7 +1781,7 @@ Deno.test("Each Loop with Index", () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected =
     '<div class="test">0 - Ice Cream</div><div class="test">1 - Brownie</div><div class="test">2 - Fudge</div><div class="test">3 - Cookie</div><div class="test">4 - Pie</div>';
 
@@ -1768,7 +1852,7 @@ Deno.test("Each Loop with Else", () => {
   };
   const data = { desserts: [] };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected = "<div>No desserts!</div>";
 
   assertEquals(output.trim(), expected);
@@ -1854,7 +1938,7 @@ Deno.test("Each Loop with Break", () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected =
     '|<div class="test">Ice Cream</div>*|<div class="test">Brownie</div>*|<div class="test">Fudge</div>*|';
 
@@ -1941,7 +2025,7 @@ Deno.test("Each Loop with Continue", () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = compile(ast as AST, data);
+  const output = compile(ast as Node, data);
   const expected =
     '|<div class="test">Ice Cream</div>*|<div class="test">Brownie</div>*|<div class="test">Fudge</div>*||<div class="test">Pie</div>*';
 

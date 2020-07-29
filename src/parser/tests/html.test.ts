@@ -166,7 +166,7 @@ Deno.test("Void Elements", () => {
             name: { type: "AttributeName", data: "charset", start: 6, end: 13 },
             value: {
               type: "AttributeValue",
-              data: '"UTF-8"',
+              data: "UTF-8",
               start: 15,
               end: 22,
             },
@@ -188,7 +188,7 @@ Deno.test("Void Elements", () => {
             name: { type: "AttributeName", data: "name", start: 28, end: 32 },
             value: {
               type: "AttributeValue",
-              data: '"viewport"',
+              data: "viewport",
               start: 34,
               end: 44,
             },
@@ -206,7 +206,7 @@ Deno.test("Void Elements", () => {
             },
             value: {
               type: "AttributeValue",
-              data: '"width=device-width, initial-scale=1.0"',
+              data: "width=device-width, initial-scale=1.0",
               start: 53,
               end: 92,
             },
@@ -240,7 +240,7 @@ Deno.test("Attribute", () => {
             name: { type: "AttributeName", data: "class", start: 4, end: 9 },
             value: {
               type: "AttributeValue",
-              data: '"foo"',
+              data: "foo",
               start: 11,
               end: 16,
             },
@@ -347,7 +347,7 @@ Deno.test("Textarea Tag", () => {
             name: { type: "AttributeName", data: "class", start: 10, end: 15 },
             value: {
               type: "AttributeValue",
-              data: '"border border-blue-100"',
+              data: "border border-blue-100",
               start: 17,
               end: 41,
             },
@@ -358,7 +358,7 @@ Deno.test("Textarea Tag", () => {
             start: 40,
             end: 49,
             name: { type: "AttributeName", data: "rows", start: 41, end: 45 },
-            value: { type: "AttributeValue", data: '"5"', start: 47, end: 50 },
+            value: { type: "AttributeValue", data: "5", start: 47, end: 50 },
           },
           {
             type: "Attribute",
@@ -366,7 +366,7 @@ Deno.test("Textarea Tag", () => {
             start: 49,
             end: 59,
             name: { type: "AttributeName", data: "cols", start: 50, end: 54 },
-            value: { type: "AttributeValue", data: '"33"', start: 56, end: 60 },
+            value: { type: "AttributeValue", data: "33", start: 56, end: 60 },
           },
         ],
         children: [
@@ -432,7 +432,7 @@ Deno.test("Complex Document", () => {
             start: 30,
             end: 40,
             name: { type: "AttributeName", data: "lang", start: 31, end: 35 },
-            value: { type: "AttributeValue", data: '"en"', start: 37, end: 41 },
+            value: { type: "AttributeValue", data: "en", start: 37, end: 41 },
           },
         ],
         children: [
@@ -460,7 +460,7 @@ Deno.test("Complex Document", () => {
                     },
                     value: {
                       type: "AttributeValue",
-                      data: '"UTF-8"',
+                      data: "UTF-8",
                       start: 78,
                       end: 85,
                     },
@@ -488,7 +488,7 @@ Deno.test("Complex Document", () => {
                     },
                     value: {
                       type: "AttributeValue",
-                      data: '"viewport"',
+                      data: "viewport",
                       start: 106,
                       end: 116,
                     },
@@ -506,7 +506,7 @@ Deno.test("Complex Document", () => {
                     },
                     value: {
                       type: "AttributeValue",
-                      data: '"width=device-width, initial-scale=1.0"',
+                      data: "width=device-width, initial-scale=1.0",
                       start: 125,
                       end: 164,
                     },
@@ -556,7 +556,7 @@ Deno.test("Complex Document", () => {
                     },
                     value: {
                       type: "AttributeValue",
-                      data: '"bg-gray-900 text-white"',
+                      data: "bg-gray-900 text-white",
                       start: 247,
                       end: 271,
                     },
@@ -592,7 +592,7 @@ Deno.test("Complex Document", () => {
                             },
                             value: {
                               type: "AttributeValue",
-                              data: '"/"',
+                              data: "/",
                               start: 309,
                               end: 312,
                             },
@@ -663,7 +663,7 @@ Deno.test("Complex Document", () => {
                     },
                     value: {
                       type: "AttributeValue",
-                      data: '"main"',
+                      data: "main",
                       start: 452,
                       end: 458,
                     },
@@ -681,7 +681,7 @@ Deno.test("Complex Document", () => {
                     },
                     value: {
                       type: "AttributeValue",
-                      data: '"full-width bg-gray-100"',
+                      data: "full-width bg-gray-100",
                       start: 465,
                       end: 489,
                     },
@@ -706,7 +706,7 @@ Deno.test("Complex Document", () => {
                         },
                         value: {
                           type: "AttributeValue",
-                          data: '"text-black font-bold"',
+                          data: "text-black font-bold",
                           start: 511,
                           end: 533,
                         },
@@ -752,7 +752,7 @@ Deno.test("Complex Document", () => {
                         },
                         value: {
                           type: "AttributeValue",
-                          data: '"text-xs"',
+                          data: "text-xs",
                           start: 606,
                           end: 615,
                         },
