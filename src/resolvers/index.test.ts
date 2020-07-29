@@ -1,5 +1,4 @@
-import { assert, assertEquals } from "../deps.ts";
-import { denock } from "../deps.ts";
+import { assert, assertEquals, denock } from "../deps.ts";
 import "https://deno.land/x/dotenv@v0.5.0/load.ts";
 import { resolveData } from "./data.ts";
 import { resolveComponent } from "./component.ts";
