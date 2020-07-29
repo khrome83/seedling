@@ -132,7 +132,7 @@ export interface PathDirective extends BaseTag {
 
 export interface DataDirective extends BaseTag {
   type: "DataDirective";
-  key: string;
+  key: string | null;
 }
 
 export interface SlotDirective extends BaseTag {
@@ -1723,7 +1723,7 @@ export class Parser {
       data,
       attributes,
       children,
-      key: key || "$",
+      key: key || null,
       start,
       end,
     };
