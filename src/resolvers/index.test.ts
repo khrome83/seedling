@@ -46,7 +46,7 @@ Deno.test("Data Resolver - GraphCMS", async () => {
     },
   });
 
-  const output = await resolveData("graphcms", attrs, body, undefined, root);
+  const output = await resolveData("graphcms", attrs, body, root);
   const expected = {
     type: "SUCCESS",
     response: {
@@ -58,7 +58,6 @@ Deno.test("Data Resolver - GraphCMS", async () => {
       },
     },
     retries: 0,
-    key: undefined,
     meta: { cacheHit: false, cacheKey: "c847d6db-3566-5970-aa05-09a23e82319b" },
   };
 
@@ -105,7 +104,7 @@ Deno.test("Data Resolver with Key - GraphCMS", async () => {
     },
   });
 
-  const output = await resolveData("graphcms", attrs, body, "$", root);
+  const output = await resolveData("graphcms", attrs, body, root);
   const expected = {
     type: "SUCCESS",
     response: {
@@ -117,7 +116,6 @@ Deno.test("Data Resolver with Key - GraphCMS", async () => {
       },
     },
     retries: 0,
-    key: "$",
     meta: { cacheHit: true, cacheKey: "c847d6db-3566-5970-aa05-09a23e82319b" },
   };
 

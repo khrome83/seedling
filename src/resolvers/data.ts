@@ -95,7 +95,6 @@ export const resolveData = async (
   processor: string,
   attrs: object,
   body = "",
-  key?: string,
   root: string = Deno.cwd()
 ): Promise<DataResponse> => {
   // Generate Cache Key (v5 UUID)
@@ -163,7 +162,6 @@ export const resolveData = async (
       return Promise.resolve({
         ...result,
         retries,
-        key,
         meta: { cacheHit: false, cacheKey },
       });
     } catch (e) {
@@ -173,7 +171,6 @@ export const resolveData = async (
     return Promise.resolve({
       ...success(cache.get(cacheKey)),
       retries: 0,
-      key,
       meta: { cacheHit: true, cacheKey },
     });
   }
