@@ -50,11 +50,9 @@ Deno.test("Data Resolver - GraphCMS", async () => {
   const expected = {
     type: "SUCCESS",
     response: {
-      data: {
-        marketingSocialProof: {
-          __typename: "MarketingSocialProof",
-          id: "cka5lzgxk02s701761t7scrb0",
-        },
+      marketingSocialProof: {
+        __typename: "MarketingSocialProof",
+        id: "cka5lzgxk02s701761t7scrb0",
       },
     },
     retries: 0,
@@ -108,11 +106,9 @@ Deno.test("Data Resolver with Key - GraphCMS", async () => {
   const expected = {
     type: "SUCCESS",
     response: {
-      data: {
-        marketingSocialProof: {
-          __typename: "MarketingSocialProof",
-          id: "cka5lzgxk02s701761t7scrb0",
-        },
+      marketingSocialProof: {
+        __typename: "MarketingSocialProof",
+        id: "cka5lzgxk02s701761t7scrb0",
       },
     },
     retries: 0,
