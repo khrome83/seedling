@@ -11,6 +11,7 @@ import {
   CacheKey,
 } from "../types.ts";
 import { cache, getCacheKey } from "../cache/index.ts";
+import config from "../config/index.ts";
 
 const skip = (response: object): Skip => ({
   type: "SKIP",
@@ -55,15 +56,14 @@ const buildRequest = (attrs: object = {}, body = ""): Request => ({
 export const resolveData = async (
   processor: string,
   attrs: object,
-  body = "",
-  root: string = Deno.cwd()
+  body = ""
 ): Promise<DataResponse> => {
   // Generate Cache Key (v5 UUID)
   const cacheKey = getCacheKey(processor, attrs, body);
 
   // Determine correct path to process under
-  const tsPath = `${root}/data/${processor}.ts`;
-  const jsPath = `${root}/data/${processor}.js`;
+  const tsPath = `${config.root}/data/${processor}.ts`;
+  const jsPath = `${config.root}/data/${processor}.js`;
   const importPath = await Deno.lstat(tsPath)
     .then(() => {
       return tsPath;

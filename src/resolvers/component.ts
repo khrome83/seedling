@@ -2,17 +2,17 @@ import { bold, cyan } from "../deps.ts";
 import { ComponentResponse, CacheKey } from "../types.ts";
 import { cache, getCacheKey } from "../cache/index.ts";
 import { Parser } from "../parser/index.ts";
+import config from "../config/index.ts";
 
 export const resolveComponent = async (
-  name: string,
-  root: string = Deno.cwd()
+  name: string
 ): Promise<ComponentResponse> => {
   // Generate Cache Key (v5 UUID)
   const cacheKey = getCacheKey(name);
 
   // Determine correct path to process under
-  const htmlPath = `${root}/components/${name}.html`;
-  const seedPath = `${root}/components/${name}.seed`;
+  const htmlPath = `${config.root}/components/${name}.html`;
+  const seedPath = `${config.root}/components/${name}.seed`;
   const localPath = await Deno.lstat(htmlPath)
     .then(() => {
       return htmlPath;
@@ -28,8 +28,8 @@ export const resolveComponent = async (
     });
 
   // Local Check failed, check for Remote Components
-  const tsPath = `${root}/components/${name}.ts`;
-  const jsPath = `${root}/components/${name}.js`;
+  const tsPath = `${config.root}/components/${name}.ts`;
+  const jsPath = `${config.root}/components/${name}.js`;
   let importPath;
 
   if (!localPath) {

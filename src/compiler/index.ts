@@ -423,9 +423,7 @@ const dataDirective = async (
     }
   }
 
-  // TODO: root should be passed, not hard coded
-  const root = `${Deno.cwd()}/src/resolvers`;
-  const res = await resolveData(use, values, body, root);
+  const res = await resolveData(use, values, body);
 
   // Namespace state to key if available
   let outgoingState;

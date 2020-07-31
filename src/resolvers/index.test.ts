@@ -3,9 +3,6 @@ import "https://deno.land/x/dotenv@v0.5.0/load.ts";
 import { resolveData } from "./data.ts";
 import { resolveComponent } from "./component.ts";
 
-// Root for all tests
-const root = `${Deno.cwd()}/src/resolvers`;
-
 Deno.test("Data Resolver - GraphCMS", async () => {
   const attrs = {
     id: "cka5lzgxk02s701761t7scrb0",
@@ -46,7 +43,7 @@ Deno.test("Data Resolver - GraphCMS", async () => {
     },
   });
 
-  const output = await resolveData("graphcms", attrs, body, root);
+  const output = await resolveData("graphcms", attrs, body);
   const expected = {
     type: "SUCCESS",
     response: {
@@ -102,7 +99,7 @@ Deno.test("Data Resolver with Key - GraphCMS", async () => {
     },
   });
 
-  const output = await resolveData("graphcms", attrs, body, root);
+  const output = await resolveData("graphcms", attrs, body);
   const expected = {
     type: "SUCCESS",
     response: {
@@ -119,7 +116,7 @@ Deno.test("Data Resolver with Key - GraphCMS", async () => {
 });
 
 Deno.test("Component Resolver - Sample (local)", async () => {
-  const output = await resolveComponent("Sample", root);
+  const output = await resolveComponent("Sample");
   const expected = {
     ast: {
       html: [
@@ -299,6 +296,6 @@ Deno.test("Component Resolver - Hero (remote)", async () => {
     `,
   });
 
-  const output = await resolveComponent("Hero", root);
+  const output = await resolveComponent("Hero");
   assert(!!output.ast.html); // Cast to boolean and assert, we need true
 });
