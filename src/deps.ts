@@ -29,6 +29,9 @@ export { delay } from "https://deno.land/std@0.62.0/async/mod.ts";
 // UUID
 export { v5 } from "https://deno.land/std@0.62.0/uuid/mod.ts";
 
+// TODO: Convert config to use join
+// import { join } from "https://deno.land/std@0.57.0/path/mod.ts";
+
 /**
  * Third Party Libaries
  */
@@ -37,10 +40,12 @@ export { v5 } from "https://deno.land/std@0.62.0/uuid/mod.ts";
 export { denock } from "https://deno.land/x/denock@0.2.0/mod.ts";
 
 // Pretty Formatting for Benchmarks
+
 export {
+  prettyBenchmarkDown,
   prettyBenchmarkResult,
   prettyBenchmarkProgress,
-} from "https://deno.land/x/pretty_benching@v0.1.1/mod.ts";
+} from "https://deno.land/x/pretty_benching@v0.2.0/mod.ts";
 
 // LRU Cache
 export { Cache } from "https://deno.land/x/dash@2.2.1/mod.ts";
