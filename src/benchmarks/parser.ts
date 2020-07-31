@@ -1,12 +1,6 @@
-import {
-  runBenchmarks,
-  bench,
-  red,
-  prettyBenchmarkResult,
-  prettyBenchmarkProgress,
-} from "../deps.ts";
-import { BenchmarkTimer, BenchmarkRunError } from "../types.ts";
-import { Parser } from "./index.ts";
+import { bench } from "../deps.ts";
+import { BenchmarkTimer } from "../types.ts";
+import { Parser } from "../parser/index.ts";
 
 // Basic Benchmark to Validate Parser Speed
 const html = `
@@ -39,20 +33,3 @@ bench({
     b.stop();
   },
 });
-
-runBenchmarks({ silent: true }, prettyBenchmarkProgress())
-  .then(
-    prettyBenchmarkResult({
-      nocolor: false,
-      parts: {
-        extraMetrics: true,
-        threshold: true,
-        graph: true,
-        graphBars: 10,
-      },
-    })
-  )
-  .catch((e: BenchmarkRunError) => {
-    console.log(red(e.benchmarkName as string));
-    console.error(red(e.stack as string));
-  });

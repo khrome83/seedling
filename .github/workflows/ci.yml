@@ -1,6 +1,6 @@
 name: CI
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build:
@@ -14,6 +14,7 @@ jobs:
       GRAPH_HOST: "example.com"
       GRAPH_PATH: "/resources/master"
       GRAPH_TOKEN: "sdf90sdf9090234sdf90sdf"
+
     name: Deno ${{ matrix.config.version }}
     steps:
       - name: Checkout Repo
@@ -30,7 +31,10 @@ jobs:
       - name: Test
         run: deno test --allow-read --allow-net --allow-env
 
-#       - name: Benchmarks
-#         run: |
-#           deno test src/serializer/benchmarks.ts --allow-hrtime
-#           deno test src/parser/benchmarks.ts --allow-hrtime
+      - name: Benchmarks
+        run: deno run --allow-read --allow-env --allow-hrtime ./src/benchmarks/benchmarks.ts | tee ./pr.md
+      - uses: harupy/comment-on-pr@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: ../../pr.md

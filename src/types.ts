@@ -400,11 +400,19 @@ export interface DataResponse {
 export {
   BenchmarkTimer,
   BenchmarkRunError,
+  BenchmarkResult,
+  BenchmarkRunResult,
 } from "https://deno.land/std@0.62.0/testing/bench.ts";
 
 /**
  * Third Party
  */
+
+// Pretty Bencing
+export {
+  GroupDefinition,
+  defaultColumns,
+} from "https://deno.land/x/pretty_benching@v0.2.0/mod.ts";
 
 // LRU Cache
 import { Identifier as CacheIdentifier } from "https://deno.land/x/dash@2.2.1/util.ts";
