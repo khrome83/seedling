@@ -1,4 +1,4 @@
-import { cyan, red, yellow, bold } from "../deps.ts";
+import { cyan, red, yellow, bold, delay } from "../deps.ts";
 import {
   Node,
   Identifier,
@@ -27,9 +27,11 @@ import {
   EachBlock,
   BreakStatement,
   ContinueStatement,
+  DataDirective,
 } from "../parser/index.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
+import { resolveData, DataResponse } from "../resolvers/data.ts";
 
 // TODO: Finish All Types
 //
@@ -81,13 +83,13 @@ export interface ArrayState {
 const nodeTypes = new Map();
 
 // Tag AST Node
-const tag = (node: Tag, state: State): string => {
+const tag = async (node: Tag, state: State): Promise<string> => {
   let attributes = "";
   let children = "";
 
   // Attributes
   if (node.attributes.length) {
-    attributes = unionAttributes(node.attributes, state);
+    attributes = await unionAttributes(node.attributes, state);
   }
 
   // Void Element - Exit Early
@@ -97,7 +99,7 @@ const tag = (node: Tag, state: State): string => {
 
   // Children
   if (node.children.length) {
-    children = unionChildren(node.children, state);
+    children = await unionChildren(node.children, state);
   }
 
   return `<${node.data}${attributes}>${children}</${node.data}>`;
@@ -106,9 +108,12 @@ const tag = (node: Tag, state: State): string => {
 nodeTypes.set("Tag", tag);
 
 // Attribute AST Node
-const attribute = (node: Attribute, state: State): Array<ArrayState> => {
-  const name = compileNode(node.name, state);
-  const value = compileNode(node.value, state);
+const attribute = async (
+  node: Attribute,
+  state: State
+): Promise<Array<ArrayState>> => {
+  const name = await compileNode(node.name, state);
+  const value = await compileNode(node.value, state);
 
   return [[name, value]];
 };
@@ -141,12 +146,12 @@ const attributeExpression = (node: AttributeExpression, state: State): any => {
 nodeTypes.set("AttributeExpression", attributeExpression);
 
 // AttributeSpread AST Node
-const attributeSpread = (
+const attributeSpread = async (
   node: AttributeSpread,
   state: State
-): Array<ArrayState> => {
+): Promise<Array<ArrayState>> => {
   const output = [];
-  const spread = compileNode(node.expression, state);
+  const spread = await compileNode(node.expression, state);
   for (let name of Object.keys(spread)) {
     output.push([name, spread[name]]);
   }
@@ -193,8 +198,8 @@ const literal = (
 nodeTypes.set("Literal", literal);
 
 // UnaryExpression AST Node
-const unaryExpression = (node: UnaryExpression, state: State) => {
-  const argument = compileNode(node.argument, state);
+const unaryExpression = async (node: UnaryExpression, state: State) => {
+  const argument = await compileNode(node.argument, state);
   try {
     switch (node.operator) {
       case "!":
@@ -225,8 +230,8 @@ const unaryExpression = (node: UnaryExpression, state: State) => {
 nodeTypes.set("UnaryExpression", unaryExpression);
 
 // UpdateExpression AST Node
-const updateExpression = (node: UpdateExpression, state: State) => {
-  let argument = compileNode(node.argument, state);
+const updateExpression = async (node: UpdateExpression, state: State) => {
+  let argument = await compileNode(node.argument, state);
   let output;
   try {
     if (node.operator === "++" && node.prefix) {
@@ -261,9 +266,9 @@ const updateExpression = (node: UpdateExpression, state: State) => {
 nodeTypes.set("UpdateExpression", updateExpression);
 
 // BinaryExpression AST Node
-const binaryExpression = (node: BinaryExpression, state: State) => {
-  const left = compileNode(node.left, state);
-  const right = compileNode(node.right, state);
+const binaryExpression = async (node: BinaryExpression, state: State) => {
+  const left = await compileNode(node.left, state);
+  const right = await compileNode(node.right, state);
   try {
     switch (node.operator) {
       case "|":
@@ -323,9 +328,9 @@ const binaryExpression = (node: BinaryExpression, state: State) => {
 nodeTypes.set("BinaryExpression", binaryExpression);
 
 // LogicalExpression AST Node
-const logicalExpression = (node: LogicalExpression, state: State) => {
-  const left = compileNode(node.left, state);
-  const right = compileNode(node.right, state);
+const logicalExpression = async (node: LogicalExpression, state: State) => {
+  const left = await compileNode(node.left, state);
+  const right = await compileNode(node.right, state);
   try {
     switch (node.operator) {
       case "||":
@@ -350,7 +355,7 @@ const logicalExpression = (node: LogicalExpression, state: State) => {
 
 nodeTypes.set("LogicalExpression", logicalExpression);
 
-// Text AST Node
+// // Text AST Node
 const text = (node: Text, state: State) => {
   return node.data;
 };
@@ -358,8 +363,11 @@ const text = (node: Text, state: State) => {
 nodeTypes.set("Text", text);
 
 // ElementDirective AST Node
-const elementDirective = (node: ElementDirective, state: State): string => {
-  const tagType = compileNode(node.expression, state);
+const elementDirective = async (
+  node: ElementDirective,
+  state: State
+): Promise<string> => {
+  const tagType = await compileNode(node.expression, state);
 
   // Can't Render Tag
   if (typeof tagType !== "string") {
@@ -391,11 +399,63 @@ const elementDirective = (node: ElementDirective, state: State): string => {
 
 nodeTypes.set("ElementDirective", elementDirective);
 
+// DataDirective AST Node
+const dataDirective = async (
+  node: DataDirective,
+  state: State
+): Promise<DataResponse> => {
+  let body = "";
+  const attrs = new Map();
+  const values: State = {};
+
+  // Get Body
+  if (node.children.length) {
+    body = await unionChildren(node.children, state);
+  }
+
+  // Get Attributes
+  if (node.attributes.length) {
+    const attributes = node.attributes;
+    for (let i = 0, aLen = attributes.length; i < aLen; i++) {
+      const list = await compileNode(attributes[i], state);
+      for (let x = 0, lLen = list.length; x < lLen; x++) {
+        const [name, value] = list[x];
+        attrs.set(name, value);
+      }
+    }
+
+    const attrsIterator = attrs[Symbol.iterator]();
+    for (const [name, value] of attrsIterator) {
+      values[name] = value === undefined ? name : value;
+    }
+  }
+
+  // TODO: need use
+  // TODO: key needs to be parsed, should be Identifier or Literal
+  // TODO: root should be passed, not hard coded
+  const root = `${Deno.cwd()}/src/resolvers`;
+  const res = await resolveData("graphcms", values, body, root);
+
+  // Namespace state to key if available
+  let outgoingState;
+  if (node.key !== undefined) {
+    outgoingState = {
+      [node.key]: res.response,
+    };
+  } else {
+    outgoingState = res.response;
+  }
+
+  throw ["STATE", outgoingState];
+};
+
+nodeTypes.set("DataDirective", dataDirective);
+
 // MemberExpression AST Node
-const memberExpression = (node: MemberExpression, state: State) => {
-  const obj = compileNode(node.object, state);
+const memberExpression = async (node: MemberExpression, state: State) => {
+  const obj = await compileNode(node.object, state);
   if (node.property.type === "Literal") {
-    const key = compileNode(node.property, state);
+    const key = await compileNode(node.property, state);
     try {
       return obj[key];
     } catch (e) {
@@ -409,18 +469,18 @@ const memberExpression = (node: MemberExpression, state: State) => {
 nodeTypes.set("MemberExpression", memberExpression);
 
 // IfBlock AST Node
-const ifBlock = (node: IfBlock, state: State) => {
-  const expression = compileNode(node.expression, state);
+const ifBlock = async (node: IfBlock, state: State) => {
+  const expression = await compileNode(node.expression, state);
   let output = "";
   if (expression) {
     // Use Children
     if (node.children.length) {
-      output = unionChildren(node.children, state);
+      output = await unionChildren(node.children, state);
     }
 
     return output;
   } else if (node.else !== null) {
-    return compileNode(node.else, state);
+    return await compileNode(node.else, state);
   } else {
     return "";
   }
@@ -429,10 +489,10 @@ const ifBlock = (node: IfBlock, state: State) => {
 nodeTypes.set("IfBlock", ifBlock);
 
 // ElseBlock AST Node
-const elseBlock = (node: ElseBlock, state: State) => {
+const elseBlock = async (node: ElseBlock, state: State) => {
   let output = "";
   if (node.children.length) {
-    output = unionChildren(node.children, state);
+    output = await unionChildren(node.children, state);
   }
 
   return output;
@@ -453,15 +513,15 @@ const elseIfBlock = (node: ElseIfBlock, state: State) => {
 nodeTypes.set("ElseIfBlock", elseIfBlock);
 
 // SkipBlock AST Node
-const skipBlock = (node: SkipBlock, state: State) => {
-  const expression = compileNode(node.expression, state);
+const skipBlock = async (node: SkipBlock, state: State) => {
+  const expression = await compileNode(node.expression, state);
   let output = "";
 
   // Skip Checks for the inverse of If
   if (!expression) {
     // Use Children
     if (node.children.length) {
-      output = unionChildren(node.children, state);
+      output = await unionChildren(node.children, state);
     }
 
     return output;
@@ -473,8 +533,8 @@ const skipBlock = (node: SkipBlock, state: State) => {
 nodeTypes.set("SkipBlock", skipBlock);
 
 // WhenBlock AST Node
-const whenBlock = (node: WhenBlock, state: State): string => {
-  const match = compileNode(node.expression, state);
+const whenBlock = async (node: WhenBlock, state: State): Promise<string> => {
+  const match = await compileNode(node.expression, state);
   let output = "";
 
   if (node.children.length) {
@@ -487,7 +547,10 @@ const whenBlock = (node: WhenBlock, state: State): string => {
       }
 
       if (node.children[i].type === "IsBlock") {
-        const [expression, contents] = compileNode(node.children[i], state);
+        const [expression, contents] = await compileNode(
+          node.children[i],
+          state
+        );
 
         if (match !== expression) {
           continue;
@@ -510,8 +573,8 @@ const whenBlock = (node: WhenBlock, state: State): string => {
 nodeTypes.set("WhenBlock", whenBlock);
 
 // IsBlock AST Node
-const isBlock = (node: IsBlock, state: State) => {
-  const expression = compileNode(node.expression, state);
+const isBlock = async (node: IsBlock, state: State) => {
+  const expression = await compileNode(node.expression, state);
 
   return [expression, node.children];
 };
@@ -519,8 +582,8 @@ const isBlock = (node: IsBlock, state: State) => {
 nodeTypes.set("IsBlock", isBlock);
 
 // EachBlock AST Node
-const eachBlock = (node: EachBlock, state: State): string => {
-  const expression = compileNode(node.expression, state);
+const eachBlock = async (node: EachBlock, state: State): Promise<string> => {
+  const expression = await compileNode(node.expression, state);
   const context = node.context.data;
   const index = node.index === null ? null : node.index.data;
   let output = "";
@@ -530,7 +593,7 @@ const eachBlock = (node: EachBlock, state: State): string => {
     node.else !== null &&
     (context === undefined || !expression || !expression.length)
   ) {
-    return compileNode(node.else, state);
+    return await compileNode(node.else, state);
   }
 
   // The loop contents
@@ -549,7 +612,10 @@ const eachBlock = (node: EachBlock, state: State): string => {
       // Process instance of children
       try {
         if (node.children.length) {
-          output += unionChildren(node.children, scopeState(state, internal));
+          output += await unionChildren(
+            node.children,
+            scopeState(state, internal)
+          );
         }
       } catch (capture) {
         if (Array.isArray(capture)) {
@@ -583,14 +649,20 @@ const eachBlock = (node: EachBlock, state: State): string => {
 nodeTypes.set("EachBlock", eachBlock);
 
 // BreakStatement AST Node
-const breakStatement = (node: BreakStatement, state: State): void => {
+const breakStatement = async (
+  node: BreakStatement,
+  state: State
+): Promise<void> => {
   throw ["BREAK"];
 };
 
 nodeTypes.set("BreakStatement", breakStatement);
 
 // ContinueStatement AST Node
-const continueStatement = (node: ContinueStatement, state: State): void => {
+const continueStatement = async (
+  node: ContinueStatement,
+  state: State
+): Promise<void> => {
   throw ["CONTINUE"];
 };
 
@@ -602,15 +674,34 @@ const scopeState = (state: State, incomingState: State): State => {
 };
 
 // Special function process children
-const unionChildren = (children: Array<Node>, state: State): string => {
+const unionChildren = async (
+  children: Array<Node>,
+  state: State
+): Promise<string> => {
+  let scoped = state;
   let output = "";
 
   for (let i = 0; i < children.length; i++) {
     try {
-      output += compileNode(children[i], state);
+      output += await compileNode(children[i], scoped);
     } catch (capture) {
-      // Speak handling for bubbling via throws to capture the last output
-      throw [capture[0], output];
+      // Speacial handling for bubbling via throws to capture the last output
+      // Used when something impacts state or impacts flow
+      if (Array.isArray(capture)) {
+        const [code, append] = capture;
+
+        if (code === "STATE") {
+          // Modifies the Scoped State for DataDirective that
+          // are not hoisted to the top or part of a router/path
+          scoped = scopeState(scoped, append);
+          continue;
+        } else {
+          // Continues to bubble for items like "CONTINUE" and "BREAK"
+          throw [code, output];
+        }
+      } else {
+        emitError(`Uncaught Error - ${capture}`);
+      }
     }
   }
 
@@ -620,15 +711,15 @@ const unionChildren = (children: Array<Node>, state: State): string => {
 // Special function that process attributes
 // Undefined and true (boolean) get returned without value
 // Null get skipped
-const unionAttributes = (
+const unionAttributes = async (
   attributes: Array<Attribute | AttributeSpread>,
   state: State
-): string => {
+): Promise<string> => {
   const attrs = new Map();
   let output = "";
 
   for (let i = 0, aLen = attributes.length; i < aLen; i++) {
-    const list = compileNode(attributes[i], state);
+    const list = await compileNode(attributes[i], state);
     for (let x = 0, lLen = list.length; x < lLen; x++) {
       const [name, value] = list[x];
       attrs.set(name, value);
@@ -651,8 +742,13 @@ const unionAttributes = (
 
 // Hands off to the correct compile function
 // deno-lint-ignore no-explicit-any
-const compileNode = (node: Node, state: State): any => {
-  return nodeTypes.get(node.type)(node, state);
+const compileNode = async (node: Node, state: State): Promise<any> => {
+  if (nodeTypes.has(node.type)) {
+    return await nodeTypes.get(node.type)(node, state);
+  } else {
+    // TOOD: Emit Warning
+    return Promise.resolve("");
+  }
 };
 
 const emitWarning = (msg: string): undefined => {
@@ -665,16 +761,13 @@ const emitError = (msg: string): undefined => {
 };
 
 // Loops over AST array or single AST object
-export default (ast: Node | Array<Node>, state: State) => {
-  let output = "";
-
-  if (Array.isArray(ast)) {
-    for (let i = 0, len = ast.length; i < len; i++) {
-      output = output + compileNode(ast[i], state);
-    }
+export default async (
+  ast: Node | Array<Node>,
+  state: State
+): Promise<string> => {
+  if (Array.isArray(ast) && ast.length) {
+    return "" + (await unionChildren(ast, state));
   } else {
-    output = output + compileNode(ast, state);
+    return "" + (await compileNode(ast as Node, state));
   }
-
-  return output;
 };
