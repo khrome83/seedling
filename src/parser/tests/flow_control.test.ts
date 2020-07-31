@@ -648,7 +648,6 @@ Deno.test("When / Is Block", () => {
         data: ":when",
         children: [
           { type: "Text", data: "\n      ", start: 19, end: 26 },
-          { type: "Text", data: "\n      ", start: 19, end: 26 },
           {
             type: "IsBlock",
             data: ":is",

@@ -244,10 +244,10 @@ export class Parser {
                   )}`
                 );
               }
+            } else {
+              // Good to Push While Child
+              children.push(child as IsBlock | ElseBlock);
             }
-
-            // Good to Push While Child
-            children.push(child as IsBlock | ElseBlock);
           } else if (tagName === ":if" || tagName === ":elseif") {
             if (child.type === "ElseBlock" || child.type === "ElseIfBlock") {
               if (elseBlock === null) {
