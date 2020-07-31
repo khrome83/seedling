@@ -132,7 +132,7 @@ export interface PathDirective extends BaseTag {
 
 export interface DataDirective extends BaseTag {
   type: "DataDirective";
-  key: string | undefined;
+  key: Identifier | Literal | undefined;
 }
 
 export interface SlotDirective extends BaseTag {
@@ -1722,17 +1722,41 @@ export class Parser {
       (element) =>
         element?.type === "Attribute" && element?.name?.data === "key"
     ) as Attribute;
-    const key = found?.value?.data;
+
+    let expression;
+    if (found?.value?.type === "AttributeExpression") {
+      expression = found.value.expression;
+    } else {
+      if (found?.value?.data) {
+        expression = this.parseExpressions(
+          `"${found.value.data}"`,
+          found.value.start
+        );
+      }
+    }
 
     // Remove unneeded attributes
     attributes = this.removeAttribute(attributes, "key");
+
+    if (
+      expression !== undefined &&
+      expression.type !== "Identifier" &&
+      expression.type !== "Literal"
+    ) {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Key Argument ${cyan(
+          bold(found.value.data)
+        )} For Data Directive`
+      );
+    }
 
     return {
       type: "DataDirective",
       data,
       attributes,
       children,
-      key: key || undefined,
+      key: expression as Literal | Identifier | undefined,
       start,
       end,
     };

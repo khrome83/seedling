@@ -431,7 +431,6 @@ const dataDirective = async (
   }
 
   // TODO: need use
-  // TODO: key needs to be parsed, should be Identifier or Literal
   // TODO: root should be passed, not hard coded
   const root = `${Deno.cwd()}/src/resolvers`;
   const res = await resolveData("graphcms", values, body, root);
@@ -439,8 +438,9 @@ const dataDirective = async (
   // Namespace state to key if available
   let outgoingState;
   if (node.key !== undefined) {
+    const key = await compileNode(node.key, state);
     outgoingState = {
-      [node.key]: res.response,
+      [key]: res.response,
     };
   } else {
     outgoingState = res.response;
