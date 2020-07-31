@@ -263,7 +263,7 @@ Deno.test("Path Directive", () => {
 Deno.test("Path Directive with Data", () => {
   const html = `
     <:path url="/blog/:catagories">
-      <:data id="foo" />
+      <:data use="bar" id="foo" />
     </:path>`;
   const p = new Parser(html);
   const output = p.parse();
@@ -283,23 +283,30 @@ Deno.test("Path Directive with Data", () => {
               {
                 type: "Attribute",
                 data: ' id="foo"',
-                start: 49,
-                end: 58,
-                name: { type: "AttributeName", data: "id", start: 50, end: 52 },
+                start: 59,
+                end: 68,
+                name: { type: "AttributeName", data: "id", start: 60, end: 62 },
                 value: {
                   type: "AttributeValue",
                   data: "foo",
-                  start: 54,
-                  end: 59,
+                  start: 64,
+                  end: 69,
                 },
               },
             ],
             children: [],
             key: undefined,
+            expression: {
+              type: "Literal",
+              data: '"bar"',
+              value: "bar",
+              start: 55,
+              end: 60,
+            },
             start: 43,
-            end: 61,
+            end: 71,
           },
-          { type: "Text", data: "\n    ", start: 61, end: 66 },
+          { type: "Text", data: "\n    ", start: 71, end: 76 },
         ],
         path: [
           { type: "StaticPathSegment", data: "blog", start: 18, end: 22 },
@@ -317,7 +324,7 @@ Deno.test("Path Directive with Data", () => {
           },
         ],
         start: 5,
-        end: 74,
+        end: 84,
       },
     ],
   };
@@ -326,7 +333,7 @@ Deno.test("Path Directive with Data", () => {
 });
 
 Deno.test("Data Directive", () => {
-  const html = '<:data id="sdf098df09-1349asd9asd-sd8asd012" />';
+  const html = '<:data use="bar" id="sdf098df09-1349asd9asd-sd8asd012" />';
   const p = new Parser(html);
   const output = p.parse();
   const expected = {
@@ -338,21 +345,28 @@ Deno.test("Data Directive", () => {
           {
             type: "Attribute",
             data: ' id="sdf098df09-1349asd9asd-sd8asd012"',
-            start: 6,
-            end: 44,
-            name: { type: "AttributeName", data: "id", start: 7, end: 9 },
+            start: 16,
+            end: 54,
+            name: { type: "AttributeName", data: "id", start: 17, end: 19 },
             value: {
               type: "AttributeValue",
               data: "sdf098df09-1349asd9asd-sd8asd012",
-              start: 11,
-              end: 45,
+              start: 21,
+              end: 55,
             },
           },
         ],
         children: [],
         key: undefined,
+        expression: {
+          type: "Literal",
+          data: '"bar"',
+          value: "bar",
+          start: 12,
+          end: 17,
+        },
         start: 0,
-        end: 47,
+        end: 57,
       },
     ],
   };
@@ -361,7 +375,8 @@ Deno.test("Data Directive", () => {
 });
 
 Deno.test("Data Directive with Key Override", () => {
-  const html = '<:data id="sdf098df09-1349asd9asd-sd8asd012" key="foo"/>';
+  const html =
+    '<:data use="bar" id="sdf098df09-1349asd9asd-sd8asd012" key="foo"/>';
   const p = new Parser(html);
   const output = p.parse();
   const expected = {
@@ -373,14 +388,14 @@ Deno.test("Data Directive with Key Override", () => {
           {
             type: "Attribute",
             data: ' id="sdf098df09-1349asd9asd-sd8asd012"',
-            start: 6,
-            end: 44,
-            name: { type: "AttributeName", data: "id", start: 7, end: 9 },
+            start: 16,
+            end: 54,
+            name: { type: "AttributeName", data: "id", start: 17, end: 19 },
             value: {
               type: "AttributeValue",
               data: "sdf098df09-1349asd9asd-sd8asd012",
-              start: 11,
-              end: 45,
+              start: 21,
+              end: 55,
             },
           },
         ],
@@ -389,11 +404,18 @@ Deno.test("Data Directive with Key Override", () => {
           type: "Literal",
           data: '"foo"',
           value: "foo",
-          end: 55,
-          start: 50,
+          start: 60,
+          end: 65,
+        },
+        expression: {
+          type: "Literal",
+          data: '"bar"',
+          value: "bar",
+          start: 12,
+          end: 17,
         },
         start: 0,
-        end: 56,
+        end: 66,
       },
     ],
   };
@@ -403,7 +425,7 @@ Deno.test("Data Directive with Key Override", () => {
 
 Deno.test("Data Directive with Plain Text", () => {
   const html = `
-    <:data id="sdf098df09-1349asd9asd-sd8asd012">
+    <:data use="bar" id="sdf098df09-1349asd9asd-sd8asd012">
       {
         name
         sizes {
@@ -425,14 +447,14 @@ Deno.test("Data Directive with Plain Text", () => {
           {
             type: "Attribute",
             data: ' id="sdf098df09-1349asd9asd-sd8asd012"',
-            start: 11,
-            end: 49,
-            name: { type: "AttributeName", data: "id", start: 12, end: 14 },
+            start: 21,
+            end: 59,
+            name: { type: "AttributeName", data: "id", start: 22, end: 24 },
             value: {
               type: "AttributeValue",
               data: "sdf098df09-1349asd9asd-sd8asd012",
-              start: 16,
-              end: 50,
+              start: 26,
+              end: 60,
             },
           },
         ],
@@ -441,13 +463,20 @@ Deno.test("Data Directive with Plain Text", () => {
             type: "Text",
             data:
               "\n      {\n        name\n        sizes {\n          size\n          available\n        }\n        color\n      }\n    ",
-            start: 50,
-            end: 159,
+            start: 60,
+            end: 169,
           },
         ],
         key: undefined,
+        expression: {
+          type: "Literal",
+          data: '"bar"',
+          value: "bar",
+          start: 17,
+          end: 22,
+        },
         start: 5,
-        end: 167,
+        end: 177,
       },
     ],
   };

@@ -405,6 +405,7 @@ const dataDirective = async (
   state: State
 ): Promise<DataResponse> => {
   let body = "";
+  const use = await compileNode(node.expression, state);
   const attrs = new Map();
   const values: State = {};
 
@@ -430,10 +431,9 @@ const dataDirective = async (
     }
   }
 
-  // TODO: need use
   // TODO: root should be passed, not hard coded
   const root = `${Deno.cwd()}/src/resolvers`;
-  const res = await resolveData("graphcms", values, body, root);
+  const res = await resolveData(use, values, body, root);
 
   // Namespace state to key if available
   let outgoingState;

@@ -133,6 +133,7 @@ export interface PathDirective extends BaseTag {
 export interface DataDirective extends BaseTag {
   type: "DataDirective";
   key: Identifier | Literal | undefined;
+  expression: Identifier | Literal | MemberExpression;
 }
 
 export interface SlotDirective extends BaseTag {
@@ -1718,45 +1719,81 @@ export class Parser {
     attributes: Array<Attribute | AttributeSpread> = [],
     children: Array<AST> = []
   ): DataDirective {
-    const found = attributes.find(
+    // Key
+    const foundKey = attributes.find(
       (element) =>
         element?.type === "Attribute" && element?.name?.data === "key"
     ) as Attribute;
 
-    let expression;
-    if (found?.value?.type === "AttributeExpression") {
-      expression = found.value.expression;
+    let key;
+    if (foundKey?.value?.type === "AttributeExpression") {
+      key = foundKey.value.expression;
     } else {
-      if (found?.value?.data) {
-        expression = this.parseExpressions(
-          `"${found.value.data}"`,
-          found.value.start
+      if (foundKey?.value?.data) {
+        key = this.parseExpressions(
+          `"${foundKey.value.data}"`,
+          foundKey.value.start
         );
       }
     }
 
-    // Remove unneeded attributes
-    attributes = this.removeAttribute(attributes, "key");
-
     if (
-      expression !== undefined &&
-      expression.type !== "Identifier" &&
-      expression.type !== "Literal"
+      key !== undefined &&
+      key.type !== "Identifier" &&
+      key.type !== "Literal"
     ) {
       // Throw if we have a invalid type used for a use statement
       throw this.throwError(
         `Invalid Key Argument ${cyan(
-          bold(found.value.data)
+          bold(foundKey.value.data)
         )} For Data Directive`
       );
     }
+
+    // Use
+    const foundUse = attributes.find(
+      (element) =>
+        element?.type === "Attribute" && element?.name?.data === "use"
+    ) as Attribute;
+
+    let expression;
+    if (foundUse?.value?.type === "AttributeExpression") {
+      expression = foundUse.value.expression;
+    } else {
+      if (!foundUse?.value?.data) {
+        throw this.throwError("Missing Use Argument For Data Directive");
+      }
+
+      expression = this.parseExpressions(
+        `"${foundUse.value.data}"`,
+        foundUse.value.start
+      );
+    }
+
+    if (
+      expression.type !== "Identifier" &&
+      expression.type !== "Literal" &&
+      expression.type !== "MemberExpression"
+    ) {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Use Argument ${cyan(
+          bold(foundUse.value.data)
+        )} For Data Directive`
+      );
+    }
+
+    // Remove unneeded attributes
+    attributes = this.removeAttribute(attributes, "key");
+    attributes = this.removeAttribute(attributes, "use");
 
     return {
       type: "DataDirective",
       data,
       attributes,
       children,
-      key: expression as Literal | Identifier | undefined,
+      key: key as Literal | Identifier | undefined,
+      expression: expression as Literal | Identifier | MemberExpression,
       start,
       end,
     };
