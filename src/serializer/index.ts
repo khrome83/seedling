@@ -1,12 +1,5 @@
+import { RootAST, Text, Tag, Comment, Doctype, Attribute } from "../types.ts";
 import voidElements from "../dict/voidElements.ts";
-import {
-  RootAST,
-  Text,
-  Tag,
-  Comment,
-  Doctype,
-  Attribute,
-} from "../parser/index.ts";
 
 interface SerializerMap {
   [key: string]: Function;

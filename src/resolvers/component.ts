@@ -1,14 +1,7 @@
 import { bold, cyan } from "../deps.ts";
-import { cache, getCacheKey, Identifier } from "../cache/index.ts";
-import { Parser, RootAST } from "../parser/index.ts";
-
-export interface ComponentResponse {
-  ast: RootAST;
-  meta: {
-    cacheKey: Identifier;
-    cacheHit: boolean;
-  };
-}
+import { ComponentResponse, CacheKey } from "../types.ts";
+import { cache, getCacheKey } from "../cache/index.ts";
+import { Parser } from "../parser/index.ts";
 
 export const resolveComponent = async (
   name: string,
@@ -60,7 +53,7 @@ export const resolveComponent = async (
   }
 
   // Either return from Cache or Request New Data
-  if (!cache.has(cacheKey)) {
+  if (!cache.has(cacheKey as CacheKey)) {
     try {
       let component;
 
@@ -97,18 +90,18 @@ export const resolveComponent = async (
       const result = p.parse();
 
       // Cache and Return
-      cache.set(cacheKey, result);
+      cache.set(cacheKey as CacheKey, result);
       return Promise.resolve({
         ast: result,
         meta: { cacheHit: false, cacheKey },
-      });
+      }) as Promise<ComponentResponse>;
     } catch (e) {
       return Promise.reject(e);
     }
   } else {
     return Promise.resolve({
-      ast: cache.get(cacheKey),
+      ast: cache.get(cacheKey as CacheKey),
       meta: { cacheHit: true, cacheKey },
-    });
+    }) as Promise<ComponentResponse>;
   }
 };

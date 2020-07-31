@@ -1,41 +1,31 @@
 import { delay } from "../deps.ts";
-import { cache, getCacheKey, Identifier } from "../cache/index.ts";
-
-export interface Skip {
-  type: "SKIP";
-  response: object;
-}
+import {
+  Skip,
+  End,
+  Success,
+  Retry,
+  DataResponse,
+  Error,
+  Request,
+  Response,
+  CacheKey,
+} from "../types.ts";
+import { cache, getCacheKey } from "../cache/index.ts";
 
 const skip = (response: object): Skip => ({
   type: "SKIP",
   response,
 });
 
-export interface End {
-  type: "END";
-  response: object;
-}
-
 const end = (response: object): End => ({
   type: "END",
   response,
 });
 
-export interface Success {
-  type: "SUCCESS";
-  response: object;
-}
-
 const success = (response: object): Success => ({
   type: "SUCCESS",
   response,
 });
-
-export interface Retry {
-  type: "RETRY";
-  msg: string;
-  delay: number;
-}
 
 const retry = (msg: string, delay = 1000): Retry => ({
   type: "RETRY",
@@ -43,25 +33,11 @@ const retry = (msg: string, delay = 1000): Retry => ({
   delay,
 });
 
-export interface Error {
-  type: "ERROR";
-  msg: string;
-  stack?: TypeError;
-}
-
 const error = (msg: string, stack?: TypeError): Error => ({
   type: "ERROR",
   msg,
   stack,
 });
-
-export interface Response {
-  skip: Function;
-  end: Function;
-  retry: Function;
-  error: Function;
-  success: Function;
-}
 
 const response: Response = {
   skip,
@@ -71,25 +47,10 @@ const response: Response = {
   success,
 };
 
-export interface Request {
-  attrs?: object;
-  body?: string;
-}
-
 const buildRequest = (attrs: object = {}, body = ""): Request => ({
   attrs,
   body,
 });
-
-export interface DataResponse {
-  type: "SKIP" | "END" | "SUCCESS";
-  response: object;
-  retries: number;
-  meta: {
-    cacheKey: Identifier;
-    cacheHit: boolean;
-  };
-}
 
 export const resolveData = async (
   processor: string,
@@ -120,7 +81,7 @@ export const resolveData = async (
     });
 
   // Either return from Cache or Request New Data
-  if (!cache.has(cacheKey)) {
+  if (!cache.has(cacheKey as CacheKey)) {
     try {
       let retries = 0;
       const dataProcessor = await import(importPath);
@@ -158,20 +119,20 @@ export const resolveData = async (
       }
 
       // Cache and Return
-      cache.set(cacheKey, result.response);
+      cache.set(cacheKey as CacheKey, result.response);
       return Promise.resolve({
         ...result,
         retries,
         meta: { cacheHit: false, cacheKey },
-      });
+      }) as Promise<DataResponse>;
     } catch (e) {
       return Promise.reject(e);
     }
   } else {
     return Promise.resolve({
-      ...success(cache.get(cacheKey)),
+      ...success(cache.get(cacheKey as CacheKey)),
       retries: 0,
       meta: { cacheHit: true, cacheKey },
-    });
+    }) as Promise<DataResponse>;
   }
 };

@@ -1,13 +1,11 @@
 import {
   runBenchmarks,
   bench,
-  BenchmarkTimer,
-  BenchmarkRunError,
   red,
   prettyBenchmarkResult,
   prettyBenchmarkProgress,
 } from "../deps.ts";
-import { RootAST } from "../parser/index.ts";
+import { BenchmarkTimer, BenchmarkRunError, RootAST } from "../types.ts";
 import { Serializer } from "./index.ts";
 
 // Basic Benchmark to Serializer Parser Speed

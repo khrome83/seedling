@@ -1,5 +1,5 @@
 import { assertEquals } from "../../deps.ts";
-import { Parser, Tag } from "../index.ts";
+import { Parser } from "../index.ts";
 
 Deno.test("Doctype", () => {
   const html = "<!DOCTYPE html>";

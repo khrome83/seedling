@@ -1,5 +1,5 @@
 import { assertEquals } from "../deps.ts";
-import { RootAST } from "../parser/index.ts";
+import { RootAST } from "../types.ts";
 import { Serializer } from "./index.ts";
 
 Deno.test("Complex AST", () => {

@@ -28,10 +28,12 @@ import {
   BreakStatement,
   ContinueStatement,
   DataDirective,
-} from "../parser/index.ts";
+  DataResponse,
+  State,
+} from "../types.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
-import { resolveData, DataResponse } from "../resolvers/data.ts";
+import { resolveData } from "../resolvers/data.ts";
 
 // TODO: Finish All Types
 //
@@ -70,16 +72,6 @@ import { resolveData, DataResponse } from "../resolvers/data.ts";
 //   33.    [X] Identifier
 //   34.    [X] Literal
 
-export interface State {
-  // deno-lint-ignore no-explicit-any
-  [key: string]: any | State;
-}
-
-export interface ArrayState {
-  // deno-lint-ignore no-explicit-any
-  [key: string]: any;
-}
-
 const nodeTypes = new Map();
 
 // Tag AST Node
@@ -111,7 +103,7 @@ nodeTypes.set("Tag", tag);
 const attribute = async (
   node: Attribute,
   state: State
-): Promise<Array<ArrayState>> => {
+): Promise<Array<State>> => {
   const name = await compileNode(node.name, state);
   const value = await compileNode(node.value, state);
 
@@ -149,7 +141,7 @@ nodeTypes.set("AttributeExpression", attributeExpression);
 const attributeSpread = async (
   node: AttributeSpread,
   state: State
-): Promise<Array<ArrayState>> => {
+): Promise<Array<State>> => {
   const output = [];
   const spread = await compileNode(node.expression, state);
   for (let name of Object.keys(spread)) {

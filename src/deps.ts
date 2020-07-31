@@ -13,8 +13,6 @@ export {
 export {
   runBenchmarks,
   bench,
-  BenchmarkTimer,
-  BenchmarkRunError,
 } from "https://deno.land/std@0.62.0/testing/bench.ts";
 
 // Colors
@@ -46,4 +44,3 @@ export {
 
 // LRU Cache
 export { Cache } from "https://deno.land/x/dash@2.2.1/mod.ts";
-export { Identifier } from "https://deno.land/x/dash@2.2.1/util.ts";

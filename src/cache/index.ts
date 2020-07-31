@@ -1,4 +1,4 @@
-import { v5, Cache, Identifier } from "../deps.ts";
+import { v5, Cache } from "../deps.ts";
 
 const namespace = "f6360cb2-cdac-4d8d-a269-a5f65b054128";
 
@@ -8,7 +8,7 @@ const cache = new Cache({
 });
 
 // deno-lint-ignore no-explicit-any
-const getCacheKey = (...payload: any[]): Identifier => {
+const getCacheKey = (...payload: any[]) => {
   if (!payload.length) {
     throw new Error("Invalid payload for cache key, need atleast one argument");
   }
@@ -18,7 +18,7 @@ const getCacheKey = (...payload: any[]): Identifier => {
     namespace,
   };
 
-  return v5.generate(cacheKeyOptions) as Identifier;
+  return v5.generate(cacheKeyOptions);
 };
 
-export { cache, getCacheKey, namespace, Identifier };
+export { cache, getCacheKey, namespace };

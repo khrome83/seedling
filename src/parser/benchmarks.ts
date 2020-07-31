@@ -1,13 +1,12 @@
 import {
   runBenchmarks,
   bench,
-  BenchmarkTimer,
-  BenchmarkRunError,
   red,
   prettyBenchmarkResult,
   prettyBenchmarkProgress,
 } from "../deps.ts";
-import { Parser, UpdateExpression } from "./index.ts";
+import { BenchmarkTimer, BenchmarkRunError } from "../types.ts";
+import { Parser } from "./index.ts";
 
 // Basic Benchmark to Validate Parser Speed
 const html = `

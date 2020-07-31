@@ -1,5 +1,5 @@
 import { assertThrows } from "../../deps.ts";
-import { Parser, Tag } from "../index.ts";
+import { Parser } from "../index.ts";
 
 Deno.test("Non String Template should throw a TypeError", () => {
   const badTemplate = 9001;

@@ -1,6 +1,6 @@
 import { assertEquals, denock } from "../deps.ts";
+import { Node } from "../types.ts";
 import "https://deno.land/x/dotenv@v0.5.0/load.ts";
-import { Node } from "../parser/index.ts";
 import compile from "./index.ts";
 
 Deno.test("Doctype", async () => {
