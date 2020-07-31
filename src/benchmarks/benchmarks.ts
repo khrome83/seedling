@@ -15,7 +15,7 @@ import {
 import "./parser.ts";
 import "./serializer.ts";
 
-if (!Deno.env.get("CI")) {
+if (Deno.env.get("CI")) {
   // CI Specific Version
   runBenchmarks()
     .then(
