@@ -17,7 +17,7 @@ import "./serializer.ts";
 
 if (Deno.env.get("CI")) {
   // CI Specific Version
-  runBenchmarks()
+  runBenchmarks({ silent: true, skip: /_long/ })
     .then(
       prettyBenchmarkDown(console.log, {
         title: "Example Markdown",
