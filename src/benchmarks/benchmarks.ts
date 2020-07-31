@@ -15,13 +15,16 @@ import {
 import "./parser.ts";
 import "./serializer.ts";
 
-if (Deno.env.get("CI")) {
+if (!Deno.env.get("CI")) {
   // CI Specific Version
-  runBenchmarks({ silent: true, skip: /_long/ }, prettyBenchmarkProgress())
+  runBenchmarks()
     .then(
       prettyBenchmarkDown(console.log, {
         title: "Example Markdown",
-        description: "description",
+        description: (runResult: BenchmarkRunResult) =>
+          `This markdown was generated with the use of \`prettyBenchmarkDown\`.\nIf you use a function for the \`description\` or \`afterTables\`, you can process the results here as well: \n\n > In this benchmark ${runResult.results.length} benches were run, ${runResult.filtered} were filtered.`,
+        afterTables:
+          "\n---\n\nThis is the `afterTables`. This behaves the same as `description`, it just puts this at the bottom of the markdown.\nHere its defined with a simple string.\n\nCheck out the Github Action, which comments a markdown like this on PRs: $link",
         groups: [
           {
             include: /array/,
