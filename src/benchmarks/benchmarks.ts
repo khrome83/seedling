@@ -43,8 +43,7 @@ if (Deno.env.get("CI")) {
       })
     )
     .catch((e: BenchmarkRunError) => {
-      console.log(red(e.benchmarkName as string));
-      console.error(red(e.stack as string));
+      console.error(e.stack);
     });
 } else {
   // Pretty Console Output
