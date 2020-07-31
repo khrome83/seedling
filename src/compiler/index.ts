@@ -51,7 +51,7 @@ import { resolveData, DataResponse } from "../resolvers/data.ts";
 //   14.    [ ] PathDirective
 //   15.    [ ] DynamicPathSegment
 //   16.    [ ] StaticPathSegment
-//   17.    [ ] DataDirective
+//   17.    [X] DataDirective
 //   18.    [ ] SlotDirective
 //   19.    [X] IfBlock
 //   20.    [X] ElseIfBlock
