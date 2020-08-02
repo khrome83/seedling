@@ -358,6 +358,15 @@ export interface ComponentResponse {
   };
 }
 
+// Layout
+export interface LayoutResponse {
+  ast: RootAST;
+  meta: {
+    cacheKey: CacheIdentifier;
+    cacheHit: boolean;
+  };
+}
+
 // Data
 
 export interface Skip {

@@ -2,6 +2,7 @@ import { assert, assertEquals, denock } from "../deps.ts";
 import "https://deno.land/x/dotenv@v0.5.0/load.ts";
 import { resolveData } from "./data.ts";
 import { resolveComponent } from "./component.ts";
+import { resolveLayout } from "./layout.ts";
 
 Deno.test("Data Resolver - GraphCMS", async () => {
   const attrs = {
@@ -53,7 +54,7 @@ Deno.test("Data Resolver - GraphCMS", async () => {
       },
     },
     retries: 0,
-    meta: { cacheHit: false, cacheKey: "c847d6db-3566-5970-aa05-09a23e82319b" },
+    meta: { cacheHit: false, cacheKey: "78c11c24-062e-5fff-b00b-5ae5fdddfa5e" },
   };
 
   assertEquals(output, expected);
@@ -109,7 +110,7 @@ Deno.test("Data Resolver with Key - GraphCMS", async () => {
       },
     },
     retries: 0,
-    meta: { cacheHit: true, cacheKey: "c847d6db-3566-5970-aa05-09a23e82319b" },
+    meta: { cacheHit: true, cacheKey: "78c11c24-062e-5fff-b00b-5ae5fdddfa5e" },
   };
 
   assertEquals(output, expected);
@@ -191,7 +192,7 @@ Deno.test("Component Resolver - Sample (local)", async () => {
       layout: [],
       router: [],
     },
-    meta: { cacheHit: false, cacheKey: "bfb528c4-456d-58d5-98e3-5d76ffe83e4a" },
+    meta: { cacheHit: false, cacheKey: "300bb306-697d-5d85-80ff-b28ec2feb524" },
   };
 
   assertEquals(output, expected);
@@ -389,7 +390,7 @@ Deno.test("Component Resolver - BaseHeading (local)", async () => {
       layout: [],
       router: [],
     },
-    meta: { cacheHit: false, cacheKey: "e72791be-0657-558e-b131-4965570b8674" },
+    meta: { cacheHit: true, cacheKey: "f98a66e8-4f3a-5ba6-bea8-0e1b711ef6b8" },
   };
 
   assertEquals(output, expected);
@@ -503,4 +504,40 @@ Deno.test("Component Resolver - Hero (remote)", async () => {
 
   const output = await resolveComponent("Hero");
   assert(!!output.ast.html); // Cast to boolean and assert, we need true
+});
+
+Deno.test("Layout Resolver - Default (local)", async () => {
+  const output = await resolveLayout("Default");
+  const expected = {
+    ast: {
+      html: [
+        {
+          type: "Tag",
+          data: "div",
+          attributes: [],
+          children: [
+            { type: "Text", data: "\n  ", start: 5, end: 8 },
+            {
+              type: "SlotDirective",
+              data: ":slot",
+              attributes: [],
+              children: [],
+              expression: undefined,
+              start: 8,
+              end: 23,
+            },
+            { type: "Text", data: "\n", start: 23, end: 24 },
+          ],
+          slot: undefined,
+          start: 0,
+          end: 30,
+        },
+      ],
+      router: [],
+      layout: [],
+    },
+    meta: { cacheHit: false, cacheKey: "d0d1aade-a374-590f-8b22-4a8bb02e45be" },
+  };
+
+  assertEquals(output, expected);
 });

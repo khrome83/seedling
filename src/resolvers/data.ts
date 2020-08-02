@@ -59,7 +59,7 @@ export const resolveData = async (
   body = ""
 ): Promise<DataResponse> => {
   // Generate Cache Key (v5 UUID)
-  const cacheKey = getCacheKey(processor, attrs, body);
+  const cacheKey = getCacheKey("data", processor, attrs, body);
 
   // Determine correct path to process under
   const tsPath = `${config.root}/data/${processor}.ts`;
