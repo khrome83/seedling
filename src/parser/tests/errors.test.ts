@@ -9,7 +9,7 @@ Deno.test("Non String Template should throw a TypeError", () => {
 });
 
 Deno.test("Unknown Directive should Throw", () => {
-  const html = '<:foobar bind="h2">Dynamic Heading</:foobar>';
+  const html = '<:foobar use="h2">Dynamic Heading</:foobar>';
   const p = new Parser(html);
 
   assertThrows((): void => {
@@ -18,7 +18,7 @@ Deno.test("Unknown Directive should Throw", () => {
 });
 
 Deno.test("Element Directive - Invalid Bind Argument should Throw", () => {
-  const html = '<:element bind="">Bad Binding</:element>';
+  const html = '<:element use="">Bad Binding</:element>';
   const p = new Parser(html);
 
   assertThrows((): void => {
@@ -27,7 +27,21 @@ Deno.test("Element Directive - Invalid Bind Argument should Throw", () => {
 });
 
 Deno.test("Component Directive - Invalid Bind Argument should Throw", () => {
-  const html = '<:component bind="">Bad Binding</:component>';
+  const html = '<:component use="">Bad Binding</:component>';
+  const p = new Parser(html);
+
+  assertThrows((): void => {
+    p.parse();
+  });
+});
+
+Deno.test("Slot not direct child of component", () => {
+  const html = `
+    <FooBar>
+      <div>
+        <p slot="foo">Bad Binding</p>
+      </div>
+    </FooBar>`;
   const p = new Parser(html);
 
   assertThrows((): void => {

@@ -46,6 +46,7 @@ import {
   DynamicPathSegment,
   StaticPathSegment,
   SlotDirective,
+  DynamicTag,
 } from "../types.ts";
 
 // Parser
@@ -105,7 +106,7 @@ export class Parser {
         const start = this.pos;
         // Handle Expressions and Store Tag
         template = this.advance(1);
-        const [tagName] = template.match(/^\:\w+/gm) || [];
+        const [tagName] = template.match(/^\:\w+/g) || [];
         template = this.advance(tagName.length);
 
         if (tagName === ":break") {
@@ -207,25 +208,25 @@ export class Parser {
         let reClosingTag;
         switch (tagName) {
           case ":if":
-            reClosingTag = /^\{\/\s*\:if\s*\}/gm;
+            reClosingTag = /^\{\/\s*\:if\s*\}/g;
             break;
           case ":elseif":
-            reClosingTag = /^(\{\s*\:elseif|\{\s*\:else\s*\}|\{\/\s*\:if\s*\})/gm;
+            reClosingTag = /^(\{\s*\:elseif|\{\s*\:else\s*\}|\{\/\s*\:if\s*\})/g;
             break;
           case ":else":
-            reClosingTag = /^(\{\/\s*\:if\s*\}|\{\/\s*\:when\s*\}|\{\/\s*\:each\s*\})/gm;
+            reClosingTag = /^(\{\/\s*\:if\s*\}|\{\/\s*\:when\s*\}|\{\/\s*\:each\s*\})/g;
             break;
           case ":skip":
-            reClosingTag = /^\{\/\s*\:skip\s*\}/gm;
+            reClosingTag = /^\{\/\s*\:skip\s*\}/g;
             break;
           case ":when":
-            reClosingTag = /^\{\/\s*\:when\s*\}/gm;
+            reClosingTag = /^\{\/\s*\:when\s*\}/g;
             break;
           case ":is":
-            reClosingTag = /^(\{\s*\:is|\{\s*\:else\s*\}|\{\/\s*\:when\s*\})/gm;
+            reClosingTag = /^(\{\s*\:is|\{\s*\:else\s*\}|\{\/\s*\:when\s*\})/g;
             break;
           case ":each":
-            reClosingTag = /^\{\/\s*\:each\s*\}/gm;
+            reClosingTag = /^\{\/\s*\:each\s*\}/g;
             break;
           default:
             throw this.throwError(`Unknown Block ${cyan(bold(tagName))}`);
@@ -234,7 +235,7 @@ export class Parser {
         while ((child = this.parseTags(childTemplate)) !== null) {
           if (tagName === ":when") {
             if (child.type !== "IsBlock" && child.type !== "ElseBlock") {
-              if (child.type === "Text" && !/[^\s]/gm.test(child.data)) {
+              if (child.type === "Text" && !/[^\s]/g.test(child.data)) {
                 // Good to Push While Child
                 children.push(child as IsBlock | ElseBlock);
               } else {
@@ -448,7 +449,32 @@ export class Parser {
             throw this.throwError(`Unclosed tag ${cyan(bold(tagName))}`);
           }
 
-          while ((child = this.parseTags(childTemplate)) !== null) {
+          while (
+            (child = this.parseTags(childTemplate) as DynamicTag) !== null
+          ) {
+            // Validate slot attribute is directly below component
+            if (getDynamicTag.name !== "bound getComponentDirective") {
+              if (
+                child.type === "ComponentDirective" ||
+                child.type === "ElementDirective" ||
+                child.type === "Tag"
+              ) {
+                // If found, and not direct child, emit error
+                if (
+                  (child as ComponentDirective | ElementDirective | Tag)
+                    .slot !== undefined
+                ) {
+                  throw this.throwError(
+                    `Element '${cyan(
+                      bold(child.data)
+                    )}' with attribute ${yellow(
+                      'slot="..."'
+                    )} must be a direct child of a Component Directive`
+                  );
+                }
+              }
+            }
+
             children.push(child);
             childTemplate = this.advance(child.end - this.pos);
 
@@ -502,9 +528,9 @@ export class Parser {
     startPos: number,
     expression?: ExpressionStatement | undefined
   ): ExpressionStatement {
-    const reToken = /^\s*(\!|\!\!|\+|\-|\~)?(\+\+|\-\-)?('[$\w.\-\"\`\s]+'|"[$\w.\-\'\`\s]+"|`[$\w.\-\"\'\s]+`|[$\w.\-\[\]]+)(\+\+|\-\-)?\s*/gm;
-    const reNested = /^\s*\(([^\)]+)\)\s*/gm;
-    const reBinary = /^\s*(\||\^|\&|\=\=\=|\=\=|\!\=\=|\!\=|\>\=|\<\=|\>|\<|\<\<|\>\>|\>\>\>|\+\-|\*|\/|\%)\s*/gm;
+    const reToken = /^\s*(\!|\!\!|\+|\-|\~)?(\+\+|\-\-)?('[$\w.\-\"\`\s]+'|"[$\w.\-\'\`\s]+"|`[$\w.\-\"\'\s]+`|[$\w.\-\[\]]+)(\+\+|\-\-)?\s*/g;
+    const reNested = /^\s*\(([^\)]+)\)\s*/g;
+    const reBinary = /^\s*(\||\^|\&|\=\=\=|\=\=|\!\=\=|\!\=|\>\=|\<\=|\>|\<|\<\<|\>\>|\>\>\>|\+\-|\*|\/|\%)\s*/g;
     const isString = /^['`"][$\w.\-\"\`\s]+['`"]$/;
     let parts;
     let advance = 0;
@@ -619,7 +645,7 @@ export class Parser {
         ) {
           // Appears to be a chained Identifier/Literal
           const tokens = [
-            ...identifierORLiteral.matchAll(/([^.\n\[\]]+)([.\[\]]*)/gm),
+            ...identifierORLiteral.matchAll(/([^.\n\[\]]+)([.\[\]]*)/g),
           ];
           let memberExps;
           let memberData = "";
@@ -789,7 +815,7 @@ export class Parser {
 
     // Advance Past Closing Expression
     template = template.substring(advance);
-    const closingExp = template.match(/^\s*[\}\)]/gm);
+    const closingExp = template.match(/^\s*[\}\)]/g);
     if (template.length === 0 || (closingExp?.length && closingExp[0].length)) {
       return expression;
     } else {
@@ -951,7 +977,7 @@ export class Parser {
         if (full.indexOf("...") > -1) {
           // Spread Opperator
           const [[fullMatch, identifier]] = full.matchAll(
-            /\{\.\.\.([\w\-.]+)\}/gm
+            /\{\.\.\.([\w\-.]+)\}/g
           );
 
           const distance = full.indexOf(identifier);
@@ -1044,7 +1070,7 @@ export class Parser {
       const child = children[i].data;
 
       // Ignore any Whitespace when validating children
-      if (ignoreWhitespace && !/[^\\n\s]/gm.test(child)) {
+      if (ignoreWhitespace && !/[^\\n\s]/g.test(child)) {
         continue;
       }
 
@@ -1131,11 +1157,39 @@ export class Parser {
     attributes: Array<Attribute | AttributeSpread> = [],
     children: Array<AST> = []
   ): Tag {
+    let slot;
+    const foundSlot = attributes.find(
+      (element) =>
+        element?.type === "Attribute" && element?.name?.data === "slot"
+    ) as Attribute;
+
+    if (foundSlot) {
+      if (foundSlot?.value?.type === "AttributeExpression") {
+        slot = foundSlot.value.expression;
+      } else {
+        slot = this.parseExpressions(
+          `"${foundSlot?.value?.data}"`,
+          foundSlot.value.start
+        );
+      }
+
+      // Remove unneeded attributes
+      attributes = this.removeAttribute(attributes, "slot");
+    }
+
+    if (slot !== undefined && slot.type !== "Literal") {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Slot Argument ${cyan(bold(foundSlot.value.data))} For Tag.`
+      );
+    }
+
     return {
       type: "Tag",
       data,
       attributes,
       children,
+      slot: slot as Literal | undefined,
       start,
       end,
     };
@@ -1149,6 +1203,12 @@ export class Parser {
     attributes: Array<Attribute | AttributeSpread> = [],
     children: Array<AST> = []
   ): ComponentDirective {
+    let slot;
+    const foundSlot = attributes.find(
+      (element) =>
+        element?.type === "Attribute" && element?.name?.data === "slot"
+    ) as Attribute;
+
     const found = attributes.find(
       (element) =>
         element?.type === "Attribute" && element?.name?.data === "use"
@@ -1172,6 +1232,20 @@ export class Parser {
       );
     }
 
+    if (foundSlot) {
+      if (foundSlot?.value?.type === "AttributeExpression") {
+        slot = foundSlot.value.expression;
+      } else {
+        slot = this.parseExpressions(
+          `"${foundSlot?.value?.data}"`,
+          foundSlot.value.start
+        );
+      }
+
+      // Remove unneeded attributes
+      attributes = this.removeAttribute(attributes, "slot");
+    }
+
     // Remove unneeded attributes
     if (data === ":component") {
       // Remove unneeded attributes
@@ -1191,12 +1265,20 @@ export class Parser {
       );
     }
 
+    if (slot !== undefined && slot.type !== "Literal") {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Slot Argument ${cyan(bold(foundSlot.value.data))} For Tag.`
+      );
+    }
+
     return {
       type: "ComponentDirective",
       data: ":component",
       attributes,
       children,
       expression: expression as Identifier | Literal | MemberExpression,
+      slot: slot as Literal | undefined,
       start,
       end,
     };
@@ -1215,6 +1297,12 @@ export class Parser {
         element?.type === "Attribute" && element?.name?.data === "use"
     ) as Attribute;
 
+    const foundSlot = attributes.find(
+      (element) =>
+        element?.type === "Attribute" && element?.name?.data === "slot"
+    ) as Attribute;
+
+    let slot;
     let expression;
     if (found?.value?.type === "AttributeExpression") {
       expression = found.value.expression;
@@ -1229,8 +1317,20 @@ export class Parser {
       );
     }
 
+    if (foundSlot) {
+      if (foundSlot?.value?.type === "AttributeExpression") {
+        slot = foundSlot.value.expression;
+      } else {
+        slot = this.parseExpressions(
+          `"${foundSlot?.value?.data}"`,
+          foundSlot.value.start
+        );
+      }
+    }
+
     // Remove unneeded attributes
     attributes = this.removeAttribute(attributes, "use");
+    attributes = this.removeAttribute(attributes, "slot");
 
     if (
       expression.type !== "Identifier" &&
@@ -1245,12 +1345,20 @@ export class Parser {
       );
     }
 
+    if (slot !== undefined && slot.type !== "Literal") {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Slot Argument ${cyan(bold(foundSlot.value.data))} For Tag.`
+      );
+    }
+
     return {
       type: "ElementDirective",
       data,
       attributes,
       children,
       expression: expression as Identifier | Literal | MemberExpression,
+      slot: slot as Literal | undefined,
       start,
       end,
     };
@@ -1380,7 +1488,7 @@ export class Parser {
   // Parse URL into Path Objects
   private parsePathUrl(path: string, startPath: number): Array<PathSegment> {
     const segments = [];
-    const regex = /\/((:)?([A-Za-z0-9-_%]+))/gm;
+    const regex = /\/((:)?([A-Za-z0-9-_%]+))/g;
     let parts;
 
     while ((parts = regex.exec(path)) !== null) {
@@ -1541,7 +1649,7 @@ export class Parser {
         element?.type === "Attribute" && element?.name?.data === "name"
     ) as Attribute;
     const name = found?.value?.data;
-    let expression = null;
+    let expression;
     if (name) {
       expression = this.parseExpressions(`"${name}"`, found.value.start);
 
@@ -1561,7 +1669,7 @@ export class Parser {
       data,
       attributes,
       children,
-      expression: expression as Literal | null,
+      expression: expression as Literal | undefined,
       start,
       end,
     };

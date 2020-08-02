@@ -62,6 +62,7 @@ Deno.test("Element Directive - Closing Tag", () => {
           start: 15,
           end: 19,
         },
+        slot: undefined,
         start: 0,
         end: 57,
       },
@@ -89,8 +90,43 @@ Deno.test("Element Directive - Self Closing", () => {
           start: 15,
           end: 19,
         },
+        slot: undefined,
         start: 0,
         end: 21,
+      },
+    ],
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Element Directive - Named Slot", () => {
+  const html = '<:element use="br" slot="foo" />';
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    html: [
+      {
+        type: "ElementDirective",
+        data: ":element",
+        attributes: [],
+        children: [],
+        expression: {
+          type: "Literal",
+          data: '"br"',
+          value: "br",
+          start: 15,
+          end: 19,
+        },
+        slot: {
+          type: "Literal",
+          data: '"foo"',
+          value: "foo",
+          start: 25,
+          end: 30,
+        },
+        start: 0,
+        end: 32,
       },
     ],
   };
@@ -112,6 +148,7 @@ Deno.test("Component Directive - Closing Tag", () => {
           { type: "Text", data: "Dynamic Heading", start: 22, end: 37 },
         ],
         expression: { type: "Identifier", data: "tag", start: 17, end: 20 },
+        slot: undefined,
         start: 0,
         end: 50,
       },
@@ -139,6 +176,7 @@ Deno.test("Component Directive - Self Closing", () => {
           start: 17,
           end: 21,
         },
+        slot: undefined,
         start: 0,
         end: 23,
       },
@@ -180,6 +218,7 @@ Deno.test("Implicit Component Directive", () => {
           start: 0,
           end: 8,
         },
+        slot: undefined,
         start: 0,
         end: 37,
       },
@@ -189,6 +228,39 @@ Deno.test("Implicit Component Directive", () => {
   assertEquals(output, expected);
 });
 
+Deno.test("Component Directive - Named Slot", () => {
+  const html = '<:component use="br" slot="Foo" />';
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    html: [
+      {
+        type: "ComponentDirective",
+        data: ":component",
+        attributes: [],
+        children: [],
+        expression: {
+          type: "Literal",
+          data: '"br"',
+          value: "br",
+          start: 17,
+          end: 21,
+        },
+        slot: {
+          type: "Literal",
+          data: '"Foo"',
+          value: "Foo",
+          start: 27,
+          end: 32,
+        },
+        start: 0,
+        end: 34,
+      },
+    ],
+  };
+
+  assertEquals(output, expected);
+});
 Deno.test("Router Directive", () => {
   const html = `
     <:router>
@@ -495,7 +567,7 @@ Deno.test("Slot Directive - No Default", () => {
         data: ":slot",
         attributes: [],
         children: [],
-        expression: null,
+        expression: undefined,
         start: 0,
         end: 8,
       },
@@ -518,7 +590,7 @@ Deno.test("Slot Directive - No Name", () => {
         children: [
           { type: "Text", data: "Dynamic Heading", start: 7, end: 22 },
         ],
-        expression: null,
+        expression: undefined,
         start: 0,
         end: 30,
       },
