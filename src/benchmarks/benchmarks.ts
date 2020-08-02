@@ -13,7 +13,6 @@ import {
   defaultColumns,
 } from "../types.ts";
 import "./parser.ts";
-import "./serializer.ts";
 
 if (Deno.env.get("CI")) {
   // CI Specific Version
