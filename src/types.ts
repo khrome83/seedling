@@ -330,7 +330,11 @@ export type DynamicTag =
 
 export interface RootAST {
   html: Array<AST>;
+  layout: Array<AST> | [];
+  router: Array<AST> | [];
 }
+
+export type ParserContext = "Layout" | "Component" | "Page";
 
 /**
  * Compiler

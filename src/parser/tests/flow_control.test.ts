@@ -53,6 +53,8 @@ Deno.test("If Block", () => {
         end: 64,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -167,6 +169,8 @@ Deno.test("If Else Block", () => {
         end: 141,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -310,6 +314,8 @@ Deno.test("If Else If Block", () => {
         end: 179,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -536,6 +542,8 @@ Deno.test("Nested If Blocks", () => {
         end: 338,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -640,6 +648,8 @@ Deno.test("Skip Block", () => {
         end: 133,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -801,6 +811,8 @@ Deno.test("When / Is Block", () => {
         end: 197,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);

@@ -188,6 +188,8 @@ Deno.test("Component Resolver - Sample (local)", async () => {
           end: 94,
         },
       ],
+      layout: [],
+      router: [],
     },
     meta: { cacheHit: false, cacheKey: "bfb528c4-456d-58d5-98e3-5d76ffe83e4a" },
   };
@@ -384,6 +386,8 @@ Deno.test("Component Resolver - BaseHeading (local)", async () => {
           end: 192,
         },
       ],
+      layout: [],
+      router: [],
     },
     meta: { cacheHit: false, cacheKey: "e72791be-0657-558e-b131-4965570b8674" },
   };
