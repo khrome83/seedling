@@ -47,32 +47,96 @@ import {
   StaticPathSegment,
   SlotDirective,
   DynamicTag,
+  ParserContext,
 } from "../types.ts";
 
 // Parser
 export class Parser {
   private pos = 0;
-  private stack: Array<AST> = [];
+  private html: Array<AST> = [];
+  private layout: Array<AST> = [];
+  private router: Array<AST> = [];
   private template: string;
+  private context: ParserContext;
 
-  constructor(template: string) {
+  constructor(template: string, context: ParserContext = "Page") {
     if (typeof template !== "string") {
       throw new TypeError("Template must be a string");
     }
 
     this.template = template.replace(/\s+$/, "");
+    this.context = context;
   }
 
   public parse(): RootAST {
     while (this.template) {
       const tag = this.parseTags(this.template);
       if (tag) {
+        // Validate Root Level Items for Layout
+        if (this.context === "Layout") {
+          if (
+            tag.type === "RouterDirective" ||
+            tag.type === "PathDirective" ||
+            tag.type === "SlotDirective" ||
+            tag.type === "LayoutDirective"
+          ) {
+            throw this.throwError(
+              `Invalid root level type ${cyan(
+                bold(tag.type)
+              )}, disallowed in Layout`
+            );
+          }
+        }
+
+        // Validate Root Level Items for Component
+        if (this.context === "Component") {
+          if (
+            tag.type === "RouterDirective" ||
+            tag.type === "PathDirective" ||
+            tag.type === "SlotDirective" ||
+            tag.type === "LayoutDirective"
+          ) {
+            throw this.throwError(
+              `Invalid root level type ${cyan(
+                bold(tag.type)
+              )}, disallowed in Component`
+            );
+          }
+        }
+
+        // Validate Root Level Items for Page
+        if (this.context === "Page") {
+          if (tag.type === "SlotDirective" || tag.type === "PathDirective") {
+            throw this.throwError(
+              `Invalid root level type ${cyan(
+                bold(tag.type)
+              )}, disallowed in Page`
+            );
+          }
+        }
+
+        // Advance
         this.advance(tag.end - this.pos);
-        this.stack.push(tag);
+
+        // Place in Correct Place
+        if (tag.type === "LayoutDirective") {
+          this.layout.push(tag);
+        } else if (
+          tag.type === "RouterDirective" ||
+          tag.type === "PathDirective"
+        ) {
+          this.router.push(tag);
+        } else {
+          this.html.push(tag);
+        }
       }
     }
 
-    return { html: this.stack };
+    return {
+      html: this.html,
+      router: this.router,
+      layout: this.layout,
+    };
   }
 
   // Parese Tags

@@ -14,6 +14,8 @@ Deno.test("Doctype", () => {
         end: 15,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -32,6 +34,8 @@ Deno.test("Comment", () => {
         end: 16,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -51,6 +55,8 @@ Deno.test("Text Node", () => {
         end: 16,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -72,6 +78,8 @@ Deno.test("Self Closing Tag", () => {
         end: 5,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -93,6 +101,8 @@ Deno.test("Tag With No Children", () => {
         end: 9,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -120,6 +130,8 @@ Deno.test("Tag With Named Slot", () => {
         end: 20,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -174,6 +186,8 @@ Deno.test("Tag With Children", () => {
         end: 33,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -251,6 +265,8 @@ Deno.test("Void Elements", () => {
         end: 92,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -299,6 +315,8 @@ Deno.test("Attribute", () => {
         end: 27,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -327,6 +345,8 @@ Deno.test("Script Tag", () => {
         end: 44,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -357,6 +377,8 @@ Deno.test("Style Tag", () => {
         end: 99,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -420,6 +442,8 @@ Deno.test("Textarea Tag", () => {
         end: 227,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);
@@ -837,6 +861,8 @@ Deno.test("Complex Document", () => {
         end: 699,
       },
     ],
+    layout: [],
+    router: [],
   };
 
   assertEquals(output, expected);

@@ -86,7 +86,7 @@ export const resolveComponent = async (
       }
 
       // Parse AST for Component
-      const p = new Parser(component);
+      const p = new Parser(component, "Component");
       const result = p.parse();
 
       // Cache and Return
