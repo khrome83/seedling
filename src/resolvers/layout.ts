@@ -1,18 +1,16 @@
 import { bold, cyan } from "../deps.ts";
-import { ComponentResponse, CacheKey } from "../types.ts";
+import { LayoutResponse, CacheKey } from "../types.ts";
 import { cache, getCacheKey } from "../cache/index.ts";
 import { Parser } from "../parser/index.ts";
 import config from "../config/index.ts";
 
-export const resolveComponent = async (
-  name: string
-): Promise<ComponentResponse> => {
+export const resolveLayout = async (name: string): Promise<LayoutResponse> => {
   // Generate Cache Key (v5 UUID)
-  const cacheKey = getCacheKey("component", name);
+  const cacheKey = getCacheKey("layout", name);
 
   // Determine correct path to process under
-  const htmlPath = `${config.root}/components/${name}.html`;
-  const seedPath = `${config.root}/components/${name}.seed`;
+  const htmlPath = `${config.root}/layouts/${name}.html`;
+  const seedPath = `${config.root}/layouts/${name}.seed`;
   const localPath = await Deno.lstat(htmlPath)
     .then(() => {
       return htmlPath;
@@ -27,9 +25,9 @@ export const resolveComponent = async (
         });
     });
 
-  // Local Check failed, check for Remote Components
-  const tsPath = `${config.root}/components/${name}.ts`;
-  const jsPath = `${config.root}/components/${name}.js`;
+  // Local Check failed, check for Remote Layouts
+  const tsPath = `${config.root}/layouts/${name}.ts`;
+  const jsPath = `${config.root}/layouts/${name}.js`;
   let importPath;
 
   if (!localPath) {
@@ -44,7 +42,7 @@ export const resolveComponent = async (
           })
           .catch((e) => {
             throw new Error(
-              `Invalid use argument for component directive ${bold(
+              `Invalid use argument for layout directive ${bold(
                 cyan(name)
               )}, file not found`
             );
@@ -55,17 +53,17 @@ export const resolveComponent = async (
   // Either return from Cache or Request New Data
   if (!cache.has(cacheKey as CacheKey)) {
     try {
-      let component;
+      let layout;
 
       if (localPath) {
-        // Local Component
-        component = await Deno.readTextFile(localPath);
+        // Local Layout
+        layout = await Deno.readTextFile(localPath);
       } else if (importPath) {
-        // Remote Component
+        // Remote Layout
         const path = await import(importPath).then((c) => {
           if (!c.default) {
             throw new Error(
-              `Remote component path not exported as default for ${bold(
+              `Remote layout path not exported as default for ${bold(
                 cyan(name)
               )}`
             );
@@ -74,19 +72,19 @@ export const resolveComponent = async (
           return c.default;
         });
         const response = await fetch(path);
-        component = await response.text();
+        layout = await response.text();
       }
 
-      if (!component) {
+      if (!layout) {
         throw new Error(
-          `Could not resolve component directive ${bold(
+          `Could not resolve layout directive ${bold(
             cyan(name)
           )}, request for file failed`
         );
       }
 
-      // Parse AST for Component
-      const p = new Parser(component, "Component");
+      // Parse AST for Layout
+      const p = new Parser(layout, "Layout");
       const result = p.parse();
 
       // Cache and Return
@@ -94,7 +92,7 @@ export const resolveComponent = async (
       return Promise.resolve({
         ast: result,
         meta: { cacheHit: false, cacheKey },
-      }) as Promise<ComponentResponse>;
+      }) as Promise<LayoutResponse>;
     } catch (e) {
       return Promise.reject(e);
     }
@@ -102,6 +100,6 @@ export const resolveComponent = async (
     return Promise.resolve({
       ast: cache.get(cacheKey as CacheKey),
       meta: { cacheHit: true, cacheKey },
-    }) as Promise<ComponentResponse>;
+    }) as Promise<LayoutResponse>;
   }
 };

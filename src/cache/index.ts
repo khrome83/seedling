@@ -4,7 +4,7 @@ const namespace = "f6360cb2-cdac-4d8d-a269-a5f65b054128";
 
 const cache = new Cache({
   limit: 50000,
-  serialize: true,
+  serialize: false,
 });
 
 // deno-lint-ignore no-explicit-any
