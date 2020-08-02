@@ -534,6 +534,102 @@ Deno.test("Textarea Tag", async () => {
   assertEquals(output, expected);
 });
 
+Deno.test("Component Directive", async () => {
+  const ast = {
+    type: "ComponentDirective",
+    data: ":component",
+    attributes: [
+      {
+        type: "Attribute",
+        data: ' level="2"',
+        start: 18,
+        end: 30,
+        name: { type: "AttributeName", data: "level", start: 19, end: 24 },
+        value: {
+          type: "AttributeValue",
+          data: "2",
+          start: 26,
+          end: 31,
+        },
+      },
+    ],
+    children: [{ type: "Text", data: "Dynamic Heading", start: 31, end: 46 }],
+    expression: {
+      type: "Literal",
+      data: '"BaseHeading"',
+      value: "BaseHeading",
+      start: 15,
+      end: 19,
+    },
+    start: 0,
+    end: 57,
+  };
+  const data = {};
+
+  const output = await compile(ast as Node, data);
+  const expected = "<h2>Dynamic Heading</h2>";
+
+  assertEquals(output.trim(), expected);
+});
+
+Deno.test("Component Directive with Named Slot", async () => {
+  const ast = {
+    type: "ComponentDirective",
+    data: ":component",
+    attributes: [],
+    children: [
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [],
+        children: [{ type: "Text", data: "Top from Slot", start: 34, end: 52 }],
+        slot: {
+          type: "Literal",
+          data: '"top"',
+          value: "top",
+          start: 15,
+          end: 19,
+        },
+        start: 16,
+        end: 58,
+      },
+      {
+        type: "Tag",
+        data: "div",
+        attributes: [],
+        children: [
+          { type: "Text", data: "Bottom from Slot", start: 34, end: 52 },
+        ],
+        slot: {
+          type: "Literal",
+          data: '"bottom"',
+          value: "bottom",
+          start: 15,
+          end: 19,
+        },
+        start: 16,
+        end: 58,
+      },
+    ],
+    expression: {
+      type: "Literal",
+      data: '"Slots"',
+      value: "Slots",
+      start: 15,
+      end: 19,
+    },
+    start: 0,
+    end: 57,
+  };
+  const data = {};
+
+  const output = await compile(ast as Node, data);
+  const expected =
+    "<div>\n  <div>Top from Slot</div>\n  <div>Middle from Component</div>\n  <div>Bottom from Slot</div>\n</div>";
+
+  assertEquals(output.trim(), expected);
+});
+
 Deno.test("Element Directive", async () => {
   const ast = {
     type: "ElementDirective",

@@ -91,17 +91,20 @@ export interface BaseTag extends BaseAST {
 
 export interface Tag extends BaseTag {
   type: "Tag";
+  slot: Literal | undefined;
 }
 
 // Directives
 export interface ComponentDirective extends BaseTag {
   type: "ComponentDirective";
   expression: Identifier | Literal | MemberExpression;
+  slot: Literal | undefined;
 }
 
 export interface ElementDirective extends BaseTag {
   type: "ElementDirective";
   expression: Identifier | Literal | MemberExpression;
+  slot: Literal | undefined;
 }
 
 export interface LayoutDirective extends BaseTag {
@@ -137,7 +140,7 @@ export interface DataDirective extends BaseTag {
 
 export interface SlotDirective extends BaseTag {
   type: "SlotDirective";
-  expression: Literal | null;
+  expression: Literal | undefined;
 }
 
 export interface RouterDirective extends BaseTag {
@@ -313,6 +316,17 @@ export type Node =
   | AttributeSpread
   | DynamicPathSegment
   | StaticPathSegment;
+
+export type DynamicTag =
+  | ComponentDirective
+  | DataDirective
+  | ElementDirective
+  | LayoutDirective
+  | PathDirective
+  | PathDirective
+  | RouterDirective
+  | SlotDirective
+  | Tag;
 
 export interface RootAST {
   html: Array<AST>;

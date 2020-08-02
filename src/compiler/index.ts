@@ -30,10 +30,13 @@ import {
   DataDirective,
   DataResponse,
   State,
+  ComponentDirective,
+  SlotDirective,
 } from "../types.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
 import { resolveData } from "../resolvers/data.ts";
+import { resolveComponent } from "../resolvers/component.ts";
 
 // TODO: Finish All Types
 //
@@ -46,7 +49,7 @@ import { resolveData } from "../resolvers/data.ts";
 //   07.    [X] AttributeName
 //   08.    [X] AttributeValue
 //   09.    [X] Text
-//   10.    [ ] ComponentDirective
+//   10.    [X] ComponentDirective
 //   11.    [X] ElementDirective
 //   12.    [ ] LayoutDirective
 //   13.    [ ] RouterDirective
@@ -54,7 +57,7 @@ import { resolveData } from "../resolvers/data.ts";
 //   15.    [ ] DynamicPathSegment
 //   16.    [ ] StaticPathSegment
 //   17.    [X] DataDirective
-//   18.    [ ] SlotDirective
+//   18.    [X] SlotDirective
 //   19.    [X] IfBlock
 //   20.    [X] ElseIfBlock
 //   21.    [X] SkipBlock
@@ -170,6 +173,11 @@ nodeTypes.set("Comment", comment);
 // Identifier AST Node
 // deno-lint-ignore no-explicit-any
 const identifier = (node: Identifier, state: State): any => {
+  if (node.data === "__internals__") {
+    return emitWarning(`Identifier '${cyan(node.data)}' is disallowed.`);
+    return undefined;
+  }
+
   try {
     return state[node.data];
   } catch (e) {
@@ -354,6 +362,131 @@ const text = (node: Text, state: State) => {
 
 nodeTypes.set("Text", text);
 
+// ComponentDirective AST Node
+const componentDirective = async (
+  node: ComponentDirective,
+  state: State
+): Promise<string> => {
+  const component = await compileNode(node.expression, state);
+  const attrs = new Map();
+  let localState: State = {
+    __internals__: {
+      slots: {},
+    },
+  };
+
+  // Can't Render Component
+  if (typeof component !== "string") {
+    emitWarning(
+      `Component Directive '${cyan(
+        component
+      )}' not found in state. Could not render node.`
+    );
+    return "";
+  }
+
+  // Need to build a map of all attributes and process
+  for (let i = 0, aLen = node.attributes.length; i < aLen; i++) {
+    const list = await compileNode(node.attributes[i], state);
+    for (let x = 0, lLen = list.length; x < lLen; x++) {
+      const [name, value] = list[x];
+      attrs.set(name, value);
+    }
+  }
+
+  // Build Local State
+  const attrsIterator = attrs[Symbol.iterator]();
+  for (const [name, value] of attrsIterator) {
+    localState[name] = value;
+  }
+
+  const root = localState.__internals__.slots;
+  root.default = [];
+  // Add Slot Information
+  for (let i = 0, len = node.children.length; i < len; i++) {
+    const child = node.children[i];
+    if (
+      child.type === "ComponentDirective" ||
+      child.type === "ElementDirective" ||
+      child.type === "Tag"
+    ) {
+      if (
+        (child as ComponentDirective | ElementDirective | Tag).slot !==
+        undefined
+      ) {
+        // Named
+        const slot = await compileNode(child.slot as Literal, state);
+
+        if (typeof slot !== "string") {
+          emitWarning(
+            `Slot name '${cyan(
+              slot
+            )}' not found in state. Passed as default slot.`
+          );
+          root.default.push(child);
+        }
+
+        if (!Array.isArray(root[slot])) {
+          root[slot] = [];
+        }
+
+        root[slot].push(child);
+      } else {
+        // Default
+        root.default.push(child);
+      }
+    } else {
+      // Default
+      root.default.push(child);
+    }
+  }
+
+  // Get Component
+  try {
+    // Return Component
+    const res = await resolveComponent(component);
+    return await unionChildren(res.ast.html, localState);
+  } catch (e) {
+    emitError(`Unable to process Component Directive ${bold(red(component))}.`);
+    return "";
+  }
+};
+
+nodeTypes.set("ComponentDirective", componentDirective);
+
+// SlotDirective AST Node
+const slotDirective = async (
+  node: SlotDirective,
+  state: State
+): Promise<string> => {
+  let name = "default";
+  if (node.expression) {
+    name = await compileNode(node.expression, state);
+  }
+
+  // Can't Render Tag
+  if (typeof name !== "string") {
+    emitWarning(
+      `Slot Directive '${cyan(
+        name
+      )}' not found in state. Could not render node.`
+    );
+    return "";
+  }
+
+  // Return Default or Children, or Nothing
+  const slots = state?.["__internals__"]?.["slots"];
+  if (slots?.[name] && slots?.[name].length) {
+    return await unionChildren(slots[name], state);
+  } else if (node.children.length) {
+    return await unionChildren(node.children, state);
+  } else {
+    return "";
+  }
+};
+
+nodeTypes.set("SlotDirective", slotDirective);
+
 // ElementDirective AST Node
 const elementDirective = async (
   node: ElementDirective,
@@ -386,7 +519,7 @@ const elementDirective = async (
   tag.type = "Tag";
   tag.data = tagType;
 
-  return compileNode(tag, state);
+  return await compileNode(tag, state);
 };
 
 nodeTypes.set("ElementDirective", elementDirective);
