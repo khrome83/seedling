@@ -1,8 +1,4 @@
 {
-  "https://deno.land/std@0.57.0/_util/assert.ts": "e1f76e77c5ccb5a8e0dbbbe6cce3a56d2556c8cb5a9a8802fc9565af72462149",
-  "https://deno.land/std@0.57.0/_util/deep_assign.ts": "c9aa1f72a73fa27d3bb8dba094b0054a7c73bd7523cb9e3044b2be79026ced48",
-  "https://deno.land/std@0.57.0/fmt/colors.ts": "06444b6ebc3842a4b2340d804bfa81fc5452a03513cbb81bd7f6bf8f4b8f3ac4",
-  "https://deno.land/std@0.57.0/testing/bench.ts": "8dfb40b8e8833622fca37fa38da391329b09f2cde10ab2c09562e106a20171bb",
   "https://deno.land/std@0.61.0/fmt/colors.ts": "06444b6ebc3842a4b2340d804bfa81fc5452a03513cbb81bd7f6bf8f4b8f3ac4",
   "https://deno.land/std@0.61.0/testing/asserts.ts": "e12228748a139acfbf00c3ef6022fefd9fc265d7c2034368bad2cd80099c76df",
   "https://deno.land/std@0.61.0/testing/diff.ts": "77338e2b479626c096278d7b4a95f750753ee39558f314db6b794e8d8a98d515",
@@ -39,12 +35,15 @@
   "https://deno.land/x/denock@0.2.0/src/type.ts": "4d454d024079389bcf370ee78672827c380b81b1d65de0a54bf563db48e4073d",
   "https://deno.land/x/denock@0.2.0/src/typeguard.ts": "d348d58d81588c0f7aee437576a76ca46c09f7f95a010e4129ca146eb8ff246a",
   "https://deno.land/x/denock@0.2.0/src/verifyMatch.ts": "836dd17b74c1d7ab7024a759ee0bf3732fd4fdbf69a0828cb1e5cce2936a1cc9",
-  "https://deno.land/x/pretty_benching@v0.1.1/benchmark_result_card.ts": "3b3fe63a2ede221fc3c6b1a27295daaab55d05fb120812291cea00f1e2829feb",
-  "https://deno.land/x/pretty_benching@v0.1.1/colorer.ts": "32e96ef9686a169ecda414e829e004f04b0e343518b31a5ac5b9939f56fa2b2a",
-  "https://deno.land/x/pretty_benching@v0.1.1/deps.ts": "5cf06c2ed8a3829336a7fb63df78b265cabd9462c83f43f0741885ffe55de0b0",
-  "https://deno.land/x/pretty_benching@v0.1.1/mod.ts": "b64da9acf2179da066f9fe73d7ea3614e4692efe470af594c8c9deb9fbd1e8f6",
-  "https://deno.land/x/pretty_benching@v0.1.1/pretty_benchmark_progress.ts": "b6a5e06f06dc597773976feccb646abbad947b1cec3b788328cc94a8a0a776e4",
-  "https://deno.land/x/pretty_benching@v0.1.1/pretty_benchmark_result.ts": "1bab72abe603964c7da2094121868d190a5ff343a33e6653540f6ab186212a09",
-  "https://deno.land/x/pretty_benching@v0.1.1/table.ts": "b93d36f104e52e7b446cef921116a7a1930e4afd676ccb656bae8113c6e41edf",
-  "https://deno.land/x/pretty_benching@v0.1.1/utils.ts": "e92293cfc35a31aa122c7813e5fee74d3d9123efe3ddd80f50920a53f62eb86d"
+  "https://deno.land/x/pretty_benching@v0.2.0/benchmark_result_card.ts": "69481a956683e1faa2766849fc4c15aacd5f8e3c998456de4f1dd8fd46a34f80",
+  "https://deno.land/x/pretty_benching@v0.2.0/colorer.ts": "38181401b99b9c5a846cbee218aad7a2d312b98c9fba834062b1a7ca7e8d29f9",
+  "https://deno.land/x/pretty_benching@v0.2.0/common.ts": "fa6b3ca3a5fcd3f552ce0721a73c57270ff35969e01d30998689291019bafe59",
+  "https://deno.land/x/pretty_benching@v0.2.0/deps.ts": "3ea02c93d1a517e4b932b093eb84320de920e0e3827ee91dfbd9229b72306337",
+  "https://deno.land/x/pretty_benching@v0.2.0/mod.ts": "be3a46911234a0a7f2f8422e2ef4951122daf7ce118d56401e543a9a49f7440c",
+  "https://deno.land/x/pretty_benching@v0.2.0/pretty_benchmark_down.ts": "5a9dfd9a8860f6404adeb3132ba8533ef94286be244060c542d9ddff2ea31983",
+  "https://deno.land/x/pretty_benching@v0.2.0/pretty_benchmark_progress.ts": "66f2eca4bf0dd06fe48caf6f334445ab68acbb4e487aceb338c0f3c8cba84ce6",
+  "https://deno.land/x/pretty_benching@v0.2.0/pretty_benchmark_result.ts": "12f088d1b14ea92bbeb08bffabe5781d32ea615b4a5c4a4bfe6b9f8c5b94148c",
+  "https://deno.land/x/pretty_benching@v0.2.0/table.ts": "f14089fed96d02e88c069db5a2bf95cd733607343f7d45ac53c829ec572e1ecb",
+  "https://deno.land/x/pretty_benching@v0.2.0/types.ts": "ec492b1092df6ae8d4e8ff9ad687007bfff5dcd095a245184eed7b64cf702a63",
+  "https://deno.land/x/pretty_benching@v0.2.0/utils.ts": "98e7c9b373c51273117e241170fe101482457c60df2b8eeeb1863ca2cc6adb65"
 }
