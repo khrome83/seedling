@@ -42,9 +42,11 @@ export const resolveLayout = async (name: string): Promise<LayoutResponse> => {
           })
           .catch((e) => {
             throw new Error(
-              `Invalid use argument for layout directive ${bold(
-                cyan(name)
-              )}, file not found`
+              `Invalid use argument for layout directive ${
+                bold(
+                  cyan(name),
+                )
+              }, file not found`,
             );
           });
       });
@@ -63,9 +65,11 @@ export const resolveLayout = async (name: string): Promise<LayoutResponse> => {
         const path = await import(importPath).then((c) => {
           if (!c.default) {
             throw new Error(
-              `Remote layout path not exported as default for ${bold(
-                cyan(name)
-              )}`
+              `Remote layout path not exported as default for ${
+                bold(
+                  cyan(name),
+                )
+              }`,
             );
           }
 
@@ -77,9 +81,11 @@ export const resolveLayout = async (name: string): Promise<LayoutResponse> => {
 
       if (!layout) {
         throw new Error(
-          `Could not resolve layout directive ${bold(
-            cyan(name)
-          )}, request for file failed`
+          `Could not resolve layout directive ${
+            bold(
+              cyan(name),
+            )
+          }, request for file failed`,
         );
       }
 

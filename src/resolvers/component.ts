@@ -5,7 +5,7 @@ import { Parser } from "../parser/index.ts";
 import config from "../config/index.ts";
 
 export const resolveComponent = async (
-  name: string
+  name: string,
 ): Promise<ComponentResponse> => {
   // Generate Cache Key (v5 UUID)
   const cacheKey = getCacheKey("component", name);
@@ -44,9 +44,11 @@ export const resolveComponent = async (
           })
           .catch((e) => {
             throw new Error(
-              `Invalid use argument for component directive ${bold(
-                cyan(name)
-              )}, file not found`
+              `Invalid use argument for component directive ${
+                bold(
+                  cyan(name),
+                )
+              }, file not found`,
             );
           });
       });
@@ -65,9 +67,11 @@ export const resolveComponent = async (
         const path = await import(importPath).then((c) => {
           if (!c.default) {
             throw new Error(
-              `Remote component path not exported as default for ${bold(
-                cyan(name)
-              )}`
+              `Remote component path not exported as default for ${
+                bold(
+                  cyan(name),
+                )
+              }`,
             );
           }
 
@@ -79,9 +83,11 @@ export const resolveComponent = async (
 
       if (!component) {
         throw new Error(
-          `Could not resolve component directive ${bold(
-            cyan(name)
-          )}, request for file failed`
+          `Could not resolve component directive ${
+            bold(
+              cyan(name),
+            )
+          }, request for file failed`,
         );
       }
 

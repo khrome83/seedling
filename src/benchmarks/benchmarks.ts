@@ -33,7 +33,7 @@ if (Deno.env.get("CI")) {
           graph: true,
           graphBars: 10,
         },
-      })
+      }),
     )
     .catch((e: BenchmarkRunError) => {
       console.log(red(e.benchmarkName as string));

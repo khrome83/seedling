@@ -822,7 +822,8 @@ Deno.test("Data Directive", async () => {
   const data = {};
 
   const output = await compile(ast as Array<Node>, data);
-  const expected = `\n         Scoped should be undefined.\n         <div>This is MarketingSocialProof for ID 'cka5lzgxk02s701761t7scrb0'.</div>\n         Scoped should be undefined.`;
+  const expected =
+    `\n         Scoped should be undefined.\n         <div>This is MarketingSocialProof for ID 'cka5lzgxk02s701761t7scrb0'.</div>\n         Scoped should be undefined.`;
 
   assertEquals(output, expected);
 });

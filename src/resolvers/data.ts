@@ -56,7 +56,7 @@ const buildRequest = (attrs: object = {}, body = ""): Request => ({
 export const resolveData = async (
   processor: string,
   attrs: object,
-  body = ""
+  body = "",
 ): Promise<DataResponse> => {
   // Generate Cache Key (v5 UUID)
   const cacheKey = getCacheKey("data", processor, attrs, body);
@@ -75,7 +75,7 @@ export const resolveData = async (
         })
         .catch((e) => {
           throw new Error(
-            "Invalid use argument for data directive, file not found"
+            "Invalid use argument for data directive, file not found",
           );
         });
     });
@@ -90,7 +90,7 @@ export const resolveData = async (
       while (retries < 4) {
         result = await dataProcessor.default(
           buildRequest(attrs, body),
-          response
+          response,
         );
 
         // Handle Retry and Errors
@@ -108,7 +108,7 @@ export const resolveData = async (
           break;
         } else {
           return Promise.reject(
-            error("Something went wrong with the response, invalid structure")
+            error("Something went wrong with the response, invalid structure"),
           );
         }
       }

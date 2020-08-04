@@ -2,7 +2,8 @@ import { assertEquals } from "../../deps.ts";
 import { Parser } from "../index.ts";
 
 Deno.test("If Block", () => {
-  const html = `{:if expression}<div class="test">Testing Expression</div>{/:if}`;
+  const html =
+    `{:if expression}<div class="test">Testing Expression</div>{/:if}`;
   const p = new Parser(html);
   const output = p.parse();
   const expected = {

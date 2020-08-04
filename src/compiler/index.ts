@@ -105,7 +105,7 @@ nodeTypes.set("Tag", tag);
 // Attribute AST Node
 const attribute = async (
   node: Attribute,
-  state: State
+  state: State,
 ): Promise<Array<State>> => {
   const name = await compileNode(node.name, state);
   const value = await compileNode(node.value, state);
@@ -125,7 +125,7 @@ nodeTypes.set("AttributeName", attributeName);
 // AttributeValue AST Node
 const attributeValue = (
   node: AttributeValue,
-  state: State
+  state: State,
 ): string | undefined => {
   return node.data.length === 0 ? undefined : node.data;
 };
@@ -143,7 +143,7 @@ nodeTypes.set("AttributeExpression", attributeExpression);
 // AttributeSpread AST Node
 const attributeSpread = async (
   node: AttributeSpread,
-  state: State
+  state: State,
 ): Promise<Array<State>> => {
   const output = [];
   const spread = await compileNode(node.expression, state);
@@ -190,7 +190,7 @@ nodeTypes.set("Identifier", identifier);
 // Literal AST Node
 const literal = (
   node: Literal,
-  state: State
+  state: State,
 ): number | string | boolean | undefined => {
   return node.value;
 };
@@ -212,17 +212,21 @@ const unaryExpression = async (node: UnaryExpression, state: State) => {
         return ~argument;
       default:
         emitWarning(
-          `Unknown UnaryExpression '${cyan(
-            node.operator
-          )}'. Returned argument and ignored UnaryExpression`
+          `Unknown UnaryExpression '${
+            cyan(
+              node.operator,
+            )
+          }'. Returned argument and ignored UnaryExpression`,
         );
         return argument;
     }
   } catch (e) {
     return emitWarning(
-      `Can't process UnaryExpression '${cyan(
-        node.operator
-      )}'. Returned undefined amd ignored UnaryExpression.`
+      `Can't process UnaryExpression '${
+        cyan(
+          node.operator,
+        )
+      }'. Returned undefined amd ignored UnaryExpression.`,
     );
   }
 };
@@ -248,17 +252,21 @@ const updateExpression = async (node: UpdateExpression, state: State) => {
 
     // Unknonw UnaryExpression
     emitWarning(
-      `Unknown UnaryExpression '${cyan(
-        node.operator
-      )}'. Returned argument and ignored UnaryExpression`
+      `Unknown UnaryExpression '${
+        cyan(
+          node.operator,
+        )
+      }'. Returned argument and ignored UnaryExpression`,
     );
     return argument;
   } catch (e) {
     // Something horrible went wrong
     return emitWarning(
-      `Can't process UnaryExpression '${cyan(
-        node.operator
-      )}'. Returned undefined amd ignored UnaryExpression.`
+      `Can't process UnaryExpression '${
+        cyan(
+          node.operator,
+        )
+      }'. Returned undefined amd ignored UnaryExpression.`,
     );
   }
 };
@@ -311,16 +319,20 @@ const binaryExpression = async (node: BinaryExpression, state: State) => {
         return left % right;
       default:
         return emitWarning(
-          `Unknown BinaryExpression '${cyan(
-            node.operator
-          )}'. Returned undefined amd ignored BinaryExpression.`
+          `Unknown BinaryExpression '${
+            cyan(
+              node.operator,
+            )
+          }'. Returned undefined amd ignored BinaryExpression.`,
         );
     }
   } catch (e) {
     return emitWarning(
-      `Can't process BinaryExpression '${cyan(
-        node.operator
-      )}'. Returned undefined amd ignored BinaryExpression.`
+      `Can't process BinaryExpression '${
+        cyan(
+          node.operator,
+        )
+      }'. Returned undefined amd ignored BinaryExpression.`,
     );
   }
 };
@@ -339,16 +351,20 @@ const logicalExpression = async (node: LogicalExpression, state: State) => {
         return left && right;
       default:
         return emitWarning(
-          `Unknown LogicalExpression '${cyan(
-            node.operator
-          )}'. Returned undefined amd ignored LogicalExpression.`
+          `Unknown LogicalExpression '${
+            cyan(
+              node.operator,
+            )
+          }'. Returned undefined amd ignored LogicalExpression.`,
         );
     }
   } catch (e) {
     return emitWarning(
-      `Can't process LogicalExpression '${cyan(
-        node.operator
-      )}'. Returned undefined amd ignored LogicalExpression.`
+      `Can't process LogicalExpression '${
+        cyan(
+          node.operator,
+        )
+      }'. Returned undefined amd ignored LogicalExpression.`,
     );
   }
 };
@@ -365,7 +381,7 @@ nodeTypes.set("Text", text);
 // ComponentDirective AST Node
 const componentDirective = async (
   node: ComponentDirective,
-  state: State
+  state: State,
 ): Promise<string> => {
   const component = await compileNode(node.expression, state);
   const attrs = new Map();
@@ -378,9 +394,11 @@ const componentDirective = async (
   // Can't Render Component
   if (typeof component !== "string") {
     emitWarning(
-      `Component Directive '${cyan(
-        component
-      )}' not found in state. Could not render node.`
+      `Component Directive '${
+        cyan(
+          component,
+        )
+      }' not found in state. Could not render node.`,
     );
     return "";
   }
@@ -412,16 +430,18 @@ const componentDirective = async (
     ) {
       if (
         (child as ComponentDirective | ElementDirective | Tag).slot !==
-        undefined
+          undefined
       ) {
         // Named
         const slot = await compileNode(child.slot as Literal, state);
 
         if (typeof slot !== "string") {
           emitWarning(
-            `Slot name '${cyan(
-              slot
-            )}' not found in state. Passed as default slot.`
+            `Slot name '${
+              cyan(
+                slot,
+              )
+            }' not found in state. Passed as default slot.`,
           );
           root.default.push(child);
         }
@@ -457,7 +477,7 @@ nodeTypes.set("ComponentDirective", componentDirective);
 // SlotDirective AST Node
 const slotDirective = async (
   node: SlotDirective,
-  state: State
+  state: State,
 ): Promise<string> => {
   let name = "default";
   if (node.expression) {
@@ -467,9 +487,11 @@ const slotDirective = async (
   // Can't Render Tag
   if (typeof name !== "string") {
     emitWarning(
-      `Slot Directive '${cyan(
-        name
-      )}' not found in state. Could not render node.`
+      `Slot Directive '${
+        cyan(
+          name,
+        )
+      }' not found in state. Could not render node.`,
     );
     return "";
   }
@@ -490,16 +512,18 @@ nodeTypes.set("SlotDirective", slotDirective);
 // ElementDirective AST Node
 const elementDirective = async (
   node: ElementDirective,
-  state: State
+  state: State,
 ): Promise<string> => {
   const tagType = await compileNode(node.expression, state);
 
   // Can't Render Tag
   if (typeof tagType !== "string") {
     emitWarning(
-      `Element Directive '${cyan(
-        tagType
-      )}' not found in state. Could not render node.`
+      `Element Directive '${
+        cyan(
+          tagType,
+        )
+      }' not found in state. Could not render node.`,
     );
     return "";
   }
@@ -507,9 +531,11 @@ const elementDirective = async (
   // Can render but not valid HTML element
   if (!htmlElements.has(tagType)) {
     emitWarning(
-      `Element Directive '${cyan(
-        tagType
-      )}' is not a valid HTML tag. Node still rendered.`
+      `Element Directive '${
+        cyan(
+          tagType,
+        )
+      }' is not a valid HTML tag. Node still rendered.`,
     );
   }
 
@@ -527,7 +553,7 @@ nodeTypes.set("ElementDirective", elementDirective);
 // DataDirective AST Node
 const dataDirective = async (
   node: DataDirective,
-  state: State
+  state: State,
 ): Promise<DataResponse> => {
   let body = "";
   const use = await compileNode(node.expression, state);
@@ -672,7 +698,7 @@ const whenBlock = async (node: WhenBlock, state: State): Promise<string> => {
       if (node.children[i].type === "IsBlock") {
         const [expression, contents] = await compileNode(
           node.children[i],
-          state
+          state,
         );
 
         if (match !== expression) {
@@ -737,7 +763,7 @@ const eachBlock = async (node: EachBlock, state: State): Promise<string> => {
         if (node.children.length) {
           output += await unionChildren(
             node.children,
-            scopeState(state, internal)
+            scopeState(state, internal),
           );
         }
       } catch (capture) {
@@ -760,9 +786,11 @@ const eachBlock = async (node: EachBlock, state: State): Promise<string> => {
     }
   } else {
     emitWarning(
-      `EachBlock for '${cyan(
-        String(node.expression.data)
-      )}' has no content. Skipping EachBlock.`
+      `EachBlock for '${
+        cyan(
+          String(node.expression.data),
+        )
+      }' has no content. Skipping EachBlock.`,
     );
   }
 
@@ -774,7 +802,7 @@ nodeTypes.set("EachBlock", eachBlock);
 // BreakStatement AST Node
 const breakStatement = async (
   node: BreakStatement,
-  state: State
+  state: State,
 ): Promise<void> => {
   throw ["BREAK"];
 };
@@ -784,7 +812,7 @@ nodeTypes.set("BreakStatement", breakStatement);
 // ContinueStatement AST Node
 const continueStatement = async (
   node: ContinueStatement,
-  state: State
+  state: State,
 ): Promise<void> => {
   throw ["CONTINUE"];
 };
@@ -799,7 +827,7 @@ const scopeState = (state: State, incomingState: State): State => {
 // Special function process children
 const unionChildren = async (
   children: Array<Node>,
-  state: State
+  state: State,
 ): Promise<string> => {
   let scoped = state;
   let output = "";
@@ -836,7 +864,7 @@ const unionChildren = async (
 // Null get skipped
 const unionAttributes = async (
   attributes: Array<Attribute | AttributeSpread>,
-  state: State
+  state: State,
 ): Promise<string> => {
   const attrs = new Map();
   let output = "";
@@ -886,7 +914,7 @@ const emitError = (msg: string): undefined => {
 // Loops over AST array or single AST object
 export default async (
   ast: Node | Array<Node>,
-  state: State
+  state: State,
 ): Promise<string> => {
   if (Array.isArray(ast) && ast.length) {
     return "" + (await unionChildren(ast, state));

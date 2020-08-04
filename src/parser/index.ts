@@ -81,9 +81,11 @@ export class Parser {
             tag.type === "LayoutDirective"
           ) {
             throw this.throwError(
-              `Invalid root level type ${cyan(
-                bold(tag.type)
-              )}, disallowed in Layout`
+              `Invalid root level type ${
+                cyan(
+                  bold(tag.type),
+                )
+              }, disallowed in Layout`,
             );
           }
         }
@@ -97,9 +99,11 @@ export class Parser {
             tag.type === "LayoutDirective"
           ) {
             throw this.throwError(
-              `Invalid root level type ${cyan(
-                bold(tag.type)
-              )}, disallowed in Component`
+              `Invalid root level type ${
+                cyan(
+                  bold(tag.type),
+                )
+              }, disallowed in Component`,
             );
           }
         }
@@ -108,9 +112,11 @@ export class Parser {
         if (this.context === "Page") {
           if (tag.type === "SlotDirective" || tag.type === "PathDirective") {
             throw this.throwError(
-              `Invalid root level type ${cyan(
-                bold(tag.type)
-              )}, disallowed in Page`
+              `Invalid root level type ${
+                cyan(
+                  bold(tag.type),
+                )
+              }, disallowed in Page`,
             );
           }
         }
@@ -157,7 +163,7 @@ export class Parser {
       } else if (endComment >= 0) {
         return this.getComment(
           template.substring(4, endComment),
-          endComment + 3
+          endComment + 3,
         );
       }
     }
@@ -196,31 +202,31 @@ export class Parser {
         ) {
           const expressionTemplate = template.substring(
             0,
-            template.indexOf("}")
+            template.indexOf("}"),
           );
           expression = this.parseExpressions(
             expressionTemplate,
             this.pos,
-            undefined
+            undefined,
           );
           childTemplate = this.advance(expressionTemplate.length + 1);
         } else if (tagName === ":each") {
           // Handle Expression
           const expressionTemplate = template.substring(
             0,
-            template.indexOf("}")
+            template.indexOf("}"),
           );
 
           expression = this.parseExpressions(
             expressionTemplate.substring(0, expressionTemplate.indexOf(" as ")),
             this.pos,
-            undefined
+            undefined,
           );
           // childTemplate = this.advance(expressionTemplate.length + 1);
 
           // Handle Context and Optional Index
           const contextAndIndexTemplate = expressionTemplate.substring(
-            expressionTemplate.indexOf(" as ") + 4
+            expressionTemplate.indexOf(" as ") + 4,
           );
 
           // Handle with Index
@@ -229,32 +235,32 @@ export class Parser {
             context = this.parseExpressions(
               contextAndIndexTemplate.substring(0, hasIndex),
               expression.end + 4,
-              undefined
+              undefined,
             );
             index = this.parseExpressions(
               contextAndIndexTemplate.substring(hasIndex + 1),
               expression.end + 4 + hasIndex + 1,
-              undefined
+              undefined,
             );
           } else {
             context = this.parseExpressions(
               contextAndIndexTemplate,
               expression.end + 4,
-              undefined
+              undefined,
             );
           }
 
           // Valiadate Context (required)
           if (context.type !== "Identifier") {
             throw this.throwError(
-              `Invalid context in the each block ${cyan(bold(context.data))}`
+              `Invalid context in the each block ${cyan(bold(context.data))}`,
             );
           }
 
           // Validate Index (optional as null)
           if (index !== null && index.type !== "Identifier") {
             throw this.throwError(
-              `Invalid index in the each block ${cyan(bold(index.data))}`
+              `Invalid index in the each block ${cyan(bold(index.data))}`,
             );
           }
 
@@ -275,10 +281,12 @@ export class Parser {
             reClosingTag = /^\{\/\s*\:if\s*\}/g;
             break;
           case ":elseif":
-            reClosingTag = /^(\{\s*\:elseif|\{\s*\:else\s*\}|\{\/\s*\:if\s*\})/g;
+            reClosingTag =
+              /^(\{\s*\:elseif|\{\s*\:else\s*\}|\{\/\s*\:if\s*\})/g;
             break;
           case ":else":
-            reClosingTag = /^(\{\/\s*\:if\s*\}|\{\/\s*\:when\s*\}|\{\/\s*\:each\s*\})/g;
+            reClosingTag =
+              /^(\{\/\s*\:if\s*\}|\{\/\s*\:when\s*\}|\{\/\s*\:each\s*\})/g;
             break;
           case ":skip":
             reClosingTag = /^\{\/\s*\:skip\s*\}/g;
@@ -304,9 +312,11 @@ export class Parser {
                 children.push(child as IsBlock | ElseBlock);
               } else {
                 throw this.throwError(
-                  `When block has disallowed direct child ${cyan(
-                    bold(child.data)
-                  )}`
+                  `When block has disallowed direct child ${
+                    cyan(
+                      bold(child.data),
+                    )
+                  }`,
                 );
               }
             } else {
@@ -325,7 +335,7 @@ export class Parser {
                     instance.type === "ElseBlock"
                   ) {
                     throw this.throwError(
-                      `Bad chaining of ${cyan(bold(child.data))}`
+                      `Bad chaining of ${cyan(bold(child.data))}`,
                     );
                   } else if (instance.else !== null) {
                     instance = instance.else;
@@ -362,7 +372,7 @@ export class Parser {
                   this.pos + endMatch.length,
                   children,
                   expression as ExpressionStatement,
-                  elseBlock
+                  elseBlock,
                 );
               case ":elseif":
                 return this.getElseIfBlock(
@@ -371,7 +381,7 @@ export class Parser {
                   this.pos,
                   children,
                   expression as ExpressionStatement,
-                  elseBlock
+                  elseBlock,
                 );
               case ":else":
                 return this.getElseBlock(tagName, start, this.pos, children);
@@ -381,7 +391,7 @@ export class Parser {
                   start,
                   this.pos + endMatch.length,
                   children,
-                  expression as ExpressionStatement
+                  expression as ExpressionStatement,
                 );
               case ":when":
                 return this.getWhenBlock(
@@ -389,7 +399,7 @@ export class Parser {
                   start,
                   this.pos + endMatch.length,
                   children as (IsBlock | ElseBlock)[],
-                  expression as ExpressionStatement
+                  expression as ExpressionStatement,
                 );
               case ":is":
                 return this.getIsBlock(
@@ -397,7 +407,7 @@ export class Parser {
                   start,
                   this.pos,
                   children,
-                  expression as ExpressionStatement
+                  expression as ExpressionStatement,
                 );
               case ":each":
                 return this.getEachBlock(
@@ -408,7 +418,7 @@ export class Parser {
                   expression as ExpressionStatement,
                   elseBlock as ElseBlock | null,
                   context as Identifier,
-                  index as Identifier | null
+                  index as Identifier | null,
                 );
               default:
                 throw this.throwError(`Unknown Block ${cyan(bold(tagName))}`);
@@ -422,7 +432,7 @@ export class Parser {
         const statement = this.parseExpressions(
           expressionTemplate,
           this.pos,
-          undefined
+          undefined,
         );
         this.advance(expressionTemplate.length + 1);
         return statement;
@@ -445,7 +455,7 @@ export class Parser {
 
         // Get Any Attributes
         const attributes = this.parseAttributes(
-          this.advance(tagName.length + 1)
+          this.advance(tagName.length + 1),
         );
 
         // Get Closing Start Tag
@@ -459,7 +469,7 @@ export class Parser {
             start,
             this.pos + full.length,
             attributes,
-            []
+            [],
           );
         } else if (
           tagName === "script" ||
@@ -486,7 +496,7 @@ export class Parser {
             start,
             this.pos + endPos + endTag.length,
             attributes,
-            children
+            children,
           );
         } else {
           // Get Children of Tags
@@ -496,7 +506,7 @@ export class Parser {
 
           // Closes Tag with no Children
           const endMatch = childTemplate.match(
-            new RegExp(`^<\\/${tagName}[^>]*>`)
+            new RegExp(`^<\\/${tagName}[^>]*>`),
           );
           if (endMatch) {
             return getDynamicTag(
@@ -504,7 +514,7 @@ export class Parser {
               start,
               this.pos + endMatch[0].length,
               attributes,
-              children
+              children,
             );
           }
 
@@ -529,11 +539,15 @@ export class Parser {
                     .slot !== undefined
                 ) {
                   throw this.throwError(
-                    `Element '${cyan(
-                      bold(child.data)
-                    )}' with attribute ${yellow(
-                      'slot="..."'
-                    )} must be a direct child of a Component Directive`
+                    `Element '${
+                      cyan(
+                        bold(child.data),
+                      )
+                    }' with attribute ${
+                      yellow(
+                        'slot="..."',
+                      )
+                    } must be a direct child of a Component Directive`,
                   );
                 }
               }
@@ -544,7 +558,7 @@ export class Parser {
 
             // Closes Tag with Children
             const endMatch = childTemplate.match(
-              new RegExp(`^<\\/${tagName}[^>]*>`)
+              new RegExp(`^<\\/${tagName}[^>]*>`),
             );
 
             if (endMatch) {
@@ -553,7 +567,7 @@ export class Parser {
                 start,
                 this.pos + endMatch[0].length,
                 attributes,
-                children
+                children,
               );
             }
           }
@@ -590,11 +604,13 @@ export class Parser {
   private parseExpressions(
     template: string,
     startPos: number,
-    expression?: ExpressionStatement | undefined
+    expression?: ExpressionStatement | undefined,
   ): ExpressionStatement {
-    const reToken = /^\s*(\!|\!\!|\+|\-|\~)?(\+\+|\-\-)?('[$\w.\-\"\`\s]+'|"[$\w.\-\'\`\s]+"|`[$\w.\-\"\'\s]+`|[$\w.\-\[\]]+)(\+\+|\-\-)?\s*/g;
+    const reToken =
+      /^\s*(\!|\!\!|\+|\-|\~)?(\+\+|\-\-)?('[$\w.\-\"\`\s]+'|"[$\w.\-\'\`\s]+"|`[$\w.\-\"\'\s]+`|[$\w.\-\[\]]+)(\+\+|\-\-)?\s*/g;
     const reNested = /^\s*\(([^\)]+)\)\s*/g;
-    const reBinary = /^\s*(\||\^|\&|\=\=\=|\=\=|\!\=\=|\!\=|\>\=|\<\=|\>|\<|\<\<|\>\>|\>\>\>|\+\-|\*|\/|\%)\s*/g;
+    const reBinary =
+      /^\s*(\||\^|\&|\=\=\=|\=\=|\!\=\=|\!\=|\>\=|\<\=|\>|\<|\<\<|\>\>|\>\>\>|\+\-|\*|\/|\%)\s*/g;
     const isString = /^['`"][$\w.\-\"\`\s]+['`"]$/;
     let parts;
     let advance = 0;
@@ -610,10 +626,10 @@ export class Parser {
         "||",
         this.parseExpressions(
           template.substring(rightStart),
-          startPos + rightStart
+          startPos + rightStart,
         ),
         startPos,
-        startPos + template.length
+        startPos + template.length,
       );
 
       // Logical Operations eat the whole template each time
@@ -629,10 +645,10 @@ export class Parser {
         "&&",
         this.parseExpressions(
           template.substring(rightStart),
-          startPos + rightStart
+          startPos + rightStart,
         ),
         startPos,
-        startPos + template.length
+        startPos + template.length,
       );
 
       // Logical Operations eat the whole template each time
@@ -643,7 +659,7 @@ export class Parser {
       const start = template.indexOf("(") + 1;
       expression = this.parseExpressions(
         template.substring(start, template.indexOf(")")),
-        startPos + start
+        startPos + start,
       );
 
       // Advanced Past Matched String
@@ -665,7 +681,7 @@ export class Parser {
           identifierORLiteral,
           identifierORLiteral,
           full,
-          startPos
+          startPos,
         );
       } else if (
         parseFloat(identifierORLiteral).toString() === identifierORLiteral
@@ -674,7 +690,7 @@ export class Parser {
           identifierORLiteral,
           parseFloat(identifierORLiteral),
           full,
-          startPos
+          startPos,
         );
       } else if (
         parseInt(identifierORLiteral, 10).toString() === identifierORLiteral
@@ -683,7 +699,7 @@ export class Parser {
           identifierORLiteral,
           parseInt(identifierORLiteral, 10),
           full,
-          startPos
+          startPos,
         );
       } else if (identifierORLiteral === "true") {
         expression = this.getLiteral(identifierORLiteral, true, full, startPos);
@@ -692,14 +708,14 @@ export class Parser {
           identifierORLiteral,
           false,
           full,
-          startPos
+          startPos,
         );
       } else if (identifierORLiteral === "undefined") {
         expression = this.getLiteral(
           identifierORLiteral,
           undefined,
           full,
-          startPos
+          startPos,
         );
       } else {
         if (
@@ -722,16 +738,19 @@ export class Parser {
               const object = this.parseExpressions(objRaw, startPos + offset);
               const property = this.parseExpressions(
                 propRaw,
-                startPos + offset + objFull.length
+                startPos + offset + objFull.length,
               );
-              memberData = `${memberData}${previousToken}${objRaw}${objToken}${propRaw}`;
+              memberData =
+                `${memberData}${previousToken}${objRaw}${objToken}${propRaw}`;
               previousToken = propToken;
 
               if (object.type !== "Identifier") {
                 throw this.throwError(
-                  `Incorrect object type for member expression ${cyan(
-                    bold(objRaw)
-                  )}`
+                  `Incorrect object type for member expression ${
+                    cyan(
+                      bold(objRaw),
+                    )
+                  }`,
                 );
               }
 
@@ -740,9 +759,11 @@ export class Parser {
                 property.type !== "Identifier"
               ) {
                 throw this.throwError(
-                  `Incorrect property type for member expression ${cyan(
-                    bold(propRaw)
-                  )}`
+                  `Incorrect property type for member expression ${
+                    cyan(
+                      bold(propRaw),
+                    )
+                  }`,
                 );
               }
 
@@ -753,13 +774,13 @@ export class Parser {
                 object as Identifier,
                 property as Identifier | Literal,
                 startPos + offset,
-                property.end
+                property.end,
               );
             } else {
               const [propFull, propRaw, propToken] = tokens[i];
               const property = this.parseExpressions(
                 propRaw,
-                memberExps.end + previousToken.length
+                memberExps.end + previousToken.length,
               );
 
               memberData = `${memberData}${previousToken}${propRaw}`;
@@ -770,9 +791,11 @@ export class Parser {
                 property.type !== "Identifier"
               ) {
                 throw this.throwError(
-                  `Incorrect property type for member expression ${cyan(
-                    bold(propRaw)
-                  )}`
+                  `Incorrect property type for member expression ${
+                    cyan(
+                      bold(propRaw),
+                    )
+                  }`,
                 );
               }
 
@@ -783,16 +806,18 @@ export class Parser {
                 memberExps,
                 property as Identifier | Literal,
                 startPos,
-                property.end
+                property.end,
               );
             }
           }
 
           if (memberExps === undefined) {
             throw this.throwError(
-              `Unable to build member expression ${cyan(
-                bold(identifierORLiteral)
-              )}`
+              `Unable to build member expression ${
+                cyan(
+                  bold(identifierORLiteral),
+                )
+              }`,
             );
           }
 
@@ -806,9 +831,11 @@ export class Parser {
       // Too much of a good thing.....
       if (!!updatePrefix && !!updatePostfix) {
         throw this.throwError(
-          `Too many update expressions on ${yellow(updatePrefix)}${cyan(
-            bold(identifierORLiteral)
-          )}${red(updatePostfix)}`
+          `Too many update expressions on ${yellow(updatePrefix)}${
+            cyan(
+              bold(identifierORLiteral),
+            )
+          }${red(updatePostfix)}`,
         );
       }
 
@@ -821,24 +848,23 @@ export class Parser {
           updateOperator as UpdateOperator,
           expression,
           full,
-          startPos
+          startPos,
         );
       }
 
       // Unary Expression, special handling for double !!
       if (unaryPrefix) {
         const unaryOperator = unaryPrefix === "!!" ? "!" : unaryPrefix;
-        const maybeNestedExpression =
-          unaryPrefix === "!!"
-            ? this.getUnaryExpression(
-                "!",
-                true,
-                "!",
-                expression,
-                full.replace("!!", " !"),
-                startPos
-              )
-            : expression;
+        const maybeNestedExpression = unaryPrefix === "!!"
+          ? this.getUnaryExpression(
+            "!",
+            true,
+            "!",
+            expression,
+            full.replace("!!", " !"),
+            startPos,
+          )
+          : expression;
 
         expression = this.getUnaryExpression(
           unaryOperator,
@@ -846,7 +872,7 @@ export class Parser {
           unaryOperator as UnaryOperator,
           maybeNestedExpression,
           unaryPrefix === "!!" ? full.replace("!!", "! ") : full,
-          startPos
+          startPos,
         );
       }
 
@@ -864,8 +890,8 @@ export class Parser {
         operator as BinaryOperator,
         this.parseExpressions(
           template.substring(full.length),
-          startPos + full.length
-        )
+          startPos + full.length,
+        ),
       );
 
       // Advanced Past Matched String
@@ -891,7 +917,7 @@ export class Parser {
     data: string,
     left: ExpressionStatement,
     operator: BinaryOperator,
-    right: ExpressionStatement
+    right: ExpressionStatement,
   ): BinaryExpression {
     return {
       type: "BinaryExpression",
@@ -910,7 +936,7 @@ export class Parser {
     operator: LogicalOperator,
     right: ExpressionStatement,
     start: number,
-    end: number
+    end: number,
   ): LogicalExpression {
     return {
       type: "LogicalExpression",
@@ -928,7 +954,7 @@ export class Parser {
     object: Identifier | MemberExpression,
     property: Identifier | Literal,
     start: number,
-    end: number
+    end: number,
   ): MemberExpression {
     return {
       type: "MemberExpression",
@@ -946,7 +972,7 @@ export class Parser {
     operator: UnaryOperator,
     argument: ExpressionStatement,
     full: string,
-    startPos: number
+    startPos: number,
   ): UnaryExpression {
     const pos = full.indexOf(data);
     return {
@@ -966,7 +992,7 @@ export class Parser {
     operator: UpdateOperator,
     argument: ExpressionStatement,
     full: string,
-    startPos: number
+    startPos: number,
   ): UpdateExpression {
     const pos = full.indexOf(data);
     return {
@@ -983,7 +1009,7 @@ export class Parser {
   private getIdentifier(
     data: string,
     full: string,
-    startPos: number
+    startPos: number,
   ): Identifier {
     const pos = full.indexOf(data);
     return {
@@ -998,7 +1024,7 @@ export class Parser {
     data: string,
     value: string | boolean | number | undefined,
     full: string,
-    startPos: number
+    startPos: number,
   ): Literal {
     let modifiedValue = value;
 
@@ -1022,11 +1048,12 @@ export class Parser {
 
   // Parse Attributes in Tags
   private parseAttributes(
-    template: string
+    template: string,
   ): Array<Attribute | AttributeSpread> {
     const attrs = [];
     // const regex = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*(?:"([^"]*)"+|'([^']*)'+|([^\s"'=<>`]+)))?/;
-    const regex = /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*((:?")(?:[^"]*)(:?")+|'(?:[^']*)'+|(?:[^\s"'=<>`]+)))?/;
+    const regex =
+      /^\s*([^\s"'<>\/=]+)(?:\s*(=)\s*((:?")(?:[^"]*)(:?")+|'(?:[^']*)'+|(?:[^\s"'=<>`]+)))?/;
     let parts;
 
     while ((parts = regex.exec(template)) !== null) {
@@ -1041,19 +1068,19 @@ export class Parser {
         if (full.indexOf("...") > -1) {
           // Spread Opperator
           const [[fullMatch, identifier]] = full.matchAll(
-            /\{\.\.\.([\w\-.]+)\}/g
+            /\{\.\.\.([\w\-.]+)\}/g,
           );
 
           const distance = full.indexOf(identifier);
           const expression = this.parseExpressions(
             identifier,
-            this.pos + distance
+            this.pos + distance,
           );
 
           // Safety Check
           if (expression.type !== "Identifier") {
             throw this.throwError(
-              `Invalid Identifier ${cyan(bold(expression.data))}`
+              `Invalid Identifier ${cyan(bold(expression.data))}`,
             );
           }
 
@@ -1062,8 +1089,8 @@ export class Parser {
               fullMatch,
               expression,
               this.pos + full.indexOf("{"),
-              this.pos + full.indexOf("}") + 1
-            )
+              this.pos + full.indexOf("}") + 1,
+            ),
           );
         } else {
           // Expression Template
@@ -1071,7 +1098,7 @@ export class Parser {
           const endDistance = full.indexOf("}");
           const expression = this.parseExpressions(
             full.substring(startDistance, endDistance),
-            this.pos + startDistance
+            this.pos + startDistance,
           );
 
           if (value === undefined && expression.type === "Identifier") {
@@ -1080,10 +1107,10 @@ export class Parser {
               name,
               expression,
               this.pos + full.indexOf("{"),
-              this.pos + full.indexOf("}") + 1
+              this.pos + full.indexOf("}") + 1,
             );
             attrs.push(
-              this.getAttribute(full, expression.data, expressionStatement)
+              this.getAttribute(full, expression.data, expressionStatement),
             );
           } else {
             // Name is Specified
@@ -1091,7 +1118,7 @@ export class Parser {
               value,
               expression,
               this.pos + full.indexOf("{"),
-              this.pos + full.indexOf("}") + 1
+              this.pos + full.indexOf("}") + 1,
             );
             attrs.push(this.getAttribute(full, name, expressionStatement));
           }
@@ -1125,7 +1152,7 @@ export class Parser {
     children: Array<AST> | [],
     whitelist: Array<string>,
     tagName: string,
-    ignoreWhitespace = true
+    ignoreWhitespace = true,
   ): void {
     const allowed = new Set(whitelist);
     const disallowed = new Set();
@@ -1144,12 +1171,16 @@ export class Parser {
     // Throw if invalid children
     if (disallowed.size > 0) {
       throw this.throwError(
-        `Disallowed children ${cyan(
-          bold(JSON.stringify([...disallowed.values()]))
-        )} in ${bold(`<${tagName}>`)}`,
-        `Only ${cyan(
-          bold(JSON.stringify(whitelist))
-        )} children are supported in the <${tagName}> directive.`
+        `Disallowed children ${
+          cyan(
+            bold(JSON.stringify([...disallowed.values()])),
+          )
+        } in ${bold(`<${tagName}>`)}`,
+        `Only ${
+          cyan(
+            bold(JSON.stringify(whitelist)),
+          )
+        } children are supported in the <${tagName}> directive.`,
       );
     }
   }
@@ -1219,12 +1250,12 @@ export class Parser {
     start: number,
     end: number,
     attributes: Array<Attribute | AttributeSpread> = [],
-    children: Array<AST> = []
+    children: Array<AST> = [],
   ): Tag {
     let slot;
     const foundSlot = attributes.find(
       (element) =>
-        element?.type === "Attribute" && element?.name?.data === "slot"
+        element?.type === "Attribute" && element?.name?.data === "slot",
     ) as Attribute;
 
     if (foundSlot) {
@@ -1233,7 +1264,7 @@ export class Parser {
       } else {
         slot = this.parseExpressions(
           `"${foundSlot?.value?.data}"`,
-          foundSlot.value.start
+          foundSlot.value.start,
         );
       }
 
@@ -1244,7 +1275,7 @@ export class Parser {
     if (slot !== undefined && slot.type !== "Literal") {
       // Throw if we have a invalid type used for a use statement
       throw this.throwError(
-        `Invalid Slot Argument ${cyan(bold(foundSlot.value.data))} For Tag.`
+        `Invalid Slot Argument ${cyan(bold(foundSlot.value.data))} For Tag.`,
       );
     }
 
@@ -1265,17 +1296,17 @@ export class Parser {
     start: number,
     end: number,
     attributes: Array<Attribute | AttributeSpread> = [],
-    children: Array<AST> = []
+    children: Array<AST> = [],
   ): ComponentDirective {
     let slot;
     const foundSlot = attributes.find(
       (element) =>
-        element?.type === "Attribute" && element?.name?.data === "slot"
+        element?.type === "Attribute" && element?.name?.data === "slot",
     ) as Attribute;
 
     const found = attributes.find(
       (element) =>
-        element?.type === "Attribute" && element?.name?.data === "use"
+        element?.type === "Attribute" && element?.name?.data === "use",
     ) as Attribute;
 
     let expression;
@@ -1292,7 +1323,7 @@ export class Parser {
       const expressionPos = use ? found.value.start : start;
       expression = this.parseExpressions(
         `"${expressionTemplate}"`,
-        expressionPos
+        expressionPos,
       );
     }
 
@@ -1302,7 +1333,7 @@ export class Parser {
       } else {
         slot = this.parseExpressions(
           `"${foundSlot?.value?.data}"`,
-          foundSlot.value.start
+          foundSlot.value.start,
         );
       }
 
@@ -1323,16 +1354,18 @@ export class Parser {
     ) {
       // Throw if we have a invalid type used for a use statement
       throw this.throwError(
-        `Invalid Use Argument ${cyan(
-          bold(found.value.data)
-        )} For Component Directive`
+        `Invalid Use Argument ${
+          cyan(
+            bold(found.value.data),
+          )
+        } For Component Directive`,
       );
     }
 
     if (slot !== undefined && slot.type !== "Literal") {
       // Throw if we have a invalid type used for a use statement
       throw this.throwError(
-        `Invalid Slot Argument ${cyan(bold(foundSlot.value.data))} For Tag.`
+        `Invalid Slot Argument ${cyan(bold(foundSlot.value.data))} For Tag.`,
       );
     }
 
@@ -1354,16 +1387,16 @@ export class Parser {
     start: number,
     end: number,
     attributes: Array<Attribute | AttributeSpread> = [],
-    children: Array<AST> = []
+    children: Array<AST> = [],
   ): ElementDirective {
     const found = attributes.find(
       (element) =>
-        element?.type === "Attribute" && element?.name?.data === "use"
+        element?.type === "Attribute" && element?.name?.data === "use",
     ) as Attribute;
 
     const foundSlot = attributes.find(
       (element) =>
-        element?.type === "Attribute" && element?.name?.data === "slot"
+        element?.type === "Attribute" && element?.name?.data === "slot",
     ) as Attribute;
 
     let slot;
@@ -1377,7 +1410,7 @@ export class Parser {
 
       expression = this.parseExpressions(
         `"${found.value.data}"`,
-        found.value.start
+        found.value.start,
       );
     }
 
@@ -1387,7 +1420,7 @@ export class Parser {
       } else {
         slot = this.parseExpressions(
           `"${foundSlot?.value?.data}"`,
-          foundSlot.value.start
+          foundSlot.value.start,
         );
       }
     }
@@ -1403,16 +1436,18 @@ export class Parser {
     ) {
       // Throw if we have a invalid type used for a use statement
       throw this.throwError(
-        `Invalid Use Argument ${cyan(
-          bold(found.value.data)
-        )} For Element Directive`
+        `Invalid Use Argument ${
+          cyan(
+            bold(found.value.data),
+          )
+        } For Element Directive`,
       );
     }
 
     if (slot !== undefined && slot.type !== "Literal") {
       // Throw if we have a invalid type used for a use statement
       throw this.throwError(
-        `Invalid Slot Argument ${cyan(bold(foundSlot.value.data))} For Tag.`
+        `Invalid Slot Argument ${cyan(bold(foundSlot.value.data))} For Tag.`,
       );
     }
 
@@ -1434,11 +1469,11 @@ export class Parser {
     start: number,
     end: number,
     attributes: Array<Attribute | AttributeSpread> = [],
-    children: Array<AST> = []
+    children: Array<AST> = [],
   ): LayoutDirective {
     const found = attributes.find(
       (element) =>
-        element?.type === "Attribute" && element?.name?.data === "use"
+        element?.type === "Attribute" && element?.name?.data === "use",
     ) as Attribute;
 
     let expression;
@@ -1451,7 +1486,7 @@ export class Parser {
 
       expression = this.parseExpressions(
         `"${found.value.data}"`,
-        found.value.start
+        found.value.start,
       );
     }
 
@@ -1465,9 +1500,11 @@ export class Parser {
     ) {
       // Throw if we have a invalid type used for a use statement
       throw this.throwError(
-        `Invalid Use Argument ${cyan(
-          bold(found.value.data)
-        )} For Layout Directive`
+        `Invalid Use Argument ${
+          cyan(
+            bold(found.value.data),
+          )
+        } For Layout Directive`,
       );
     }
 
@@ -1488,11 +1525,11 @@ export class Parser {
     start: number,
     end: number,
     attributes: Array<Attribute | AttributeSpread> = [],
-    children: Array<AST> = []
+    children: Array<AST> = [],
   ): RouterDirective {
     if (children.length === 0) {
       throw this.throwError(
-        `Missing required ${cyan(bold("<:path>"))} Directives inside <:router>`
+        `Missing required ${cyan(bold("<:path>"))} Directives inside <:router>`,
       );
     }
 
@@ -1515,20 +1552,22 @@ export class Parser {
     start: number,
     end: number,
     attributes: Array<Attribute | AttributeSpread> = [],
-    children: Array<AST> = []
+    children: Array<AST> = [],
   ): PathDirective {
     const found = attributes.find(
       (element) =>
-        element?.type === "Attribute" && element?.name?.data === "url"
+        element?.type === "Attribute" && element?.name?.data === "url",
     ) as Attribute;
     const url = found?.value?.data;
     const startPath = found?.value?.start;
 
     if (!url) {
       throw this.throwError(
-        `Invalid <:path> Directive. Missing required ${cyan(
-          bold("url")
-        )} attribute`
+        `Invalid <:path> Directive. Missing required ${
+          cyan(
+            bold("url"),
+          )
+        } attribute`,
       );
     }
 
@@ -1574,7 +1613,7 @@ export class Parser {
   private getStaticPathSegment(
     data: string,
     start: number,
-    end: number
+    end: number,
   ): StaticPathSegment {
     return {
       type: "StaticPathSegment",
@@ -1589,7 +1628,7 @@ export class Parser {
     data: string,
     bind: string,
     start: number,
-    end: number
+    end: number,
   ): DynamicPathSegment {
     const expression = this.parseExpressions(bind, start);
 
@@ -1599,7 +1638,7 @@ export class Parser {
     ) {
       // Throw if we have a invalid type used for a use statement
       throw this.throwError(
-        `Invalid Path Segment ${cyan(bold(data))} For Path Directive`
+        `Invalid Path Segment ${cyan(bold(data))} For Path Directive`,
       );
     }
 
@@ -1618,12 +1657,12 @@ export class Parser {
     start: number,
     end: number,
     attributes: Array<Attribute | AttributeSpread> = [],
-    children: Array<AST> = []
+    children: Array<AST> = [],
   ): DataDirective {
     // Key
     const foundKey = attributes.find(
       (element) =>
-        element?.type === "Attribute" && element?.name?.data === "key"
+        element?.type === "Attribute" && element?.name?.data === "key",
     ) as Attribute;
 
     let key;
@@ -1633,7 +1672,7 @@ export class Parser {
       if (foundKey?.value?.data) {
         key = this.parseExpressions(
           `"${foundKey.value.data}"`,
-          foundKey.value.start
+          foundKey.value.start,
         );
       }
     }
@@ -1645,16 +1684,18 @@ export class Parser {
     ) {
       // Throw if we have a invalid type used for a use statement
       throw this.throwError(
-        `Invalid Key Argument ${cyan(
-          bold(foundKey.value.data)
-        )} For Data Directive`
+        `Invalid Key Argument ${
+          cyan(
+            bold(foundKey.value.data),
+          )
+        } For Data Directive`,
       );
     }
 
     // Use
     const foundUse = attributes.find(
       (element) =>
-        element?.type === "Attribute" && element?.name?.data === "use"
+        element?.type === "Attribute" && element?.name?.data === "use",
     ) as Attribute;
 
     let expression;
@@ -1667,7 +1708,7 @@ export class Parser {
 
       expression = this.parseExpressions(
         `"${foundUse.value.data}"`,
-        foundUse.value.start
+        foundUse.value.start,
       );
     }
 
@@ -1678,9 +1719,11 @@ export class Parser {
     ) {
       // Throw if we have a invalid type used for a use statement
       throw this.throwError(
-        `Invalid Use Argument ${cyan(
-          bold(foundUse.value.data)
-        )} For Data Directive`
+        `Invalid Use Argument ${
+          cyan(
+            bold(foundUse.value.data),
+          )
+        } For Data Directive`,
       );
     }
 
@@ -1706,11 +1749,11 @@ export class Parser {
     start: number,
     end: number,
     attributes: Array<Attribute | AttributeSpread> = [],
-    children: Array<AST> = []
+    children: Array<AST> = [],
   ): SlotDirective {
     const found = attributes.find(
       (element) =>
-        element?.type === "Attribute" && element?.name?.data === "name"
+        element?.type === "Attribute" && element?.name?.data === "name",
     ) as Attribute;
     const name = found?.value?.data;
     let expression;
@@ -1723,7 +1766,7 @@ export class Parser {
       if (expression.type !== "Literal") {
         // Throw if we have a invalid type used for a name statement
         throw this.throwError(
-          `Invalid Name Argument ${cyan(bold(name))} For Slot Directive`
+          `Invalid Name Argument ${cyan(bold(name))} For Slot Directive`,
         );
       }
     }
@@ -1746,7 +1789,7 @@ export class Parser {
     end: number,
     children: Array<AST> = [],
     expression: ExpressionStatement,
-    elseBlock: ElseBlock | ElseIfBlock | null
+    elseBlock: ElseBlock | ElseIfBlock | null,
   ): IfBlock {
     return {
       type: "IfBlock",
@@ -1766,7 +1809,7 @@ export class Parser {
     end: number,
     children: Array<AST> = [],
     expression: ExpressionStatement,
-    elseBlock: ElseBlock | ElseIfBlock | null
+    elseBlock: ElseBlock | ElseIfBlock | null,
   ): ElseIfBlock {
     return {
       type: "ElseIfBlock",
@@ -1784,7 +1827,7 @@ export class Parser {
     data: string,
     start: number,
     end: number,
-    children: Array<AST> = []
+    children: Array<AST> = [],
   ): ElseBlock {
     return {
       type: "ElseBlock",
@@ -1801,7 +1844,7 @@ export class Parser {
     start: number,
     end: number,
     children: Array<AST> = [],
-    expression: ExpressionStatement
+    expression: ExpressionStatement,
   ): SkipBlock {
     return {
       type: "SkipBlock",
@@ -1819,7 +1862,7 @@ export class Parser {
     start: number,
     end: number,
     children: Array<IsBlock | ElseBlock> = [],
-    expression: ExpressionStatement
+    expression: ExpressionStatement,
   ): WhenBlock {
     return {
       type: "WhenBlock",
@@ -1837,7 +1880,7 @@ export class Parser {
     start: number,
     end: number,
     children: Array<AST> = [],
-    expression: ExpressionStatement
+    expression: ExpressionStatement,
   ): IsBlock {
     return {
       type: "IsBlock",
@@ -1858,7 +1901,7 @@ export class Parser {
     expression: ExpressionStatement,
     elseBlock: ElseBlock | null,
     context: Identifier,
-    index: Identifier | null
+    index: Identifier | null,
   ): EachBlock {
     return {
       type: "EachBlock",
@@ -1877,7 +1920,7 @@ export class Parser {
   private getContinueStatement(
     data: string,
     start: number,
-    end: number
+    end: number,
   ): ContinueStatement {
     return {
       type: "ContinueStatement",
@@ -1891,7 +1934,7 @@ export class Parser {
   private getBreakStatement(
     data: string,
     start: number,
-    end: number
+    end: number,
   ): BreakStatement {
     return {
       type: "BreakStatement",
@@ -1906,7 +1949,7 @@ export class Parser {
     data: string,
     expression: ExpressionStatement,
     start: number,
-    end: number
+    end: number,
   ): AttributeExpression {
     return {
       type: "AttributeExpression",
@@ -1922,7 +1965,7 @@ export class Parser {
     data: string,
     expression: Identifier,
     start: number,
-    end: number
+    end: number,
   ): AttributeSpread {
     return {
       type: "AttributeSpread",
@@ -1937,7 +1980,7 @@ export class Parser {
   private getAttribute(
     data: string,
     name: string,
-    value: string | AttributeExpression = ""
+    value: string | AttributeExpression = "",
   ): Attribute {
     const nameLen = name.length;
     const junk = data.match(/^\s*/)?.[0].length || 0;
@@ -1950,7 +1993,7 @@ export class Parser {
       valueOut = this.getAttributeValue(
         value,
         valueStart,
-        valueStart + valueLen
+        valueStart + valueLen,
       );
     } else {
       // Expression Statement
@@ -1971,7 +2014,7 @@ export class Parser {
   private getAttributeName(
     data: string,
     start: number,
-    end: number
+    end: number,
   ): AttributeName {
     return {
       type: "AttributeName",
@@ -1985,7 +2028,7 @@ export class Parser {
   private getAttributeValue(
     data: string,
     start: number,
-    end: number
+    end: number,
   ): AttributeValue {
     let modified = data;
 
@@ -2008,13 +2051,13 @@ export class Parser {
   // Remove Attribute from Attributes Array
   private removeAttribute(
     attributes: Array<Attribute | AttributeSpread>,
-    name: string
+    name: string,
   ) {
     // Remove unneeded attributes
     return attributes.filter(
       (element) =>
         element?.type !== "Attribute" ||
-        (element?.type === "Attribute" && element?.name?.data !== name)
+        (element?.type === "Attribute" && element?.name?.data !== name),
     );
   }
 
