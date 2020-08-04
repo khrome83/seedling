@@ -390,7 +390,7 @@ Deno.test("Component Resolver - BaseHeading (local)", async () => {
       layout: [],
       router: [],
     },
-    meta: { cacheHit: true, cacheKey: "f98a66e8-4f3a-5ba6-bea8-0e1b711ef6b8" },
+    meta: { cacheHit: false, cacheKey: "f98a66e8-4f3a-5ba6-bea8-0e1b711ef6b8" },
   };
 
   assertEquals(output, expected);

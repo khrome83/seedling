@@ -32,11 +32,13 @@ import {
   State,
   ComponentDirective,
   SlotDirective,
+  LayoutDirective,
 } from "../types.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
 import { resolveData } from "../resolvers/data.ts";
 import { resolveComponent } from "../resolvers/component.ts";
+import { resolveLayout } from "../resolvers/layout.ts";
 
 // TODO: Finish All Types
 //
@@ -51,7 +53,7 @@ import { resolveComponent } from "../resolvers/component.ts";
 //   09.    [X] Text
 //   10.    [X] ComponentDirective
 //   11.    [X] ElementDirective
-//   12.    [ ] LayoutDirective
+//   12.    [X] LayoutDirective
 //   13.    [ ] RouterDirective
 //   14.    [ ] PathDirective
 //   15.    [ ] DynamicPathSegment
@@ -474,6 +476,55 @@ const componentDirective = async (
 
 nodeTypes.set("ComponentDirective", componentDirective);
 
+// LayoutDirective AST Node
+const layoutDirective = async (
+  node: LayoutDirective,
+  state: State,
+): Promise<string> => {
+  const layout = await compileNode(node.expression, state);
+  const attrs = new Map();
+  let localState: State = {};
+
+  // Can't Render Component
+  if (typeof layout !== "string") {
+    emitWarning(
+      `Layout Directive '${
+        cyan(
+          layout,
+        )
+      }' not found in state. Could not render node.`,
+    );
+    return "";
+  }
+
+  // Need to build a map of all attributes and process
+  for (let i = 0, aLen = node.attributes.length; i < aLen; i++) {
+    const list = await compileNode(node.attributes[i], state);
+    for (let x = 0, lLen = list.length; x < lLen; x++) {
+      const [name, value] = list[x];
+      attrs.set(name, value);
+    }
+  }
+
+  // Build Local State
+  const attrsIterator = attrs[Symbol.iterator]();
+  for (const [name, value] of attrsIterator) {
+    localState[name] = value;
+  }
+
+  // Get Layout
+  try {
+    // Return Layout
+    const res = await resolveLayout(layout);
+    return await unionChildren(res.ast.html, scopeState(state, localState));
+  } catch (e) {
+    emitError(`Unable to process Layut Directive ${bold(red(layout))}.`);
+    return "";
+  }
+};
+
+nodeTypes.set("LayoutDirective", layoutDirective);
+
 // SlotDirective AST Node
 const slotDirective = async (
   node: SlotDirective,
@@ -498,6 +549,7 @@ const slotDirective = async (
 
   // Return Default or Children, or Nothing
   const slots = state?.["__internals__"]?.["slots"];
+
   if (slots?.[name] && slots?.[name].length) {
     return await unionChildren(slots[name], state);
   } else if (node.children.length) {
