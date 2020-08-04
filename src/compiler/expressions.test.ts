@@ -630,6 +630,59 @@ Deno.test("Component Directive with Named Slot", async () => {
   assertEquals(output.trim(), expected);
 });
 
+Deno.test("Layout Directive", async () => {
+  const ast = {
+    type: "LayoutDirective",
+    data: ":layout",
+    attributes: [
+      {
+        type: "Attribute",
+        data: ' level="2"',
+        start: 18,
+        end: 30,
+        name: { type: "AttributeName", data: "level", start: 19, end: 24 },
+        value: {
+          type: "AttributeValue",
+          data: "2",
+          start: 26,
+          end: 31,
+        },
+      },
+    ],
+    children: [],
+    expression: {
+      type: "Literal",
+      data: '"Menu"',
+      value: "Menu",
+      start: 15,
+      end: 19,
+    },
+    start: 0,
+    end: 57,
+  };
+  const data = {
+    __internals__: {
+      slots: {
+        default: [
+          {
+            type: "Text",
+            data:
+              "<div>\n  <div>Top from Slot</div>\n  <div>Middle from Component</div>\n  <div>Bottom from Slot</div>\n</div>",
+            start: 31,
+            end: 46,
+          },
+        ],
+      },
+    },
+  };
+
+  const output = await compile(ast as Node, data);
+  const expected =
+    '<div level="2">\n  <div>\n  <div>Top from Slot</div>\n  <div>Middle from Component</div>\n  <div>Bottom from Slot</div>\n</div>\n</div>';
+
+  assertEquals(output.trim(), expected);
+});
+
 Deno.test("Element Directive", async () => {
   const ast = {
     type: "ElementDirective",
