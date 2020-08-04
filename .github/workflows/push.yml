@@ -1,9 +1,7 @@
-name: CI
+name: CI (PUSH)
 
 on:
   push:
-    branches: [master]
-  pull_request:
     branches: [master]
 
 jobs:
@@ -37,11 +35,3 @@ jobs:
 
       - name: Test
         run: deno test --allow-read --allow-net --allow-env
-
-      - name: Benchmarks
-        run: deno run --allow-read --allow-env --allow-hrtime ./src/benchmarks/benchmarks.ts | tee ./pr.md
-      - uses: harupy/comment-on-pr@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          filename: ../../pr.md

@@ -1,0 +1,45 @@
+name: CI (PULL REQUEST)
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+    strategy:
+      matrix:
+        config:
+          - version: 1.2.1
+    env:
+      # Used for tests, not valid host, path or token, just needs to exist
+      GRAPH_HOST: "example.com"
+      GRAPH_PATH: "/resources/master"
+      GRAPH_TOKEN: "sdf90sdf9090234sdf90sdf"
+
+    name: Deno ${{ matrix.config.version }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+
+      - name: Setup deno
+        uses: denolib/setup-deno@v2.1.0
+        with:
+          deno-version: ${{ matrix.config.version }}
+
+      - name: Format
+        run: deno fmt --check
+
+      - name: Lint
+        run: deno lint --unstable
+
+      - name: Test
+        run: deno test --allow-read --allow-net --allow-env
+
+      - name: Benchmarks
+        run: deno run --allow-read --allow-env --allow-hrtime ./src/benchmarks/benchmarks.ts | tee ./pr.md
+      - uses: harupy/comment-on-pr@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: ../../pr.md
