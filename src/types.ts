@@ -331,7 +331,7 @@ export type DynamicTag =
 export interface RootAST {
   html: Array<AST>;
   layout: Array<AST> | [];
-  router: Array<AST> | [];
+  router?: RouterDirective;
 }
 
 export type ParserContext = "Layout" | "Component" | "Page";

@@ -1,4 +1,4 @@
-import { cyan, red, yellow, bold, delay } from "../deps.ts";
+import { cyan, red, yellow, bold } from "../deps.ts";
 import {
   Node,
   Identifier,
@@ -970,6 +970,10 @@ export default async (
 ): Promise<string> => {
   if (Array.isArray(ast) && ast.length) {
     return "" + (await unionChildren(ast, state));
+  } else if ((ast as Node).type === "RouterDirective") {
+    // Special processing for RouterDirective
+    // Should not be passed back as string
+    return await compileNode(ast as Node, state);
   } else {
     return "" + (await compileNode(ast as Node, state));
   }

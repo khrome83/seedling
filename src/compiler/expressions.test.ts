@@ -1003,6 +1003,188 @@ Deno.test("Data Directive with Key", async () => {
   assertEquals(output, expected);
 });
 
+Deno.test("Router Directive", async () => {
+  const ast = {
+    type: "RouterDirective",
+    data: ":router",
+    attributes: [],
+    children: [
+      {
+        type: "PathDirective",
+        data: ":path",
+        attributes: [],
+        children: [],
+        path: [
+          { type: "OptionalPathSegment", data: "lang", start: 22, end: 26 },
+          { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
+        ],
+        start: 9,
+        end: 42,
+      },
+      {
+        type: "PathDirective",
+        data: ":path",
+        attributes: [],
+        children: [],
+        path: [
+          { type: "OptionalPathSegment", data: "lang", start: 22, end: 26 },
+          { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
+          { type: "StaticPathSegment", data: "catagory", start: 22, end: 26 },
+          {
+            type: "DynamicPathSegment",
+            data: ":catagories",
+            expression: {
+              type: "Identifier",
+              data: "catagories",
+              start: 27,
+              end: 37,
+            },
+            start: 27,
+            end: 38,
+          },
+        ],
+        start: 9,
+        end: 42,
+      },
+      {
+        type: "PathDirective",
+        data: ":path",
+        attributes: [],
+        children: [],
+        path: [
+          { type: "OptionalPathSegment", data: "lang", start: 22, end: 26 },
+          { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
+          {
+            type: "DynamicPathSegment",
+            data: ":slugs",
+            expression: {
+              type: "Identifier",
+              data: "slugs",
+              start: 27,
+              end: 37,
+            },
+            start: 27,
+            end: 38,
+          },
+        ],
+        start: 9,
+        end: 42,
+      },
+      {
+        type: "PathDirective",
+        data: ":path",
+        attributes: [],
+        children: [],
+        path: [
+          { type: "OptionalPathSegment", data: "lang", start: 22, end: 26 },
+          { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
+          { type: "StaticPathSegment", data: "page", start: 22, end: 26 },
+          { type: "PaginationPathSegment", data: "page", start: 22, end: 26 },
+        ],
+        start: 9,
+        end: 42,
+      },
+    ],
+    start: 0,
+    end: 52,
+  };
+  const data = {
+    lang: "es",
+    catagories: ["deno", "node", "css", "html"],
+    slugs: ["how-to-use-seedling", "migrating-from-sapper", "deploy-to-vercel"],
+  };
+
+  const output = await compile(ast as Node, data);
+  const expected = [
+    { path: "/blog", state: { ...data, lang: "" }, data: [] },
+    { path: "/es/blog", state: { ...data, lang: "es" }, data: [] },
+    {
+      path: "/blog/catagory/deno",
+      state: { ...data, lang: "", catagories: "deno" },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/node",
+      state: { ...data, lang: "", catagories: "node" },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/css",
+      state: { ...data, lang: "", catagories: "css" },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/html",
+      state: { ...data, lang: "", catagories: "html" },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/deno",
+      state: { ...data, lang: "es", catagories: "deno" },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/node",
+      state: { ...data, lang: "es", catagories: "node" },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/css",
+      state: { ...data, lang: "es", catagories: "css" },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/html",
+      state: { ...data, lang: "es", catagories: "html" },
+      data: [],
+    },
+    {
+      path: "/blog/how-to-use-seedling",
+      state: { ...data, lang: "", slugs: "how-to-use-seedling" },
+      data: [],
+    },
+    {
+      path: "/blog/migrating-from-sapper",
+      state: { ...data, lang: "", slugs: "migrating-from-sapper" },
+      data: [],
+    },
+    {
+      path: "/blog/deploy-to-vercel",
+      state: { ...data, lang: "", slugs: "deploy-to-vercel" },
+      data: [],
+    },
+    {
+      path: "/es/blog/how-to-use-seedling",
+      state: { ...data, lang: "es", slugs: "how-to-use-seedling" },
+      data: [],
+    },
+    {
+      path: "/es/blog/migrating-from-sapper",
+      state: { ...data, lang: "es", slugs: "migrating-from-sapper" },
+      data: [],
+    },
+    {
+      path: "/es/blog/deploy-to-vercel",
+      state: { ...data, lang: "es", slugs: "deploy-to-vercel" },
+      data: [],
+    },
+    { path: "/blog/page/2", state: { ...data, lang: "", page: "2" }, data: [] },
+    {
+      path: "/es/blog/page/2",
+      state: { ...data, lang: "es", page: "2" },
+      data: [],
+    },
+    { path: "/blog/page/3", state: { ...data, lang: "", page: "3" }, data: [] },
+    {
+      path: "/es/blog/page/3",
+      state: { ...data, lang: "es", page: "3" },
+      data: [],
+    },
+  ];
+
+  assertEquals(output.trim(), expected);
+});
+
 Deno.test("Identifier", async () => {
   const ast = { type: "Identifier", data: "foobar", start: 26, end: 32 };
   const data = {

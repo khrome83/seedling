@@ -55,7 +55,7 @@ export class Parser {
   private pos = 0;
   private html: Array<AST> = [];
   private layout: Array<AST> = [];
-  private router: Array<AST> = [];
+  private router: RouterDirective | undefined = undefined;
   private template: string;
   private context: ParserContext;
 
@@ -127,11 +127,14 @@ export class Parser {
         // Place in Correct Place
         if (tag.type === "LayoutDirective") {
           this.layout.push(tag);
-        } else if (
-          tag.type === "RouterDirective" ||
-          tag.type === "PathDirective"
-        ) {
-          this.router.push(tag);
+        } else if (tag.type === "RouterDirective") {
+          if (this.router !== undefined) {
+            throw this.throwError(
+              "Multiple RouterDirectives found. Pages can only contain one Router Directive.",
+            );
+          }
+
+          this.router = tag;
         } else {
           this.html.push(tag);
         }

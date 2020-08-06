@@ -63,7 +63,7 @@ Deno.test("Each Loop", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -131,7 +131,7 @@ Deno.test("Each Loop with Index", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -216,7 +216,7 @@ Deno.test("Each Loop with Else", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -324,7 +324,7 @@ Deno.test("Each Loop with Break", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -437,7 +437,7 @@ Deno.test("Each Loop with Continue", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);

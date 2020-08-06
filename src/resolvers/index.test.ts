@@ -190,7 +190,7 @@ Deno.test("Component Resolver - Sample (local)", async () => {
         },
       ],
       layout: [],
-      router: [],
+      router: undefined,
     },
     meta: { cacheHit: false, cacheKey: "300bb306-697d-5d85-80ff-b28ec2feb524" },
   };
@@ -388,7 +388,7 @@ Deno.test("Component Resolver - BaseHeading (local)", async () => {
         },
       ],
       layout: [],
-      router: [],
+      router: undefined,
     },
     meta: { cacheHit: false, cacheKey: "f98a66e8-4f3a-5ba6-bea8-0e1b711ef6b8" },
   };
@@ -533,7 +533,7 @@ Deno.test("Layout Resolver - Default (local)", async () => {
           end: 30,
         },
       ],
-      router: [],
+      router: undefined,
       layout: [],
     },
     meta: { cacheHit: false, cacheKey: "d0d1aade-a374-590f-8b22-4a8bb02e45be" },

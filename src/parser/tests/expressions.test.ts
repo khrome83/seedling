@@ -12,7 +12,7 @@ Deno.test("Identifier", () => {
       { type: "Text", data: " should be a Indetifier.", start: 34, end: 58 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -98,7 +98,7 @@ Deno.test("Chained Identfier", () => {
       { type: "Text", data: ".", start: 120, end: 121 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -122,7 +122,7 @@ Deno.test("Literal", () => {
       { type: "Text", data: ".", start: 75, end: 76 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -216,7 +216,7 @@ Deno.test("Attribute Identifier and Literal", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -271,7 +271,7 @@ Deno.test("Attribute Implicit Identifier", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -322,7 +322,7 @@ Deno.test("Attribute Spread Operator", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -347,7 +347,7 @@ Deno.test("Unary Expression", () => {
       { type: "Text", data: ". Ready?", start: 20, end: 28 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -382,7 +382,7 @@ Deno.test("Update Expression", () => {
       { type: "Text", data: "?", start: 38, end: 39 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -441,7 +441,7 @@ Deno.test("Combined Unary and Update Expression", () => {
       { type: "Text", data: "?", start: 41, end: 42 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -472,7 +472,7 @@ Deno.test("Binary Expression", () => {
       { type: "Text", data: ". Ready?", start: 32, end: 40 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -497,7 +497,7 @@ Deno.test("Logical Expression", () => {
       { type: "Text", data: ". Ready?", start: 26, end: 34 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -536,7 +536,7 @@ Deno.test("Nested Expression (left)", () => {
       { type: "Text", data: ". Ready?", start: 39, end: 47 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -575,7 +575,7 @@ Deno.test("Nested Expression (right)", () => {
       { type: "Text", data: ". Ready?", start: 39, end: 47 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -661,7 +661,7 @@ Deno.test("Chained Expressions", () => {
       { type: "Text", data: ". Ready?", start: 69, end: 77 },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
