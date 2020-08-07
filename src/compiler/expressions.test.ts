@@ -1003,6 +1003,38 @@ Deno.test("Data Directive with Key", async () => {
   assertEquals(output, expected);
 });
 
+Deno.test("Data Directive with Default JSON", async () => {
+  const ast = [
+    {
+      type: "DataDirective",
+      data: ":data",
+      attributes: [],
+      children: [
+        {
+          type: "Text",
+          data:
+            '\n      {\n        "foo": ["bar", "qaz", "opps"],\n        "cat": "hat",\n        "micky": "mouse"\n      }\n    ',
+          start: 12,
+          end: 120,
+        },
+      ],
+      expression: undefined,
+      key: undefined,
+      start: 5,
+      end: 128,
+    },
+    { type: "Text", data: "I am a cat and this is my ", start: 0, end: 8 },
+    { type: "Identifier", data: "cat", start: 9, end: 19 },
+    { type: "Text", data: ".", start: 0, end: 8 },
+  ];
+  const data = {};
+
+  const output = await compile(ast as Array<Node>, data);
+  const expected = "I am a cat and this is my hat.";
+
+  assertEquals(output, expected);
+});
+
 Deno.test("Identifier", async () => {
   const ast = { type: "Identifier", data: "foobar", start: 26, end: 32 };
   const data = {

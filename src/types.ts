@@ -135,7 +135,7 @@ export interface PathDirective extends BaseTag {
 export interface DataDirective extends BaseTag {
   type: "DataDirective";
   key: Identifier | Literal | undefined;
-  expression: Identifier | Literal | MemberExpression;
+  expression: Identifier | Literal | MemberExpression | undefined;
 }
 
 export interface SlotDirective extends BaseTag {

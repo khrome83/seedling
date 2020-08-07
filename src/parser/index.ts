@@ -1701,30 +1701,26 @@ export class Parser {
     let expression;
     if (foundUse?.value?.type === "AttributeExpression") {
       expression = foundUse.value.expression;
-    } else {
-      if (!foundUse?.value?.data) {
-        throw this.throwError("Missing Use Argument For Data Directive");
-      }
-
+    } else if (foundUse?.value?.data) {
       expression = this.parseExpressions(
         `"${foundUse.value.data}"`,
         foundUse.value.start,
       );
-    }
 
-    if (
-      expression.type !== "Identifier" &&
-      expression.type !== "Literal" &&
-      expression.type !== "MemberExpression"
-    ) {
-      // Throw if we have a invalid type used for a use statement
-      throw this.throwError(
-        `Invalid Use Argument ${
-          cyan(
-            bold(foundUse.value.data),
-          )
-        } For Data Directive`,
-      );
+      if (
+        expression.type !== "Identifier" &&
+        expression.type !== "Literal" &&
+        expression.type !== "MemberExpression"
+      ) {
+        // Throw if we have a invalid type used for a use statement
+        throw this.throwError(
+          `Invalid Use Argument ${
+            cyan(
+              bold(foundUse.value.data),
+            )
+          } For Data Directive`,
+        );
+      }
     }
 
     // Remove unneeded attributes
@@ -1737,7 +1733,11 @@ export class Parser {
       attributes,
       children,
       key: key as Literal | Identifier | undefined,
-      expression: expression as Literal | Identifier | MemberExpression,
+      expression: expression as
+        | Literal
+        | Identifier
+        | MemberExpression
+        | undefined,
       start,
       end,
     };

@@ -609,6 +609,46 @@ Deno.test("Data Directive with Plain Text", () => {
   assertEquals(output, expected);
 });
 
+Deno.test("Data Directive Default with JSON", () => {
+  const html = `
+    <:data>
+      {
+        "foo": ["bar", "qaz", "opps"],
+        "cat": "hat",
+        "micky": "mouse"
+      }
+    </:data>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    html: [
+      { type: "Text", data: "\n    ", start: 0, end: 5 },
+      {
+        type: "DataDirective",
+        data: ":data",
+        attributes: [],
+        children: [
+          {
+            type: "Text",
+            data:
+              '\n      {\n        "foo": ["bar", "qaz", "opps"],\n        "cat": "hat",\n        "micky": "mouse"\n      }\n    ',
+            start: 12,
+            end: 119,
+          },
+        ],
+        expression: undefined,
+        key: undefined,
+        start: 5,
+        end: 127,
+      },
+    ],
+    router: [],
+    layout: [],
+  };
+
+  assertEquals(output, expected);
+});
+
 Deno.test("Slot Directive - No Default", () => {
   const html = "<div><:slot/></div>";
   const p = new Parser(html, "Component");

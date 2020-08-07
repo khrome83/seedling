@@ -608,7 +608,12 @@ const dataDirective = async (
   state: State,
 ): Promise<DataResponse> => {
   let body = "";
-  const use = await compileNode(node.expression, state);
+  let use;
+
+  if (node.expression !== undefined) {
+    use = await compileNode(node.expression, state);
+  }
+
   const attrs = new Map();
   const values: State = {};
 
@@ -634,17 +639,28 @@ const dataDirective = async (
     }
   }
 
-  const res = await resolveData(use, values, body);
-
-  // Namespace state to key if available
   let outgoingState;
+  let stateValues;
+
+  if (use) {
+    // We have a data resolver
+    const res = await resolveData(use, values, body);
+    stateValues = res.response;
+  } else {
+    // Use default JSON parser
+    stateValues = JSON.parse(body.trim());
+  }
+
+  // We use default JSON resolver
+  body.trim();
+  // Namespace state to key if available
   if (node.key !== undefined) {
     const key = await compileNode(node.key, state);
     outgoingState = {
-      [key]: res.response,
+      [key]: stateValues,
     };
   } else {
-    outgoingState = res.response;
+    outgoingState = stateValues;
   }
 
   throw ["STATE", outgoingState];
