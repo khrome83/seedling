@@ -407,6 +407,7 @@ export interface Response {
 export interface Request {
   attrs?: object;
   body?: string;
+  root: string;
 }
 
 export interface DataResponse {
