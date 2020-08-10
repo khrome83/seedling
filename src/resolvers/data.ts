@@ -51,6 +51,7 @@ const response: Response = {
 const buildRequest = (attrs: object = {}, body = ""): Request => ({
   attrs,
   body,
+  root: config.root,
 });
 
 export const resolveData = async (

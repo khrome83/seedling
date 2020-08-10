@@ -9,8 +9,8 @@ const importConfig = async () => {
 
   return await Deno.lstat(configFile)
     .then(async () => {
-      const file = await Deno.readTextFile(configFile);
       try {
+        const file = await Deno.readTextFile(configFile);
         const fileContents = JSON.parse(file);
 
         if (fileContents.root) {
