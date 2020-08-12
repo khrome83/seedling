@@ -48,6 +48,9 @@ import {
   SlotDirective,
   DynamicTag,
   ParserContext,
+  OptionalPathSegment,
+  PaginationPathSegment,
+  RangePathSegment,
 } from "../types.ts";
 
 // Parser
@@ -1594,16 +1597,32 @@ export class Parser {
   // Parse URL into Path Objects
   private parsePathUrl(path: string, startPath: number): Array<PathSegment> {
     const segments = [];
-    const regex = /\/((:)?([A-Za-z0-9-_%]+))/g;
+    const regex = /\/((:|:#|:\?|:\[(\w+)\,(\w+)\])?([A-Za-z0-9-_%]+))/g;
     let parts;
 
     while ((parts = regex.exec(path)) !== null) {
-      const [full, data, dynamic, bind] = parts;
+      const [full, data, token, first, last, bind] = parts;
       const start = startPath + path.indexOf(data);
       const end = start + data.length;
 
-      if (dynamic) {
-        segments.push(this.getDynamicPathSegment(data, bind, start, end));
+      if (token) {
+        switch (token.charAt(1)) {
+          case "#": // Pagination
+            segments.push(
+              this.getPaginationPathSegment(data, bind, start, end),
+            );
+            break;
+          case "?": // Optional
+            segments.push(this.getOptionalPathSegment(data, bind, start, end));
+            break;
+          case "[": // Range
+            segments.push(
+              this.getRangePathSegment(data, bind, first, last, start, end),
+            );
+            break;
+          default: // Dynamic
+            segments.push(this.getDynamicPathSegment(data, bind, start, end));
+        }
       } else {
         segments.push(this.getStaticPathSegment(data, start, end));
       }
@@ -1621,6 +1640,112 @@ export class Parser {
     return {
       type: "StaticPathSegment",
       data,
+      start,
+      end,
+    };
+  }
+
+  // Range Path Segment AST
+  private getRangePathSegment(
+    data: string,
+    bind: string,
+    first: string,
+    last: string,
+    start: number,
+    end: number,
+  ): RangePathSegment {
+    const expression = this.parseExpressions(`"${bind}"`, start);
+    const firstExpression = this.parseExpressions(first, start);
+    const lastExpression = this.parseExpressions(last, start);
+
+    if (expression.type !== "Literal") {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Range Segment ${cyan(bold(data))} For Path Directive`,
+      );
+    }
+
+    if (
+      firstExpression.type !== "Literal" &&
+      firstExpression.type !== "Identifier" &&
+      firstExpression.type !== "MemberExpression"
+    ) {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Range Segment ${cyan(bold(data))} For Path Directive`,
+      );
+    }
+
+    if (
+      lastExpression.type !== "Literal" &&
+      lastExpression.type !== "Identifier" &&
+      lastExpression.type !== "MemberExpression"
+    ) {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Range Segment ${cyan(bold(data))} For Path Directive`,
+      );
+    }
+
+    return {
+      type: "RangePathSegment",
+      data,
+      expression,
+      first: firstExpression,
+      last: lastExpression,
+      start,
+      end,
+    };
+  }
+
+  // Pagination Path Segment AST
+  private getPaginationPathSegment(
+    data: string,
+    bind: string,
+    start: number,
+    end: number,
+  ): PaginationPathSegment {
+    const expression = this.parseExpressions(`"${bind}"`, start);
+
+    if (expression.type !== "Literal") {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Path Segment ${cyan(bold(data))} For Path Directive`,
+      );
+    }
+
+    return {
+      type: "PaginationPathSegment",
+      data,
+      expression,
+      start,
+      end,
+    };
+  }
+
+  // Optional Path Segment AST
+  private getOptionalPathSegment(
+    data: string,
+    bind: string,
+    start: number,
+    end: number,
+  ): OptionalPathSegment {
+    const expression = this.parseExpressions(bind, start);
+
+    if (
+      expression.type !== "Identifier" &&
+      expression.type !== "MemberExpression"
+    ) {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Path Segment ${cyan(bold(data))} For Path Directive`,
+      );
+    }
+
+    return {
+      type: "OptionalPathSegment",
+      data,
+      expression,
       start,
       end,
     };
