@@ -1,4 +1,4 @@
-import { cyan, red, yellow, bold, delay } from "../deps.ts";
+import { cyan, red, yellow, bold } from "../deps.ts";
 import {
   Node,
   Identifier,
@@ -33,6 +33,16 @@ import {
   ComponentDirective,
   SlotDirective,
   LayoutDirective,
+  RouterDirective,
+  PathDirective,
+  StaticPathSegment,
+  OptionalPathSegment,
+  PaginationPathSegment,
+  RangePathSegment,
+  DynamicPathSegment,
+  PathDefinition,
+  PathPart,
+  PathSegment,
 } from "../types.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
@@ -54,10 +64,13 @@ import { resolveLayout } from "../resolvers/layout.ts";
 //   10.    [X] ComponentDirective
 //   11.    [X] ElementDirective
 //   12.    [X] LayoutDirective
-//   13.    [ ] RouterDirective
-//   14.    [ ] PathDirective
-//   15.    [ ] DynamicPathSegment
-//   16.    [ ] StaticPathSegment
+//   13.    [X] RouterDirective
+//   14.    [X] PathDirective
+//   15.    [X] DynamicPathSegment
+//   16.    [X] StaticPathSegment
+//   17.    [X] OptionalPathSegment
+//   18.    [X] PaginationPathSegment
+//   19.    [X] RangePathSegment
 //   17.    [X] DataDirective
 //   18.    [X] SlotDirective
 //   19.    [X] IfBlock
@@ -647,7 +660,11 @@ const dataDirective = async (
     outgoingState = res.response;
   }
 
-  throw ["STATE", outgoingState];
+  if (res.type === "SUCCESS") {
+    throw ["STATE", outgoingState];
+  } else {
+    throw [res.type, outgoingState];
+  }
 };
 
 nodeTypes.set("DataDirective", dataDirective);
@@ -876,6 +893,307 @@ const scopeState = (state: State, incomingState: State): State => {
   return { ...state, ...incomingState };
 };
 
+// RangePathSegment AST Node
+const rangePathSegment = async (
+  node: RangePathSegment,
+  state: State,
+): Promise<PathPart[]> => {
+  const stateKey = await compileNode(node.expression, state);
+  const firstExpression = await compileNode(node.first, state);
+  const lastExpression = await compileNode(node.last, state);
+  let outputPaths: PathPart[] = [];
+
+  try {
+    const first = parseInt(firstExpression, 10);
+    const last = parseInt(lastExpression, 10);
+
+    if (last < first) {
+      emitError(
+        `Invalid RangePathSegment, expect first param (${first}) to be less than or equal to last param (${last})`,
+      );
+    }
+
+    for (let i = first; i <= last; i++) {
+      outputPaths.push(["" + i, { "$params": { [stateKey]: "" + i } }]);
+    }
+  } catch (e) {
+    emitError(
+      `Invalid params passed to RangePathSegment, :[${firstExpression},${lastExpression}]${stateKey}`,
+    );
+  }
+
+  return outputPaths;
+};
+
+nodeTypes.set("RangePathSegment", rangePathSegment);
+
+// PaginationPathSegment AST Node
+const paginationPathSegment = async (
+  node: PaginationPathSegment,
+  state: State,
+): Promise<PathPart[]> => {
+  const stateKey = await compileNode(node.expression, state);
+  let scoped: State = state;
+  let outputPaths: PathPart[] = [];
+  let counter = 0;
+
+  const data = state.__internals__.data;
+  if (!data.length) {
+    emitError(
+      `Invalid PaginationPathSegment. Pagination requires atleast one DataDirective recieving '${stateKey}' attribute.`,
+    );
+  }
+
+  while (true) {
+    try {
+      // Process Data, Pass the Counter as State
+      // TODO: remove this workaround for $params and build better deep copy for scopeState
+      const params = scopeState(
+        state.$params,
+        { [stateKey]: "" + counter },
+      );
+      scoped.$params = params;
+
+      // Call all nested data directives
+      for (let i = 0; i < data.length; i++) {
+        try {
+          await compileNode(data[i], scoped);
+        } catch (capture) {
+          if (Array.isArray(capture)) {
+            const [code, append] = capture;
+            // Bypases all state changes for multiple data items
+            if (code === "STATE") {
+              if (i === data.length - 1) {
+                throw [code, append];
+              } else {
+                scoped = scopeState(scoped, append);
+              }
+              continue;
+            } else {
+              // Bubble up SKIP and END
+              throw [code, append];
+            }
+          } else {
+            emitError(`Uncaught Error - ${capture}`);
+          }
+        }
+      }
+    } catch (capture) {
+      // Speacial handling for bubbling via throws to capture the last output
+      // Used when something impacts state or impacts flow
+      if (Array.isArray(capture)) {
+        const [code, append] = capture;
+        if (code === "STATE") {
+          // Modifies the Scoped State for DataDirective that
+          // are not hoisted to the top or part of a router/path
+          scoped = scopeState(scoped, append);
+          outputPaths.push(
+            ["" + counter, { "$params": { [stateKey]: "" + counter } }],
+          );
+          counter++;
+          continue;
+        } else if (code === "SKIP") {
+          // DataDirective return a SKIP response, so we don't return the PathPart
+          // Continue with Loop
+          counter++;
+          continue;
+        } else if (code === "END") {
+          // DataDirective return END response, so we don't return the PathPart
+          // End the Loop
+          break;
+        } else {
+          emitError(`Uncaught Error - ${capture}`);
+        }
+      } else {
+        emitError(`Uncaught Error - ${capture}`);
+      }
+    }
+  }
+
+  return outputPaths;
+};
+
+nodeTypes.set("PaginationPathSegment", paginationPathSegment);
+
+// OptionalPathSegment AST Node
+const optionalPathSegment = async (
+  node: OptionalPathSegment,
+  state: State,
+): Promise<PathPart[]> => {
+  // Reuse Dynamic parsing by converting type and rerunning
+  // since all Optional is is Dynamic plus empty path segment
+  const tag = (node as unknown) as DynamicPathSegment;
+  tag.type = "DynamicPathSegment";
+  const key = tag.expression.data;
+  const output = await compileNode(tag, state);
+
+  return [["", { "$params": { [key]: "" } }], ...output];
+};
+
+nodeTypes.set("OptionalPathSegment", optionalPathSegment);
+
+// DynamicPathSegment AST Node
+const dynamicPathSegment = async (
+  node: DynamicPathSegment,
+  state: State,
+): Promise<PathPart[]> => {
+  const stateKey = node.expression.data;
+  const newPaths = await compileNode(node.expression, state);
+  let outputPaths: PathPart[] = [];
+
+  // Validate segments and convert to string if possible
+  try {
+    if (typeof newPaths === "string") {
+      outputPaths.push([newPaths, { "$params": { [stateKey]: newPaths } }]);
+    } else if (Array.isArray(newPaths)) {
+      for (let i = 0; i < newPaths.length; i++) {
+        const p = convertPaths(newPaths[i]);
+        outputPaths.push([p, { "$params": { [stateKey]: p } }]);
+      }
+    } else if (newPaths !== null && typeof newPaths === "object") {
+      for (let key of Object.keys(newPaths)) {
+        const p = convertPaths(key);
+        outputPaths.push([p, { "$params": { [stateKey]: p } }]);
+      }
+    } else {
+      emitError(`Unable to use path ${newPaths}`);
+    }
+  } catch (e) {
+    emitError(`Unable to use path ${newPaths}`);
+  }
+
+  return outputPaths;
+};
+
+nodeTypes.set("DynamicPathSegment", dynamicPathSegment);
+
+// StaticPathSegment AST Node
+const staticPathSegment = async (
+  node: StaticPathSegment,
+  state: State,
+): Promise<PathPart[]> => {
+  return [[node.data, {}]];
+};
+
+nodeTypes.set("StaticPathSegment", staticPathSegment);
+
+// PathDirective AST Node
+const pathDirective = async (
+  node: PathDirective,
+  state: State,
+): Promise<PathDefinition[]> => {
+  let paths: PathDefinition[] = [];
+  let data: DataDirective[] = [];
+
+  // Add DataDirective of Children
+  if (node.children.length) {
+    const children = node.children;
+    for (let i = 0; i < children.length; i++) {
+      if (children[i].type === "DataDirective") {
+        data.push(children[i] as DataDirective);
+      }
+    }
+  }
+
+  // Callback for Recording final Paths
+  const cb = (p: string, s: State) => {
+    paths.push({
+      path: p,
+      state: s,
+      data,
+    });
+  };
+
+  // Passes data array for PaginationPathSegment to use
+  let localState: State = {
+    __internals__: {
+      data,
+    },
+  };
+
+  // Process the Paths
+  if (node.path.length) {
+    await processPathPart("", scopeState(state, localState), node.path, cb);
+  } else {
+    emitWarning(`PathDirective has no path definiton. Skipping PathDirective.`);
+  }
+
+  return paths;
+};
+
+nodeTypes.set("PathDirective", pathDirective);
+
+// RouterDirective AST Node
+const routerDirective = async (
+  node: RouterDirective,
+  state: State,
+): Promise<PathDefinition[]> => {
+  let scoped: State = state;
+  let paths: PathDefinition[] = [];
+  if (node.children.length) {
+    const children = node.children;
+    for (let i = 0; i < node.children.length; i++) {
+      try {
+        const newPaths = await compileNode(children[i], scoped);
+        paths = [...paths, ...newPaths];
+      } catch (capture) {
+        // Speacial handling for bubbling via throws to capture the last output
+        // Used when something impacts state or impacts flow
+        if (Array.isArray(capture)) {
+          const [code, append] = capture;
+
+          if (code === "STATE") {
+            // Modifies the Scoped State for DataDirective that
+            // are not hoisted to the top or part of a router/path
+            scoped = scopeState(scoped, append);
+            continue;
+          } else {
+            // Continues to bubble for items like "CONTINUE" and "BREAK"
+            throw [code, paths];
+          }
+        } else {
+          emitError(`Uncaught Error - ${capture}`);
+        }
+      }
+    }
+  } else {
+    emitWarning(`RouterDirective has no content. Skipping RouterDirective.`);
+  }
+
+  return paths;
+};
+
+nodeTypes.set("RouterDirective", routerDirective);
+
+// Special function to recurvily handle processing Path Segment
+const processPathPart = async (
+  path: string,
+  state: State,
+  pathSegments: PathSegment[],
+  cb: Function,
+): Promise<void> => {
+  const [first, ...rest] = pathSegments || [];
+  const newPathParts = await compileNode(first, state);
+  for (let i = 0; i < newPathParts.length; i++) {
+    const [p, s] = newPathParts[i];
+    const newPath = (path === "/") ? path + p : path + "/" + p;
+    // TODO: remove this workaround for $params and build better deep copy for scopeState
+    const params = scopeState(state.$params, s.$params);
+    s.$params = params;
+    const scoped = scopeState(state, s);
+    if (rest.length) {
+      await processPathPart(newPath, scoped, rest, cb);
+    } else {
+      cb(newPath, scoped);
+    }
+  }
+};
+
+// Special function to protect paths
+const convertPaths = (path: string | number): string => {
+  return "" + path;
+};
+
 // Special function process children
 const unionChildren = async (
   children: Array<Node>,
@@ -970,6 +1288,10 @@ export default async (
 ): Promise<string> => {
   if (Array.isArray(ast) && ast.length) {
     return "" + (await unionChildren(ast, state));
+  } else if ((ast as Node).type === "RouterDirective") {
+    // Special processing for RouterDirective
+    // Should not be passed back as string
+    return await compileNode(ast as Node, state);
   } else {
     return "" + (await compileNode(ast as Node, state));
   }

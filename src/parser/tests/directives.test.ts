@@ -24,7 +24,7 @@ Deno.test("Layout Directive", () => {
         end: 20,
       },
     ],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -70,7 +70,7 @@ Deno.test("Element Directive - Closing Tag", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -100,7 +100,7 @@ Deno.test("Element Directive - Self Closing", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -136,7 +136,7 @@ Deno.test("Element Directive - Named Slot", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -162,7 +162,7 @@ Deno.test("Component Directive - Closing Tag", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -192,7 +192,7 @@ Deno.test("Component Directive - Self Closing", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -236,7 +236,7 @@ Deno.test("Implicit Component Directive", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -272,7 +272,7 @@ Deno.test("Component Directive - Named Slot", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -287,28 +287,26 @@ Deno.test("Router Directive", () => {
   const expected = {
     html: [{ type: "Text", data: "\n    ", start: 0, end: 5 }],
     layout: [],
-    router: [
-      {
-        type: "RouterDirective",
-        data: ":router",
-        attributes: [],
-        children: [
-          { type: "Text", data: "\n      ", start: 14, end: 21 },
-          {
-            type: "PathDirective",
-            data: ":path",
-            attributes: [],
-            children: [],
-            path: [],
-            start: 21,
-            end: 38,
-          },
-          { type: "Text", data: "\n    ", start: 38, end: 43 },
-        ],
-        start: 5,
-        end: 53,
-      },
-    ],
+    router: {
+      type: "RouterDirective",
+      data: ":router",
+      attributes: [],
+      children: [
+        { type: "Text", data: "\n      ", start: 14, end: 21 },
+        {
+          type: "PathDirective",
+          data: ":path",
+          attributes: [],
+          children: [],
+          path: [],
+          start: 21,
+          end: 38,
+        },
+        { type: "Text", data: "\n    ", start: 38, end: 43 },
+      ],
+      start: 5,
+      end: 53,
+    },
   };
 
   assertEquals(output, expected);
@@ -320,40 +318,39 @@ Deno.test("Path Directive", () => {
   const output = p.parse();
   const expected = {
     html: [],
-    router: [
-      {
-        type: "RouterDirective",
-        data: ":router",
-        attributes: [],
-        children: [
-          {
-            type: "PathDirective",
-            data: ":path",
-            attributes: [],
-            children: [],
-            path: [
-              { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
-              {
-                type: "DynamicPathSegment",
-                data: ":catagories",
-                expression: {
-                  type: "Identifier",
-                  data: "catagories",
-                  start: 27,
-                  end: 37,
-                },
+    router: {
+      type: "RouterDirective",
+      data: ":router",
+      attributes: [],
+      children: [
+        {
+          type: "PathDirective",
+          data: ":path",
+          attributes: [],
+          children: [],
+          path: [
+            { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
+            {
+              type: "DynamicPathSegment",
+              data: ":catagories",
+              expression: {
+                type: "Identifier",
+                data: "catagories",
                 start: 27,
-                end: 38,
+                end: 37,
               },
-            ],
-            start: 9,
-            end: 42,
-          },
-        ],
-        start: 0,
-        end: 52,
-      },
-    ],
+              start: 27,
+              end: 38,
+            },
+          ],
+          start: 9,
+          end: 42,
+        },
+      ],
+      start: 0,
+      end: 52,
+    },
+
     layout: [],
   };
 
@@ -371,80 +368,434 @@ Deno.test("Path Directive with Data", () => {
   const output = p.parse();
   const expected = {
     html: [{ type: "Text", data: "\n    ", start: 0, end: 5 }],
-    router: [
-      {
-        type: "RouterDirective",
-        data: ":router",
-        attributes: [],
-        children: [
-          { type: "Text", data: "\n      ", start: 14, end: 21 },
-          {
-            type: "PathDirective",
-            data: ":path",
-            attributes: [],
-            children: [
-              { type: "Text", data: "\n        ", start: 52, end: 61 },
-              {
-                type: "DataDirective",
-                data: ":data",
-                attributes: [
-                  {
-                    type: "Attribute",
-                    data: ' id="foo"',
-                    start: 77,
-                    end: 86,
-                    name: {
-                      type: "AttributeName",
-                      data: "id",
-                      start: 78,
-                      end: 80,
-                    },
-                    value: {
-                      type: "AttributeValue",
-                      data: "foo",
-                      start: 82,
-                      end: 87,
-                    },
+    router: {
+      type: "RouterDirective",
+      data: ":router",
+      attributes: [],
+      children: [
+        { type: "Text", data: "\n      ", start: 14, end: 21 },
+        {
+          type: "PathDirective",
+          data: ":path",
+          attributes: [],
+          children: [
+            { type: "Text", data: "\n        ", start: 52, end: 61 },
+            {
+              type: "DataDirective",
+              data: ":data",
+              attributes: [
+                {
+                  type: "Attribute",
+                  data: ' id="foo"',
+                  start: 77,
+                  end: 86,
+                  name: {
+                    type: "AttributeName",
+                    data: "id",
+                    start: 78,
+                    end: 80,
                   },
-                ],
-                children: [],
-                expression: {
-                  type: "Literal",
-                  data: '"bar"',
-                  value: "bar",
-                  start: 73,
-                  end: 78,
+                  value: {
+                    type: "AttributeValue",
+                    data: "foo",
+                    start: 82,
+                    end: 87,
+                  },
                 },
-                key: undefined,
-                start: 61,
-                end: 89,
+              ],
+              children: [],
+              expression: {
+                type: "Literal",
+                data: '"bar"',
+                value: "bar",
+                start: 73,
+                end: 78,
               },
-              { type: "Text", data: "\n      ", start: 89, end: 96 },
-            ],
-            path: [
-              { type: "StaticPathSegment", data: "blog", start: 34, end: 38 },
-              {
-                type: "DynamicPathSegment",
-                data: ":catagories",
-                expression: {
-                  type: "Identifier",
-                  data: "catagories",
-                  start: 39,
-                  end: 49,
-                },
+              key: undefined,
+              start: 61,
+              end: 89,
+            },
+            { type: "Text", data: "\n      ", start: 89, end: 96 },
+          ],
+          path: [
+            { type: "StaticPathSegment", data: "blog", start: 34, end: 38 },
+            {
+              type: "DynamicPathSegment",
+              data: ":catagories",
+              expression: {
+                type: "Identifier",
+                data: "catagories",
                 start: 39,
+                end: 49,
+              },
+              start: 39,
+              end: 50,
+            },
+          ],
+          start: 21,
+          end: 104,
+        },
+        { type: "Text", data: "\n    ", start: 104, end: 109 },
+      ],
+      start: 5,
+      end: 119,
+    },
+    layout: [],
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Path Directive with StaticPathSegments", () => {
+  const html = `
+    <:router>
+      <:path url="/blog/how-to-use-deno/part-1" />
+    </:router>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    html: [{ type: "Text", data: "\n    ", start: 0, end: 5 }],
+    router: {
+      type: "RouterDirective",
+      data: ":router",
+      attributes: [],
+      children: [
+        { type: "Text", data: "\n      ", start: 14, end: 21 },
+        {
+          type: "PathDirective",
+          data: ":path",
+          attributes: [],
+          children: [],
+          path: [
+            {
+              type: "StaticPathSegment",
+              data: "blog",
+              start: 34,
+              end: 38,
+            },
+            {
+              type: "StaticPathSegment",
+              data: "how-to-use-deno",
+              start: 39,
+              end: 54,
+            },
+            {
+              type: "StaticPathSegment",
+              data: "part-1",
+              start: 55,
+              end: 61,
+            },
+          ],
+          start: 21,
+          end: 65,
+        },
+        { type: "Text", data: "\n    ", start: 65, end: 70 },
+      ],
+      start: 5,
+      end: 80,
+    },
+    layout: [],
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Path Directive with DynamicPathSegment", () => {
+  const html = `
+    <:router>
+      <:path url="/blog/:catagory" />
+    </:router>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    html: [{ type: "Text", data: "\n    ", start: 0, end: 5 }],
+    router: {
+      type: "RouterDirective",
+      data: ":router",
+      attributes: [],
+      children: [
+        { type: "Text", data: "\n      ", start: 14, end: 21 },
+        {
+          type: "PathDirective",
+          data: ":path",
+          attributes: [],
+          children: [],
+          path: [
+            {
+              type: "StaticPathSegment",
+              data: "blog",
+              start: 34,
+              end: 38,
+            },
+            {
+              type: "DynamicPathSegment",
+              data: ":catagory",
+              expression: {
+                type: "Identifier",
+                data: "catagory",
+                start: 39,
+                end: 47,
+              },
+              start: 39,
+              end: 48,
+            },
+          ],
+          start: 21,
+          end: 52,
+        },
+        { type: "Text", data: "\n    ", start: 52, end: 57 },
+      ],
+      start: 5,
+      end: 67,
+    },
+    layout: [],
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Path Directive with OptionalPathSegment", () => {
+  const html = `
+    <:router>
+      <:path url="/:?lang/blog" />
+    </:router>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    html: [{ type: "Text", data: "\n    ", start: 0, end: 5 }],
+    router: {
+      type: "RouterDirective",
+      data: ":router",
+      attributes: [],
+      children: [
+        { type: "Text", data: "\n      ", start: 14, end: 21 },
+        {
+          type: "PathDirective",
+          data: ":path",
+          attributes: [],
+          children: [],
+          path: [
+            {
+              type: "OptionalPathSegment",
+              data: ":?lang",
+              expression: {
+                type: "Identifier",
+                data: "lang",
+                start: 34,
+                end: 38,
+              },
+              start: 34,
+              end: 40,
+            },
+            {
+              type: "StaticPathSegment",
+              data: "blog",
+              start: 41,
+              end: 45,
+            },
+          ],
+          start: 21,
+          end: 49,
+        },
+        { type: "Text", data: "\n    ", start: 49, end: 54 },
+      ],
+      start: 5,
+      end: 64,
+    },
+    layout: [],
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Path Directive with RangePathSegment", () => {
+  const html = `
+    <:router>
+      <:path url="/blog/page/:[1,2]page" />
+    </:router>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    html: [{ type: "Text", data: "\n    ", start: 0, end: 5 }],
+    router: {
+      type: "RouterDirective",
+      data: ":router",
+      attributes: [],
+      children: [
+        { type: "Text", data: "\n      ", start: 14, end: 21 },
+        {
+          type: "PathDirective",
+          data: ":path",
+          attributes: [],
+          children: [],
+          path: [
+            {
+              type: "StaticPathSegment",
+              data: "blog",
+              start: 34,
+              end: 38,
+            },
+            {
+              type: "StaticPathSegment",
+              data: "page",
+              start: 39,
+              end: 43,
+            },
+            {
+              type: "RangePathSegment",
+              data: ":[1,2]page",
+              expression: {
+                type: "Literal",
+                data: '"page"',
+                value: "page",
+                start: 44,
                 end: 50,
               },
-            ],
-            start: 21,
-            end: 104,
-          },
-          { type: "Text", data: "\n    ", start: 104, end: 109 },
-        ],
-        start: 5,
-        end: 119,
-      },
-    ],
+              first: {
+                type: "Literal",
+                data: "1",
+                value: 1,
+                start: 44,
+                end: 45,
+              },
+              last: {
+                type: "Literal",
+                data: "2",
+                value: 2,
+                start: 44,
+                end: 45,
+              },
+              start: 44,
+              end: 54,
+            },
+          ],
+          start: 21,
+          end: 58,
+        },
+        { type: "Text", data: "\n    ", start: 58, end: 63 },
+      ],
+      start: 5,
+      end: 73,
+    },
+    layout: [],
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Path Directive with PaginationPathSegment", () => {
+  const html = `
+    <:router>
+      <:path url="/blog/page/:#page">
+        <:data use="bar" page={$params.page} />
+      </:path>
+    </:router>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    html: [{ type: "Text", data: "\n    ", start: 0, end: 5 }],
+    router: {
+      type: "RouterDirective",
+      data: ":router",
+      attributes: [],
+      children: [
+        { type: "Text", data: "\n      ", start: 14, end: 21 },
+        {
+          type: "PathDirective",
+          data: ":path",
+          attributes: [],
+          children: [
+            { type: "Text", data: "\n        ", start: 52, end: 61 },
+            {
+              type: "DataDirective",
+              data: ":data",
+              attributes: [
+                {
+                  type: "Attribute",
+                  data: " page={$params.page}",
+                  start: 77,
+                  end: 97,
+                  name: {
+                    type: "AttributeName",
+                    data: "page",
+                    start: 78,
+                    end: 82,
+                  },
+                  value: {
+                    type: "AttributeExpression",
+                    data: "{$params.page}",
+                    expression: {
+                      type: "MemberExpression",
+                      data: "$params.page",
+                      object: {
+                        type: "Identifier",
+                        data: "$params",
+                        start: 84,
+                        end: 91,
+                      },
+                      property: {
+                        type: "Identifier",
+                        data: "page",
+                        start: 92,
+                        end: 96,
+                      },
+                      start: 84,
+                      end: 96,
+                    },
+                    start: 83,
+                    end: 97,
+                  },
+                },
+              ],
+              children: [],
+              key: undefined,
+              expression: {
+                type: "Literal",
+                data: '"bar"',
+                value: "bar",
+                start: 73,
+                end: 78,
+              },
+              start: 61,
+              end: 100,
+            },
+            { type: "Text", data: "\n      ", start: 100, end: 107 },
+          ],
+          path: [
+            {
+              type: "StaticPathSegment",
+              data: "blog",
+              start: 34,
+              end: 38,
+            },
+            {
+              type: "StaticPathSegment",
+              data: "page",
+              start: 39,
+              end: 43,
+            },
+            {
+              type: "PaginationPathSegment",
+              data: ":#page",
+              expression: {
+                type: "Literal",
+                data: '"page"',
+                value: "page",
+                start: 44,
+                end: 50,
+              },
+              start: 44,
+              end: 50,
+            },
+          ],
+          start: 21,
+          end: 115,
+        },
+        { type: "Text", data: "\n    ", start: 115, end: 120 },
+      ],
+      start: 5,
+      end: 130,
+    },
     layout: [],
   };
 
@@ -489,7 +840,7 @@ Deno.test("Data Directive", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -540,7 +891,7 @@ Deno.test("Data Directive with Key Override", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -603,7 +954,7 @@ Deno.test("Data Directive with Plain Text", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -635,7 +986,7 @@ Deno.test("Slot Directive - No Default", () => {
         end: 19,
       },
     ],
-    router: [],
+    router: undefined,
     layout: [],
   };
 
@@ -670,7 +1021,7 @@ Deno.test("Slot Directive - No Name", () => {
         end: 41,
       },
     ],
-    router: [],
+    router: undefined,
     layout: [],
   };
 
@@ -711,7 +1062,7 @@ Deno.test("Slot Directive - Name", () => {
         end: 52,
       },
     ],
-    router: [],
+    router: undefined,
     layout: [],
   };
 

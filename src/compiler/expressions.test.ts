@@ -1003,6 +1003,1680 @@ Deno.test("Data Directive with Key", async () => {
   assertEquals(output, expected);
 });
 
+Deno.test("Router Directive", async () => {
+  const ast = {
+    type: "RouterDirective",
+    data: ":router",
+    attributes: [],
+    children: [
+      {
+        type: "DataDirective",
+        data: ":data",
+        attributes: [],
+        children: [
+          {
+            type: "Text",
+            data:
+              '{\n  "lang": "es",\n  "catagories": ["deno", "node", "css", "html"],\n  "slugs": {\n    "how-to-use-seedling": { "readTime": "5min" }, "migrating-from-sapper": { "readTime": "4min" }, "deploy-to-vercel": { "readTime": "3min" }} \n}',
+            start: 50,
+            end: 159,
+          },
+        ],
+        key: undefined,
+        expression: {
+          type: "Literal",
+          data: '"json"',
+          value: "json",
+          start: 17,
+          end: 22,
+        },
+        start: 5,
+        end: 167,
+      },
+      {
+        type: "PathDirective",
+        data: ":path",
+        attributes: [],
+        children: [],
+        path: [
+          {
+            type: "OptionalPathSegment",
+            data: ":?lang",
+            expression: {
+              type: "Identifier",
+              data: "lang",
+              start: 27,
+              end: 37,
+            },
+            start: 22,
+            end: 26,
+          },
+          { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
+        ],
+        start: 9,
+        end: 42,
+      },
+      {
+        type: "PathDirective",
+        data: ":path",
+        attributes: [],
+        children: [],
+        path: [
+          {
+            type: "OptionalPathSegment",
+            data: ":?lang",
+            expression: {
+              type: "Identifier",
+              data: "lang",
+              start: 27,
+              end: 37,
+            },
+            start: 22,
+            end: 26,
+          },
+          { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
+          { type: "StaticPathSegment", data: "catagory", start: 22, end: 26 },
+          {
+            type: "DynamicPathSegment",
+            data: ":catagories",
+            expression: {
+              type: "Identifier",
+              data: "catagories",
+              start: 27,
+              end: 37,
+            },
+            start: 27,
+            end: 38,
+          },
+        ],
+        start: 9,
+        end: 42,
+      },
+      {
+        type: "PathDirective",
+        data: ":path",
+        attributes: [],
+        children: [],
+        path: [
+          {
+            type: "OptionalPathSegment",
+            data: ":?lang",
+            expression: {
+              type: "Identifier",
+              data: "lang",
+              start: 27,
+              end: 37,
+            },
+            start: 22,
+            end: 26,
+          },
+          { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
+          {
+            type: "DynamicPathSegment",
+            data: ":slugs",
+            expression: {
+              type: "Identifier",
+              data: "slugs",
+              start: 27,
+              end: 37,
+            },
+            start: 27,
+            end: 38,
+          },
+        ],
+        start: 9,
+        end: 42,
+      },
+      {
+        type: "PathDirective",
+        data: ":path",
+        attributes: [],
+        children: [
+          {
+            type: "DataDirective",
+            data: ":data",
+            attributes: [
+              {
+                type: "Attribute",
+                data: ' page="{$params.page}"',
+                start: 11,
+                end: 49,
+                name: {
+                  type: "AttributeName",
+                  data: "page",
+                  start: 12,
+                  end: 14,
+                },
+                value: {
+                  type: "AttributeExpression",
+                  data: '"{$params.page}"',
+                  expression: {
+                    type: "MemberExpression",
+                    data: "$params.page",
+                    object: {
+                      type: "Identifier",
+                      data: "$params",
+                      start: 26,
+                      end: 29,
+                    },
+                    property: {
+                      type: "Identifier",
+                      data: "page",
+                      start: 30,
+                      end: 33,
+                    },
+                    start: 26,
+                    end: 33,
+                  },
+                  start: 10,
+                  end: 20,
+                },
+              },
+            ],
+            children: [],
+            key: undefined,
+            expression: {
+              type: "Literal",
+              data: '"pagination"',
+              value: "pagination",
+              start: 17,
+              end: 22,
+            },
+            start: 5,
+            end: 167,
+          },
+        ],
+        path: [
+          {
+            type: "OptionalPathSegment",
+            data: ":?lang",
+            expression: {
+              type: "Identifier",
+              data: "lang",
+              start: 27,
+              end: 37,
+            },
+            start: 22,
+            end: 26,
+          },
+          { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
+          { type: "StaticPathSegment", data: "page", start: 22, end: 26 },
+          {
+            type: "PaginationPathSegment",
+            data: ":#page",
+            expression: {
+              type: "Literal",
+              data: '"page"',
+              value: "page",
+              start: 27,
+              end: 37,
+            },
+            start: 22,
+            end: 26,
+          },
+        ],
+        start: 9,
+        end: 42,
+      },
+      {
+        type: "PathDirective",
+        data: ":path",
+        attributes: [],
+        children: [],
+        path: [
+          {
+            type: "OptionalPathSegment",
+            data: "lang",
+            expression: {
+              type: "Identifier",
+              data: "lang",
+              start: 27,
+              end: 37,
+            },
+            start: 22,
+            end: 26,
+          },
+          { type: "StaticPathSegment", data: "blog", start: 22, end: 26 },
+          { type: "StaticPathSegment", data: "catagory", start: 22, end: 26 },
+          {
+            type: "DynamicPathSegment",
+            data: ":catagories",
+            expression: {
+              type: "Identifier",
+              data: "catagories",
+              start: 27,
+              end: 37,
+            },
+            start: 27,
+            end: 38,
+          },
+          { type: "StaticPathSegment", data: "page", start: 22, end: 26 },
+          {
+            type: "RangePathSegment",
+            data: ":[1,2]page",
+            expression: {
+              type: "Literal",
+              data: '"page"',
+              value: "page",
+              start: 27,
+              end: 37,
+            },
+            first: {
+              type: "Literal",
+              data: '"1"',
+              value: 1,
+              start: 27,
+              end: 37,
+            },
+            last: {
+              type: "Literal",
+              data: '"2"',
+              value: 2,
+              start: 27,
+              end: 37,
+            },
+            start: 27,
+            end: 38,
+          },
+        ],
+        start: 9,
+        end: 42,
+      },
+    ],
+    start: 0,
+    end: 52,
+  };
+  const data = {};
+
+  const output = await compile(ast as Node, data);
+  const expected = [
+    {
+      path: "/blog",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/deno",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "deno",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/node",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "node",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/css",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "css",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/html",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "html",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/deno",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "deno",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/node",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "node",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/css",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "css",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/html",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "html",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/how-to-use-seedling",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          slugs: "how-to-use-seedling",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/migrating-from-sapper",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          slugs: "migrating-from-sapper",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/deploy-to-vercel",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          slugs: "deploy-to-vercel",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/how-to-use-seedling",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          slugs: "how-to-use-seedling",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/migrating-from-sapper",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          slugs: "migrating-from-sapper",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/deploy-to-vercel",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          slugs: "deploy-to-vercel",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/page/1",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [
+            {
+              type: "DataDirective",
+              data: ":data",
+              attributes: [
+                {
+                  type: "Attribute",
+                  data: ' page="{$params.page}"',
+                  start: 11,
+                  end: 49,
+                  name: {
+                    type: "AttributeName",
+                    data: "page",
+                    start: 12,
+                    end: 14,
+                  },
+                  value: {
+                    type: "AttributeExpression",
+                    data: '"{$params.page}"',
+                    expression: {
+                      type: "MemberExpression",
+                      data: "$params.page",
+                      object: {
+                        type: "Identifier",
+                        data: "$params",
+                        start: 26,
+                        end: 29,
+                      },
+                      property: {
+                        type: "Identifier",
+                        data: "page",
+                        start: 30,
+                        end: 33,
+                      },
+                      start: 26,
+                      end: 33,
+                    },
+                    start: 10,
+                    end: 20,
+                  },
+                },
+              ],
+              children: [],
+              key: undefined,
+              expression: {
+                type: "Literal",
+                data: '"pagination"',
+                value: "pagination",
+                start: 17,
+                end: 22,
+              },
+              start: 5,
+              end: 167,
+            },
+          ],
+        },
+        $params: {
+          lang: "",
+          page: "1",
+        },
+      },
+      data: [
+        {
+          type: "DataDirective",
+          data: ":data",
+          attributes: [
+            {
+              type: "Attribute",
+              data: ' page="{$params.page}"',
+              start: 11,
+              end: 49,
+              name: {
+                type: "AttributeName",
+                data: "page",
+                start: 12,
+                end: 14,
+              },
+              value: {
+                type: "AttributeExpression",
+                data: '"{$params.page}"',
+                expression: {
+                  type: "MemberExpression",
+                  data: "$params.page",
+                  object: {
+                    type: "Identifier",
+                    data: "$params",
+                    start: 26,
+                    end: 29,
+                  },
+                  property: {
+                    type: "Identifier",
+                    data: "page",
+                    start: 30,
+                    end: 33,
+                  },
+                  start: 26,
+                  end: 33,
+                },
+                start: 10,
+                end: 20,
+              },
+            },
+          ],
+          children: [],
+          key: undefined,
+          expression: {
+            type: "Literal",
+            data: '"pagination"',
+            value: "pagination",
+            start: 17,
+            end: 22,
+          },
+          start: 5,
+          end: 167,
+        },
+      ],
+    },
+    {
+      path: "/blog/page/2",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [
+            {
+              type: "DataDirective",
+              data: ":data",
+              attributes: [
+                {
+                  type: "Attribute",
+                  data: ' page="{$params.page}"',
+                  start: 11,
+                  end: 49,
+                  name: {
+                    type: "AttributeName",
+                    data: "page",
+                    start: 12,
+                    end: 14,
+                  },
+                  value: {
+                    type: "AttributeExpression",
+                    data: '"{$params.page}"',
+                    expression: {
+                      type: "MemberExpression",
+                      data: "$params.page",
+                      object: {
+                        type: "Identifier",
+                        data: "$params",
+                        start: 26,
+                        end: 29,
+                      },
+                      property: {
+                        type: "Identifier",
+                        data: "page",
+                        start: 30,
+                        end: 33,
+                      },
+                      start: 26,
+                      end: 33,
+                    },
+                    start: 10,
+                    end: 20,
+                  },
+                },
+              ],
+              children: [],
+              key: undefined,
+              expression: {
+                type: "Literal",
+                data: '"pagination"',
+                value: "pagination",
+                start: 17,
+                end: 22,
+              },
+              start: 5,
+              end: 167,
+            },
+          ],
+        },
+        $params: {
+          lang: "",
+          page: "2",
+        },
+      },
+      data: [
+        {
+          type: "DataDirective",
+          data: ":data",
+          attributes: [
+            {
+              type: "Attribute",
+              data: ' page="{$params.page}"',
+              start: 11,
+              end: 49,
+              name: {
+                type: "AttributeName",
+                data: "page",
+                start: 12,
+                end: 14,
+              },
+              value: {
+                type: "AttributeExpression",
+                data: '"{$params.page}"',
+                expression: {
+                  type: "MemberExpression",
+                  data: "$params.page",
+                  object: {
+                    type: "Identifier",
+                    data: "$params",
+                    start: 26,
+                    end: 29,
+                  },
+                  property: {
+                    type: "Identifier",
+                    data: "page",
+                    start: 30,
+                    end: 33,
+                  },
+                  start: 26,
+                  end: 33,
+                },
+                start: 10,
+                end: 20,
+              },
+            },
+          ],
+          children: [],
+          key: undefined,
+          expression: {
+            type: "Literal",
+            data: '"pagination"',
+            value: "pagination",
+            start: 17,
+            end: 22,
+          },
+          start: 5,
+          end: 167,
+        },
+      ],
+    },
+    {
+      path: "/es/blog/page/1",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [
+            {
+              type: "DataDirective",
+              data: ":data",
+              attributes: [
+                {
+                  type: "Attribute",
+                  data: ' page="{$params.page}"',
+                  start: 11,
+                  end: 49,
+                  name: {
+                    type: "AttributeName",
+                    data: "page",
+                    start: 12,
+                    end: 14,
+                  },
+                  value: {
+                    type: "AttributeExpression",
+                    data: '"{$params.page}"',
+                    expression: {
+                      type: "MemberExpression",
+                      data: "$params.page",
+                      object: {
+                        type: "Identifier",
+                        data: "$params",
+                        start: 26,
+                        end: 29,
+                      },
+                      property: {
+                        type: "Identifier",
+                        data: "page",
+                        start: 30,
+                        end: 33,
+                      },
+                      start: 26,
+                      end: 33,
+                    },
+                    start: 10,
+                    end: 20,
+                  },
+                },
+              ],
+              children: [],
+              key: undefined,
+              expression: {
+                type: "Literal",
+                data: '"pagination"',
+                value: "pagination",
+                start: 17,
+                end: 22,
+              },
+              start: 5,
+              end: 167,
+            },
+          ],
+        },
+        $params: {
+          lang: "es",
+          page: "1",
+        },
+      },
+      data: [
+        {
+          type: "DataDirective",
+          data: ":data",
+          attributes: [
+            {
+              type: "Attribute",
+              data: ' page="{$params.page}"',
+              start: 11,
+              end: 49,
+              name: {
+                type: "AttributeName",
+                data: "page",
+                start: 12,
+                end: 14,
+              },
+              value: {
+                type: "AttributeExpression",
+                data: '"{$params.page}"',
+                expression: {
+                  type: "MemberExpression",
+                  data: "$params.page",
+                  object: {
+                    type: "Identifier",
+                    data: "$params",
+                    start: 26,
+                    end: 29,
+                  },
+                  property: {
+                    type: "Identifier",
+                    data: "page",
+                    start: 30,
+                    end: 33,
+                  },
+                  start: 26,
+                  end: 33,
+                },
+                start: 10,
+                end: 20,
+              },
+            },
+          ],
+          children: [],
+          key: undefined,
+          expression: {
+            type: "Literal",
+            data: '"pagination"',
+            value: "pagination",
+            start: 17,
+            end: 22,
+          },
+          start: 5,
+          end: 167,
+        },
+      ],
+    },
+    {
+      path: "/es/blog/page/2",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [
+            {
+              type: "DataDirective",
+              data: ":data",
+              attributes: [
+                {
+                  type: "Attribute",
+                  data: ' page="{$params.page}"',
+                  start: 11,
+                  end: 49,
+                  name: {
+                    type: "AttributeName",
+                    data: "page",
+                    start: 12,
+                    end: 14,
+                  },
+                  value: {
+                    type: "AttributeExpression",
+                    data: '"{$params.page}"',
+                    expression: {
+                      type: "MemberExpression",
+                      data: "$params.page",
+                      object: {
+                        type: "Identifier",
+                        data: "$params",
+                        start: 26,
+                        end: 29,
+                      },
+                      property: {
+                        type: "Identifier",
+                        data: "page",
+                        start: 30,
+                        end: 33,
+                      },
+                      start: 26,
+                      end: 33,
+                    },
+                    start: 10,
+                    end: 20,
+                  },
+                },
+              ],
+              children: [],
+              key: undefined,
+              expression: {
+                type: "Literal",
+                data: '"pagination"',
+                value: "pagination",
+                start: 17,
+                end: 22,
+              },
+              start: 5,
+              end: 167,
+            },
+          ],
+        },
+        $params: {
+          lang: "es",
+          page: "2",
+        },
+      },
+      data: [
+        {
+          type: "DataDirective",
+          data: ":data",
+          attributes: [
+            {
+              type: "Attribute",
+              data: ' page="{$params.page}"',
+              start: 11,
+              end: 49,
+              name: {
+                type: "AttributeName",
+                data: "page",
+                start: 12,
+                end: 14,
+              },
+              value: {
+                type: "AttributeExpression",
+                data: '"{$params.page}"',
+                expression: {
+                  type: "MemberExpression",
+                  data: "$params.page",
+                  object: {
+                    type: "Identifier",
+                    data: "$params",
+                    start: 26,
+                    end: 29,
+                  },
+                  property: {
+                    type: "Identifier",
+                    data: "page",
+                    start: 30,
+                    end: 33,
+                  },
+                  start: 26,
+                  end: 33,
+                },
+                start: 10,
+                end: 20,
+              },
+            },
+          ],
+          children: [],
+          key: undefined,
+          expression: {
+            type: "Literal",
+            data: '"pagination"',
+            value: "pagination",
+            start: 17,
+            end: 22,
+          },
+          start: 5,
+          end: 167,
+        },
+      ],
+    },
+    {
+      path: "/blog/catagory/deno/page/1",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "deno",
+          page: "1",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/deno/page/2",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "deno",
+          page: "2",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/node/page/1",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "node",
+          page: "1",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/node/page/2",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "node",
+          page: "2",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/css/page/1",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "css",
+          page: "1",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/css/page/2",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "css",
+          page: "2",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/html/page/1",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "html",
+          page: "1",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/blog/catagory/html/page/2",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "",
+          catagories: "html",
+          page: "2",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/deno/page/1",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "deno",
+          page: "1",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/deno/page/2",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "deno",
+          page: "2",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/node/page/1",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "node",
+          page: "1",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/node/page/2",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "node",
+          page: "2",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/css/page/1",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "css",
+          page: "1",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/css/page/2",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "css",
+          page: "2",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/html/page/1",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "html",
+          page: "1",
+        },
+      },
+      data: [],
+    },
+    {
+      path: "/es/blog/catagory/html/page/2",
+      state: {
+        lang: "es",
+        catagories: ["deno", "node", "css", "html"],
+        slugs: {
+          "how-to-use-seedling": {
+            readTime: "5min",
+          },
+          "migrating-from-sapper": {
+            readTime: "4min",
+          },
+          "deploy-to-vercel": {
+            readTime: "3min",
+          },
+        },
+        __internals__: {
+          data: [],
+        },
+        $params: {
+          lang: "es",
+          catagories: "html",
+          page: "2",
+        },
+      },
+      data: [],
+    },
+  ];
+
+  assertEquals(output, expected);
+});
+
 Deno.test("Identifier", async () => {
   const ast = { type: "Identifier", data: "foobar", start: 26, end: 32 };
   const data = {

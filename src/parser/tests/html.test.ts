@@ -15,7 +15,7 @@ Deno.test("Doctype", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -35,7 +35,7 @@ Deno.test("Comment", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -56,7 +56,7 @@ Deno.test("Text Node", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -79,7 +79,7 @@ Deno.test("Self Closing Tag", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -102,7 +102,7 @@ Deno.test("Tag With No Children", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -131,7 +131,7 @@ Deno.test("Tag With Named Slot", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -187,7 +187,7 @@ Deno.test("Tag With Children", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -266,7 +266,7 @@ Deno.test("Void Elements", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -316,7 +316,7 @@ Deno.test("Attribute", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -346,7 +346,7 @@ Deno.test("Script Tag", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -378,7 +378,7 @@ Deno.test("Style Tag", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -443,7 +443,7 @@ Deno.test("Textarea Tag", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
@@ -862,7 +862,7 @@ Deno.test("Complex Document", () => {
       },
     ],
     layout: [],
-    router: [],
+    router: undefined,
   };
 
   assertEquals(output, expected);
