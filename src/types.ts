@@ -20,6 +20,9 @@ export type Type =
   | "PathDirective"
   | "DynamicPathSegment"
   | "StaticPathSegment"
+  | "OptionalPathSegment"
+  | "RangePathSegment"
+  | "PaginationPathSegment"
   | "DataDirective"
   | "SlotDirective"
   | "IfBlock"
@@ -125,7 +128,29 @@ export interface DynamicPathSegment extends BaseAST {
   expression: Identifier | MemberExpression;
 }
 
-export type PathSegment = StaticPathSegment | DynamicPathSegment;
+export interface OptionalPathSegment extends BaseAST {
+  type: "OptionalPathSegment";
+  expression: Identifier | MemberExpression;
+}
+
+export interface RangePathSegment extends BaseAST {
+  type: "RangePathSegment";
+  expression: Literal;
+  first: Literal | Identifier | MemberExpression;
+  last: Literal | Identifier | MemberExpression;
+}
+
+export interface PaginationPathSegment extends BaseAST {
+  type: "PaginationPathSegment";
+  expression: Literal;
+}
+
+export type PathSegment =
+  | StaticPathSegment
+  | DynamicPathSegment
+  | OptionalPathSegment
+  | RangePathSegment
+  | PaginationPathSegment;
 
 export interface PathDirective extends BaseTag {
   type: "PathDirective";
@@ -315,7 +340,10 @@ export type Node =
   | AttributeValue
   | AttributeSpread
   | DynamicPathSegment
-  | StaticPathSegment;
+  | StaticPathSegment
+  | OptionalPathSegment
+  | PaginationPathSegment
+  | RangePathSegment;
 
 export type DynamicTag =
   | ComponentDirective
@@ -344,6 +372,14 @@ export interface State {
   // deno-lint-ignore no-explicit-any
   [key: string]: any | State;
 }
+
+export interface PathDefinition {
+  path: string;
+  state: State;
+  data: Array<DataDirective>;
+}
+
+export type PathPart = [string, object];
 
 /**
  * Resolvers

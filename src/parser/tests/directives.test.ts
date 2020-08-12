@@ -446,6 +446,155 @@ Deno.test("Path Directive with Data", () => {
   assertEquals(output, expected);
 });
 
+Deno.test("Path Directive with StaticPathSegments", () => {
+  const html = `
+    <:router>
+      <:path url="/blog/how-to-use-deno/part-1" />
+    </:router>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    "html": [{ "type": "Text", "data": "\n    ", "start": 0, "end": 5 }],
+    "router": {
+      "type": "RouterDirective",
+      "data": ":router",
+      "attributes": [],
+      "children": [
+        { "type": "Text", "data": "\n      ", "start": 14, "end": 21 },
+        {
+          "type": "PathDirective",
+          "data": ":path",
+          "attributes": [],
+          "children": [],
+          "path": [
+            {
+              "type": "StaticPathSegment",
+              "data": "blog",
+              "start": 34,
+              "end": 38,
+            },
+            {
+              "type": "StaticPathSegment",
+              "data": "how-to-use-deno",
+              "start": 39,
+              "end": 54,
+            },
+            {
+              "type": "StaticPathSegment",
+              "data": "part-1",
+              "start": 55,
+              "end": 61,
+            },
+          ],
+          "start": 21,
+          "end": 65,
+        },
+        { "type": "Text", "data": "\n    ", "start": 65, "end": 70 },
+      ],
+      "start": 5,
+      "end": 80,
+    },
+    "layout": [],
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Path Directive with DynamicPathSegment", () => {
+  const html = `
+    <:router>
+      <:path url="/blog/:catagory" />
+    </:router>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    "html": [{ "type": "Text", "data": "\n    ", "start": 0, "end": 5 }],
+    "router": {
+      "type": "RouterDirective",
+      "data": ":router",
+      "attributes": [],
+      "children": [
+        { "type": "Text", "data": "\n      ", "start": 14, "end": 21 },
+        {
+          "type": "PathDirective",
+          "data": ":path",
+          "attributes": [],
+          "children": [],
+          "path": [
+            {
+              "type": "StaticPathSegment",
+              "data": "blog",
+              "start": 34,
+              "end": 38,
+            },
+            {
+              "type": "DynamicPathSegment",
+              "data": ":catagory",
+              "expression": {
+                "type": "Identifier",
+                "data": "catagory",
+                "start": 39,
+                "end": 47,
+              },
+              "start": 39,
+              "end": 48,
+            },
+          ],
+          "start": 21,
+          "end": 52,
+        },
+        { "type": "Text", "data": "\n    ", "start": 52, "end": 57 },
+      ],
+      "start": 5,
+      "end": 67,
+    },
+    "layout": [],
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Path Directive with OptionalPathSegment", () => {
+  const html = `
+    <:router>
+      <:path url="/:?lang/blog" />
+    </:router>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {};
+
+  console.log(JSON.stringify(output));
+  assertEquals(output, expected);
+});
+
+Deno.test("Path Directive with RangePathSegment", () => {
+  const html = `
+    <:router>
+      <:path url="/blog/page/:[1,2]page" />
+    </:router>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {};
+
+  console.log(JSON.stringify(output));
+  assertEquals(output, expected);
+});
+
+Deno.test("Path Directive with PaginationPathSegment", () => {
+  const html = `
+    <:router>
+      <:path url="/blog/page/:#page">
+        <:data use="bar" page={$params.page} />
+      </:path>
+    </:router>`;
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {};
+
+  console.log(JSON.stringify(output));
+  assertEquals(output, expected);
+});
+
 Deno.test("Data Directive", () => {
   const html = '<:data use="bar" id="sdf098df09-1349asd9asd-sd8asd012" />';
   const p = new Parser(html);

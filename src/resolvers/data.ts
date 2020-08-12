@@ -120,7 +120,7 @@ export const resolveData = async (
       }
 
       // Cache and Return
-      cache.set(cacheKey as CacheKey, result.response);
+      cache.set(cacheKey as CacheKey, result);
       return Promise.resolve({
         ...result,
         retries,
@@ -131,7 +131,7 @@ export const resolveData = async (
     }
   } else {
     return Promise.resolve({
-      ...success(cache.get(cacheKey as CacheKey)),
+      ...cache.get(cacheKey as CacheKey),
       retries: 0,
       meta: { cacheHit: true, cacheKey },
     }) as Promise<DataResponse>;
