@@ -4,7 +4,7 @@ import {
   prettyBenchmarkDown,
   prettyBenchmarkResult,
   prettyBenchmarkProgress,
-} from "../deps.ts";
+} from "../../deps.ts";
 import {
   BenchmarkRunError,
   BenchmarkResult,

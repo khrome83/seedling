@@ -1,4 +1,4 @@
-import { cyan, red, yellow, bold } from "../deps.ts";
+import { cyan, red, yellow, bold } from "../../deps.ts";
 import {
   Node,
   Identifier,

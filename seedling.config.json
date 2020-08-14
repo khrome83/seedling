@@ -1,4 +1,5 @@
 {
   "root": "/src/resolvers",
-  "legacy": false
+  "legacy": false,
+  "output": "/dist"
 }

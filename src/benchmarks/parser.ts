@@ -1,4 +1,4 @@
-import { bench } from "../deps.ts";
+import { bench } from "../../deps.ts";
 import { BenchmarkTimer } from "../types.ts";
 import { Parser } from "../parser/index.ts";
 

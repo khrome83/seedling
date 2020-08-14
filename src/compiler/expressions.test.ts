@@ -1,4 +1,4 @@
-import { assertEquals, denock } from "../deps.ts";
+import { assertEquals, denock } from "../../deps.ts";
 import { Node } from "../types.ts";
 import "https://deno.land/x/dotenv@v0.5.0/load.ts";
 import compile from "./index.ts";

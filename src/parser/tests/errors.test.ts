@@ -1,4 +1,4 @@
-import { assertThrows } from "../../deps.ts";
+import { assertThrows } from "../../../deps.ts";
 import { Parser } from "../index.ts";
 
 Deno.test("Non String Template should throw a TypeError", () => {
