@@ -1,4 +1,4 @@
-import { delay } from "../deps.ts";
+import { delay } from "../../deps.ts";
 import {
   Skip,
   End,

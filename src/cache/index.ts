@@ -1,4 +1,4 @@
-import { v5, Cache } from "../deps.ts";
+import { v5, Cache } from "../../deps.ts";
 
 const namespace = "f6360cb2-cdac-4d8d-a269-a5f65b054128";
 

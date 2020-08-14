@@ -1,4 +1,4 @@
-import { bold, cyan } from "../deps.ts";
+import { bold, cyan } from "../../deps.ts";
 import { LayoutResponse, CacheKey } from "../types.ts";
 import { cache, getCacheKey } from "../cache/index.ts";
 import { Parser } from "../parser/index.ts";

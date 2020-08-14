@@ -1,4 +1,4 @@
-import { bold, cyan, yellow, red } from "../deps.ts";
+import { bold, cyan, yellow, red } from "../../deps.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
 import alpineAttributes from "../dict/alpineAttributes.ts";

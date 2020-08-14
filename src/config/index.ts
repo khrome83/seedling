@@ -1,10 +1,11 @@
-import { bold, cyan } from "../deps.ts";
+import { bold, cyan } from "../../deps.ts";
 
 const importConfig = async () => {
   const configFile = `${Deno.cwd()}/seedling.config.json`;
   const defaults = {
     root: Deno.cwd(),
     legacy: false,
+    output: "/dist",
   };
 
   return await Deno.lstat(configFile)
