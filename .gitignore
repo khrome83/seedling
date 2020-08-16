@@ -105,3 +105,4 @@ dist
 
 *.tgz
 package/
+temp/

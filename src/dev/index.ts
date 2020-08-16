@@ -16,9 +16,9 @@ import {
 import config from "../config/index.ts";
 import { Parser } from "../parser/index.ts";
 import compile from "../compiler/index.ts";
-import { purgeFile, getCacheKey } from "../cache/index.ts";
-import mimTypes from "../dict/mimeTypes.ts";
+import { purgeFile } from "../cache/index.ts";
 import mimeTypes from "../dict/mimeTypes.ts";
+import { useESBuild } from "../utils/esBuild.ts";
 
 // Managing Routes
 const routes = new Map();
@@ -252,14 +252,50 @@ const delta = (time: number) => {
 
 // Registers the client lib as /client.js
 // This libary is bundled on first request
-const registerClientLib = (port: number) => {
-  const fn = async () => {
+const registerClientLib = async (port: number) => {
+  // Prepare Source
+  const prepareSource = async () => {
+    // Needed File Paths
     const path = join(config.root, "../client/index.ts");
-    let contents = await Deno.readTextFile(path);
-    const src = contents.replace(
+
+    // Prepare Source
+    let src = await Deno.readTextFile(path);
+    return src.replace(
       "declare const __PORT__: number;",
       `const __PORT__: number = ${port};`,
     );
+  };
+
+  // ES Build
+  const esBuild = async () => {
+    // Get Source for Dev Client Library
+    const src = await prepareSource();
+
+    // Run ES Build
+    const proc = Deno.run({
+      cmd: [
+        "./package/bin/esbuild",
+        "--target=es2020",
+        "--loader=ts",
+      ],
+      stdin: "piped",
+      stdout: "piped",
+      stderr: "inherit",
+    });
+
+    await Deno.writeAll(proc.stdin, new TextEncoder().encode(src));
+    proc.stdin.close();
+    await proc.status();
+    const data = await proc.output();
+    proc.close();
+
+    return data;
+  };
+
+  // Deno Build
+  const denoBuild = async () => {
+    // Get Source for Dev Client Library
+    const src = await prepareSource();
 
     const [diagnostics, emit] = await Deno.bundle(
       "/client.ts",
@@ -270,7 +306,11 @@ const registerClientLib = (port: number) => {
     return emit;
   };
 
-  jsFiles.set("/client.js", fn);
+  // Checks if we can use ES Build
+  // Installs if possible
+  const status = await useESBuild();
+
+  jsFiles.set("/client.js", status ? esBuild : denoBuild);
 };
 
 // Get Mimetype for File
@@ -289,7 +329,7 @@ const getFileMimeType = (file: string): string => {
 export default async (port: number, ws: number) => {
   const serverStart = performance.now();
   await buildRoutes();
-  registerClientLib(ws);
+  await registerClientLib(ws);
   runWebSocket(ws);
   watchResolvers();
   watchRoutes();
@@ -380,10 +420,6 @@ export default async (port: number, ws: number) => {
   };
 
   const server = pogo.server({ catchAll: handler, port });
-
-  // server.router.get("/", () => {
-  //   return "Hello, world!";
-  // });
 
   console.log(`Server started in ${delta(serverStart).toFixed(2)} ms`);
   console.log(`Websocket listening on port ${cyan(ws.toString())}`);

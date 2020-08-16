@@ -77,4 +77,4 @@ export { pogo, RequestPogo, ToolkitPogo };
 export {
   WebSocket,
   WebSocketServer,
-} from "https://deno.land/x/websocket@v0.0.2/mod.ts";
+} from "https://deno.land/x/websocket@v0.0.3/mod.ts";

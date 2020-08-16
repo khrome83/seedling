@@ -6,7 +6,7 @@
 
 TODO: Populate this with usefull information
 
-`deno install --unstable --allow-read --allow-write --allow-env --allow-net -n seed cli.ts`
+`deno install --unstable --allow-read --allow-write --allow-env --allow-net --allow-hrtime --allow-run -f -n seed cli.ts`
 
 ## Fish
 
