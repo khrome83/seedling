@@ -1,6 +1,8 @@
 import { VERSION } from "../cli/const.ts";
 import helpText from "../cli/helpText.ts";
 import { Flag, Args } from "../../cli.ts";
+import server from "../dev/index.ts";
+import config from "../config/index.ts";
 
 helpText.set(
   "dev",
@@ -20,29 +22,42 @@ OPTIONS:
 
     -p, --port <port>
           Specifies the port to run server in. [Default 3000]
+        
+    -w, --websocket <port>
+         Specifies the port to run the websocket server on. Specific for any hot reloading. [Default 8080]
 `,
 );
 
-export default (commands: Args, flags: Flag) => {
+export default async (commands: Args, flags: Flag) => {
   const [command, ...rest] = commands;
   const cmd = command;
-  let port = 3000;
+  let port = config.port;
+  let ws = config.ws;
   for (const flag in flags) {
     switch (flag.toLowerCase()) {
       case "h":
       case "help":
-        console.log(helpText.get("dev"));
+        return console.log(helpText.get("dev"));
         break;
       case "p":
       case "port":
         if (parseInt(flags[flag], 10) > 0) {
           port = parseInt(flags[flag], 10);
         } else {
-          console.log(`Invalid port ${flags[flag]}`);
+          console.log(`Invalid server port ${flags[flag]}`);
+        }
+        break;
+      case "w":
+      case "websocket":
+        if (parseInt(flags[flag], 10) > 0) {
+          ws = parseInt(flags[flag], 10);
+        } else {
+          console.log(`Invalid websocket port ${flags[flag]}`);
         }
         break;
     }
   }
 
-  console.log("not implimented yet");
+  await server(port, ws);
+  // console.log("not implimented yet");
 };

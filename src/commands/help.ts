@@ -32,7 +32,7 @@ export default (commands: Args, flags: Flag) => {
     case "help":
     case "init":
     case "upgrade":
-      console.log(helpText.get(cmd));
+      return console.log(helpText.get(cmd));
       break;
     default:
       console.log(`Unknown command ${cmd} for seed help.\n\n`);

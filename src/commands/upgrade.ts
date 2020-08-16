@@ -32,7 +32,7 @@ export default (commands: Args, flags: Flag) => {
     switch (flag.toLowerCase()) {
       case "h":
       case "help":
-        console.log(helpText.get("upgrade"));
+        return console.log(helpText.get("upgrade"));
         break;
       case "v":
       case "version":

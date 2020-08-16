@@ -7,9 +7,6 @@ import config from "../config/index.ts";
 export const resolveComponent = async (
   name: string,
 ): Promise<ComponentResponse> => {
-  // Generate Cache Key (v5 UUID)
-  const cacheKey = getCacheKey("component", name);
-
   // Determine correct path to process under
   const htmlPath = `${config.root}/components/${name}.html`;
   const seedPath = `${config.root}/components/${name}.seed`;
@@ -52,6 +49,14 @@ export const resolveComponent = async (
             );
           });
       });
+  }
+
+  // Generate Cache Key (v5 UUID)
+  let cacheKey;
+  if (localPath) {
+    cacheKey = getCacheKey(localPath, "component", name);
+  } else if (importPath) {
+    cacheKey = getCacheKey(importPath, "component", name);
   }
 
   // Either return from Cache or Request New Data

@@ -6,6 +6,10 @@ const importConfig = async () => {
     root: Deno.cwd(),
     legacy: false,
     output: "/dist",
+    log: "normal",
+    interval: 350,
+    port: 3000,
+    ws: 8080,
   };
 
   return await Deno.lstat(configFile)

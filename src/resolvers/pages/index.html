@@ -1,0 +1,42 @@
+<:router>
+  <:data use="json">
+  {
+    "pages": 3
+  }
+  </:data>
+  <:path url="/">
+    <:data use="json">
+      {
+        "name": "Zane Milakovic",
+        "age": "37",
+        "career": "Deno Developer"
+      }
+    </:data>
+  </:path>
+  <:path url="/page/:[1,pages]page" />
+</:router>
+
+<:layout use="_default" />
+<:layout use="_menu" />
+
+{:if $params.page}
+  <div>Page - {$params.page}</div>
+  <a href="/">Back</a>
+{:else}
+  <div>
+    <h1>Home  - Foo</h1>
+    <div>
+      <p>About - {name}</p>
+      <ul>
+        <li>Age - {age}</li>
+        <li>Career - {career}</li>
+      </ul>
+    </div>
+  </div>
+  <ul>
+    <li><a href="/page/1">Page 1</a></li>
+    <li><a href="/page/2">Page 2</a></li>
+    <li><a href="/page/3">Page 3</a></li>
+  </ul>
+{/:if}
+
