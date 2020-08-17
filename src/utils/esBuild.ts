@@ -1,4 +1,4 @@
-import { join } from "../../deps.ts";
+import { join, bold, cyan, yellow, green, red } from "../../deps.ts";
 import config from "../config/index.ts";
 
 // Used for debugging and preventing multiple false attempts
@@ -6,9 +6,16 @@ import config from "../config/index.ts";
 const statusFile = join(Deno.cwd(), `/.esbuild-debug.log`);
 
 const installESBuild = async (): Promise<boolean> => {
+  console.log(
+    `Performing a ${bold(yellow("ONE TIME"))} installation of ${
+      bold(cyan("ESBuild"))
+    } for faster build speed during development.\n\n`,
+  );
+  const start = performance.now();
   const version = "0.6.24";
   const os = Deno.build.os;
   let status = false;
+  let errors;
   const commands = [
     [
       "curl",
@@ -43,7 +50,7 @@ const installESBuild = async (): Promise<boolean> => {
 
     status = true;
   } catch (e) {
-    console.log("Unable to install ES Build");
+    errors = e;
   }
 
   // Make file to identiy that we attempted to install
@@ -51,9 +58,24 @@ const installESBuild = async (): Promise<boolean> => {
     statusFile,
     `This file was created by Seedling, not ESBuild\n\nESBuild version ${version} was ${
       status ? "installed" : "not installed"
-    } for ${os}.`,
+    } for ${os}.${!status ? `\n\n${errors}` : ""}`,
   );
 
+  if (status) {
+    console.log(
+      `\n\n${bold(green("SUCCESS"))} - ES Build was installed in ${
+        cyan((performance.now() - start).toFixed(2))
+      } ms.\n\n`,
+    );
+  } else {
+    console.log(
+      `\n\n${
+        bold(red("FAILED"))
+      } - ES Build could not be installed. Failed after ${
+        cyan((performance.now() - start).toFixed(2))
+      } ms.\n\n`,
+    );
+  }
   return status;
 };
 
