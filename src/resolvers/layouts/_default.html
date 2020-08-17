@@ -9,7 +9,9 @@
   <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.6.0/dist/alpine.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine-turbolinks-adapter@0.1.0/dist/alpine-turbolinks-adapter.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/turbolinks@5.2.0/dist/turbolinks.min.js" defer></script>
-  <script src="/client.js" defer></script>
+  <link rel="modulepreload" href="client.js">
+  <script type="module" src="/client.js"></script>
+  <script nomodule src="/client-legacy.js" defer></script>
 </head>
 <body>
   <:slot></:slot>

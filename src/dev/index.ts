@@ -295,6 +295,8 @@ const registerClientLib = async (port: number) => {
         "./package/bin/esbuild",
         "--target=es2020",
         "--loader=ts",
+        "--sourcefile=/client.ts",
+        "--sourcemap=inline",
       ],
       stdin: "piped",
       stdout: "piped",
@@ -315,13 +317,24 @@ const registerClientLib = async (port: number) => {
     // Get Source for Dev Client Library
     const src = await prepareSource();
 
-    const [diagnostics, emit] = await Deno.bundle(
-      "/client.ts",
-      { "/client.ts": src },
-    );
+    try {
+      const result = await Deno.transpileOnly(
+        { "/client.ts": src },
+        {
+          lib: ["dom", "esnext"],
+          target: "esnext",
+          removeComments: true,
+        },
+      );
 
-    assert(diagnostics == null);
-    return emit;
+      // Set Map for JS File
+      jsFiles.set("/client.js.map", result["/client.ts"].map);
+
+      // Return Source
+      return result["/client.ts"].source;
+    } catch (e) {
+      throw e;
+    }
   };
 
   // Checks if we can use ES Build
@@ -329,6 +342,46 @@ const registerClientLib = async (port: number) => {
   const status = await useESBuild();
 
   jsFiles.set("/client.js", status ? esBuild : denoBuild);
+
+  // Deno Transpile Only (ES5)
+  // Currently this use 'tsc' under the hood
+  // In the future this should use 'swc' (native) code (70x performance gain)
+  const denoTranspile = async () => {
+    // ES6+ Version
+    let output = jsFiles.get("/client.js");
+
+    // First time, need to process
+    if (typeof output === "function") {
+      output = await output();
+      jsFiles.set("/client.js", output);
+    }
+
+    try {
+      const result = await Deno.transpileOnly(
+        {
+          "/client-legacy.ts": (typeof output === "string")
+            ? output
+            : new TextDecoder("utf-8").decode(output),
+        },
+        {
+          lib: ["dom", "es5"],
+          target: "es5",
+          removeComments: true,
+        },
+      );
+
+      // Set Map for JS File
+      jsFiles.set("/client-legacy.js.map", result["/client-legacy.ts"].map);
+
+      // Return Source
+      return result["/client-legacy.ts"].source;
+    } catch (e) {
+      throw e;
+    }
+  };
+
+  // Support Legacy Request
+  jsFiles.set("/client-legacy.js", denoTranspile);
 };
 
 // Get Mimetype for File
