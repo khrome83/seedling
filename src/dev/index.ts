@@ -32,20 +32,24 @@ const displayRequest = (
   route: string,
   cache: boolean,
   time: number,
+  size?: number,
 ) => {
   let status = green;
   let timing = cyan;
+  let fileSize = cyan;
   if (code >= 500) status = red;
   if (code === 404) status = yellow;
   if (time > 250) timing = yellow;
   if (time > 750) timing = red;
+  if (size && size > 150.00) fileSize = yellow;
+  if (size && size > 1024.00) fileSize = red;
 
   console.log(
     `${status(`[${code}]`)}   ${
       cache ? `${bgGreen(black(" HIT "))} ` : bgYellow(black(" MISS "))
     }    ${route.padEnd(60, " ")}     ${
-      timing(time.toFixed(2).padStart(8, " "))
-    } ms`,
+      size ? `${fileSize(size.toFixed(2).padStart(8, " "))} kb` : "           "
+    }     ${timing(time.toFixed(2).padStart(8, " "))} ms`,
   );
 };
 
@@ -246,8 +250,22 @@ const watchRoutes = async () => {
   }
 };
 
+// Calcaulate Time Delta
 const delta = (time: number) => {
   return performance.now() - time;
+};
+
+// Calculates KB returnd to Client
+const size = (data: string | Uint8Array): number => {
+  try {
+    if (typeof data === "string") {
+      return (new TextEncoder().encode(data)).length / 1024;
+    } else {
+      return data.length / 1024;
+    }
+  } catch (e) {
+    return 0;
+  }
 };
 
 // Registers the client lib as /client.js
@@ -377,39 +395,42 @@ export default async (port: number, ws: number) => {
           }
         }
 
-        displayRequest(200, path, true, delta(start));
+        displayRequest(200, path, true, delta(start), size(output as string));
         return h.response(output).code(200);
       } catch (e) {
         displayRequest(500, path, false, delta(start));
         return h.response(e).code(500);
       }
     } else if (jsFiles.has(path)) {
-      let output = jsFiles.get(path);
+      try {
+        let output = jsFiles.get(path);
 
-      // First time, need to process
-      if (typeof output === "function") {
-        try {
+        // First time, need to process
+        if (typeof output === "function") {
           output = await output();
           jsFiles.set(path, output);
-        } catch (e) {
-          displayRequest(500, path, false, delta(start));
-          return h.response(e).code(500);
         }
-      }
 
-      displayRequest(200, path, true, delta(start));
-      return h.response(output).code(200).type("text/javascript");
+        displayRequest(200, path, true, delta(start), size(output));
+        return h.response(output).code(200).type("text/javascript");
+      } catch (e) {
+        displayRequest(500, path, false, delta(start));
+        return h.response(e).code(500);
+      }
     } else {
       // Try Static Assets
       try {
         const file = join(config.root, "/static", path);
         const type = getFileMimeType(file);
 
+        // File Data
+        const fileData = await Deno.lstat(file);
+
         // Open stream to Static File
         const stream = await Deno.open(file);
 
         // Return File
-        displayRequest(200, path, true, delta(start));
+        displayRequest(200, path, true, delta(start), fileData.size / 1024);
         return h.response(stream).code(200).type(type);
       } catch (e) {
         // Not Found, do 404
