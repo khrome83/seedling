@@ -1,8 +1,7 @@
-import { assert, join, pogo, RequestPogo, ToolkitPogo } from "../../deps.ts";
-import { Node, PathDefinition } from "../types.ts";
+import { join, pogo, RequestPogo, ToolkitPogo } from "../../deps.ts";
+import { Node, PathDefinition, CacheKey } from "../types.ts";
 import {
   expandGlob,
-  bold,
   red,
   yellow,
   green,
@@ -16,9 +15,10 @@ import {
 import config from "../config/index.ts";
 import { Parser } from "../parser/index.ts";
 import compile from "../compiler/index.ts";
-import { purgeFile } from "../cache/index.ts";
+import { purgeFile, cache } from "../cache/index.ts";
 import mimeTypes from "../dict/mimeTypes.ts";
 import { useESBuild } from "../utils/esBuild.ts";
+import { getCacheKey } from "../cache/index.ts";
 
 // Managing Routes
 const routes = new Map();
@@ -203,6 +203,9 @@ const watchRoutes = async () => {
     await updates.forEach(async (p) => {
       // Remove Old Routes Associated with Update Page File
       removeRoute(p as string);
+
+      // Remove from Cache
+      purgeFile(p as string);
 
       // Add Route Updates
       await buildRoute(p as string);
@@ -412,9 +415,18 @@ export default async (port: number, ws: number) => {
     if (routes.has(path)) {
       try {
         const routeData = routes.get(path);
-        let contents = await Deno.readTextFile(routeData.file);
-        const p = new Parser(contents);
-        const rootAst = p.parse();
+
+        // Parser for Page, Cache AST until page is Modified
+        const cacheKey = getCacheKey(routeData.file, "page", routeData);
+        let rootAst;
+        if (!cache.has(cacheKey as CacheKey)) {
+          const contents = await Deno.readTextFile(routeData.file);
+          const p = new Parser(contents);
+          rootAst = p.parse();
+          cache.set(cacheKey as CacheKey, rootAst);
+        } else {
+          rootAst = cache.get(cacheKey as CacheKey);
+        }
 
         // Prepend Data to AST, pass state careover from Route Procesisng if Any
         let output = await compile(
