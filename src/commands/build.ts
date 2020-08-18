@@ -37,7 +37,7 @@ export default async (commands: Args, flags: Flag): Promise<void> => {
     switch (flag.toLowerCase()) {
       case "h":
       case "help":
-        console.log(helpText.get("build"));
+        return console.log(helpText.get("build"));
         break;
       case "r":
       case "reload":

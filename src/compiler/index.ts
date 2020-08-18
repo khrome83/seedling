@@ -49,6 +49,7 @@ import htmlElements from "../dict/htmlElements.ts";
 import { resolveData } from "../resolvers/data.ts";
 import { resolveComponent } from "../resolvers/component.ts";
 import { resolveLayout } from "../resolvers/layout.ts";
+import config from "../config/index.ts";
 
 // TODO: Finish All Types
 //
@@ -1115,7 +1116,8 @@ const pathDirective = async (
   if (node.path.length) {
     await processPathPart("", scopeState(state, localState), node.path, cb);
   } else {
-    emitWarning(`PathDirective has no path definiton. Skipping PathDirective.`);
+    // Special processing for Root
+    cb("/", scopeState(state, localState));
   }
 
   return paths;
@@ -1134,6 +1136,11 @@ const routerDirective = async (
     const children = node.children;
     for (let i = 0; i < node.children.length; i++) {
       try {
+        // Skip children that are Text
+        if (children[i].type === "Text") {
+          continue;
+        }
+
         const newPaths = await compileNode(children[i], scoped);
         paths = [...paths, ...newPaths];
       } catch (capture) {
@@ -1273,7 +1280,10 @@ const compileNode = async (node: Node, state: State): Promise<any> => {
 };
 
 const emitWarning = (msg: string): undefined => {
-  console.warn(`${bold(yellow("WARNING"))} - ${msg}`);
+  if (config.log === "verbose") {
+    console.warn(`${bold(yellow("WARNING"))} - ${msg}`);
+  }
+
   return undefined;
 };
 
@@ -1285,13 +1295,13 @@ const emitError = (msg: string): undefined => {
 export default async (
   ast: Node | Array<Node>,
   state: State,
-): Promise<string> => {
+): Promise<string | PathDefinition[]> => {
   if (Array.isArray(ast) && ast.length) {
     return "" + (await unionChildren(ast, state));
   } else if ((ast as Node).type === "RouterDirective") {
     // Special processing for RouterDirective
     // Should not be passed back as string
-    return await compileNode(ast as Node, state);
+    return await compileNode(ast as Node, state) as PathDefinition[];
   } else {
     return "" + (await compileNode(ast as Node, state));
   }

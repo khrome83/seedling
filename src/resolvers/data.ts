@@ -59,9 +59,6 @@ export const resolveData = async (
   attrs: object,
   body = "",
 ): Promise<DataResponse> => {
-  // Generate Cache Key (v5 UUID)
-  const cacheKey = getCacheKey("data", processor, attrs, body);
-
   // Determine correct path to process under
   const tsPath = `${config.root}/data/${processor}.ts`;
   const jsPath = `${config.root}/data/${processor}.js`;
@@ -80,6 +77,9 @@ export const resolveData = async (
           );
         });
     });
+
+  // Generate Cache Key (v5 UUID)
+  const cacheKey = getCacheKey(importPath, "data", processor, attrs, body);
 
   // Either return from Cache or Request New Data
   if (!cache.has(cacheKey as CacheKey)) {

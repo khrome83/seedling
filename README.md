@@ -2,9 +2,11 @@
 
 ![CI](<https://github.com/use-seedling/seedling/workflows/CI%20(PULL%20REQUEST)/badge.svg>)
 
+[![Seedling](https://img.shields.io/badge/available%20on-deno.land/x-orange.svg?style=for-the-badge&logo=deno&labelColor=black)](https://deno.land/x/seedling)
+
 TODO: Populate this with usefull information
 
-`deno install --unstable --allow-read --allow-write --allow-env --allow-net -n seed cli.ts`
+`deno install --unstable --allow-read --allow-write --allow-env --allow-net --allow-hrtime --allow-run -f -n seed cli.ts`
 
 ## Fish
 

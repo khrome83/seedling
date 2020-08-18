@@ -566,7 +566,7 @@ Deno.test("Component Directive", async () => {
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected = "<h2>Dynamic Heading</h2>";
 
   assertEquals(output.trim(), expected);
@@ -623,7 +623,7 @@ Deno.test("Component Directive with Named Slot", async () => {
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected =
     "<div>\n  <div>Top from Slot</div>\n  <div>Middle from Component</div>\n  <div>Bottom from Slot</div>\n</div>";
 
@@ -676,7 +676,7 @@ Deno.test("Layout Directive", async () => {
     },
   };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected =
     '<div level="2">\n  <div>\n  <div>Top from Slot</div>\n  <div>Middle from Component</div>\n  <div>Bottom from Slot</div>\n</div>\n</div>';
 
@@ -3025,7 +3025,7 @@ Deno.test("If Block (true)", async () => {
   };
   const data = { expression: true };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected = '<div class="test">Testing Expression</div>';
 
   assertEquals(output.trim(), expected);
@@ -3078,7 +3078,7 @@ Deno.test("If Block (false)", async () => {
   };
   const data = { expression: false };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected = "";
 
   assertEquals(output.trim(), expected);
@@ -3179,7 +3179,7 @@ Deno.test("If Else Block (else)", async () => {
   };
   const data = { expression: false };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected = '<p class="what">Foo Bar<span>!</span></p>';
 
   assertEquals(output.trim(), expected);
@@ -3304,7 +3304,7 @@ Deno.test("If ElseIf Else Block (ElseIf)", async () => {
   };
   const data = { expression: false, expression2: true };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected = "<br>";
 
   assertEquals(output.trim(), expected);
@@ -3356,7 +3356,7 @@ Deno.test("Skip Block (false)", async () => {
   };
   const data = { expression: false };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected = '<div class="test">Testing Expression</div>';
 
   assertEquals(output.trim(), expected);
@@ -3408,7 +3408,7 @@ Deno.test("Skip Block (true)", async () => {
   };
   const data = { expression: true };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected = "";
 
   assertEquals(output.trim(), expected);
@@ -3550,7 +3550,7 @@ Deno.test("WhenBlock / IsBlock (caught in IsBlock)", async () => {
   };
   const data = { dessert: "cake" };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected = '<div class="test">Testing Expression</div>';
 
   assertEquals(output.trim(), expected);
@@ -3692,7 +3692,7 @@ Deno.test("WhenBlock / IsBlock (caught in ElseBlock)", async () => {
   };
   const data = { dessert: "steak" };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected = '<p class="what">No Cake<span>!</span></p>';
 
   assertEquals(output.trim(), expected);
@@ -3745,7 +3745,7 @@ Deno.test("Each Loop", async () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected =
     '<div class="test">Ice Cream</div><div class="test">Brownie</div><div class="test">Fudge</div><div class="test">Cookie</div><div class="test">Pie</div>';
 
@@ -3803,7 +3803,7 @@ Deno.test("Each Loop with Index", async () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected =
     '<div class="test">0 - Ice Cream</div><div class="test">1 - Brownie</div><div class="test">2 - Fudge</div><div class="test">3 - Cookie</div><div class="test">4 - Pie</div>';
 
@@ -3874,7 +3874,7 @@ Deno.test("Each Loop with Else", async () => {
   };
   const data = { desserts: [] };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected = "<div>No desserts!</div>";
 
   assertEquals(output.trim(), expected);
@@ -3960,7 +3960,7 @@ Deno.test("Each Loop with Break", async () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected =
     '|<div class="test">Ice Cream</div>*|<div class="test">Brownie</div>*|<div class="test">Fudge</div>*|';
 
@@ -4047,7 +4047,7 @@ Deno.test("Each Loop with Continue", async () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(ast as Node, data) as string;
   const expected =
     '|<div class="test">Ice Cream</div>*|<div class="test">Brownie</div>*|<div class="test">Fudge</div>*||<div class="test">Pie</div>*';
 

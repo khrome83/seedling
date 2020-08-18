@@ -6,6 +6,11 @@ Deno.test("Validate Loading Config", async () => {
     root: `${Deno.cwd()}/src/resolvers`,
     legacy: false,
     output: "/dist",
+    log: "normal",
+    interval: 350,
+    port: 3000,
+    ws: 8080,
+    esbuild: true,
   };
   assertEquals(config, expected);
 });

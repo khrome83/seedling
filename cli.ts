@@ -57,7 +57,7 @@ if (import.meta.main) {
         break;
 
       case "dev":
-        dev(rest, args);
+        await dev(rest, args);
         break;
 
       case "help":

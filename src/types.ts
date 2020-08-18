@@ -357,8 +357,8 @@ export type DynamicTag =
   | Tag;
 
 export interface RootAST {
-  html: Array<AST>;
-  layout: Array<AST> | [];
+  html: AST[];
+  layout: AST[] | [];
   router?: RouterDirective;
 }
 

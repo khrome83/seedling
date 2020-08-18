@@ -31,7 +31,7 @@ export default (commands: Args, flags: Flag) => {
     switch (flag.toLowerCase()) {
       case "h":
       case "help":
-        console.log(helpText.get("init"));
+        return console.log(helpText.get("init"));
         break;
       case "f":
       case "force":

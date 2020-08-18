@@ -1,5 +1,5 @@
 import { v5, Cache } from "../../deps.ts";
-
+import file from "https://deno.land/x/pogo@v0.5.0/lib/helpers/file.ts";
 const namespace = "f6360cb2-cdac-4d8d-a269-a5f65b054128";
 
 const cache = new Cache({
@@ -7,8 +7,22 @@ const cache = new Cache({
   serialize: false,
 });
 
+const fileToCache = new Map();
+
+const purgeFile = (filepath: string) => {
+  if (fileToCache.has(filepath)) {
+    const set = fileToCache.get(filepath);
+    const setItems = set[Symbol.iterator]();
+    for (const key of setItems) {
+      cache.remove(key);
+    }
+
+    fileToCache.delete(filepath);
+  }
+};
+
 // deno-lint-ignore no-explicit-any
-const getCacheKey = (...payload: any[]) => {
+const getCacheKey = (filepath: string, ...payload: any[]): string => {
   if (!payload.length) {
     throw new Error("Invalid payload for cache key, need atleast one argument");
   }
@@ -18,7 +32,17 @@ const getCacheKey = (...payload: any[]) => {
     namespace,
   };
 
-  return v5.generate(cacheKeyOptions);
+  const key = v5.generate(cacheKeyOptions) as string;
+
+  if (fileToCache.has(filepath)) {
+    const set = fileToCache.get(filepath);
+    set.add(key);
+    fileToCache.set(filepath, set);
+  } else {
+    fileToCache.set(filepath, new Set([key]));
+  }
+
+  return key;
 };
 
-export { cache, getCacheKey, namespace };
+export { cache, getCacheKey, namespace, purgeFile };

@@ -5,9 +5,6 @@ import { Parser } from "../parser/index.ts";
 import config from "../config/index.ts";
 
 export const resolveLayout = async (name: string): Promise<LayoutResponse> => {
-  // Generate Cache Key (v5 UUID)
-  const cacheKey = getCacheKey("layout", name);
-
   // Determine correct path to process under
   const htmlPath = `${config.root}/layouts/${name}.html`;
   const seedPath = `${config.root}/layouts/${name}.seed`;
@@ -50,6 +47,14 @@ export const resolveLayout = async (name: string): Promise<LayoutResponse> => {
             );
           });
       });
+  }
+
+  // Generate Cache Key (v5 UUID)
+  let cacheKey;
+  if (localPath) {
+    cacheKey = getCacheKey(localPath, "layout", name);
+  } else if (importPath) {
+    cacheKey = getCacheKey(importPath, "layout", name);
   }
 
   // Either return from Cache or Request New Data
