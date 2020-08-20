@@ -43,6 +43,7 @@ Deno.test("Each Loop", () => {
             children: [
               { type: "Text", data: "Testing Expression", start: 57, end: 75 },
             ],
+            classes: ["test"],
             slot: undefined,
             start: 39,
             end: 81,
@@ -111,6 +112,7 @@ Deno.test("Each Loop with Index", () => {
             children: [
               { type: "Text", data: "Testing Expression", start: 64, end: 82 },
             ],
+            classes: ["test"],
             slot: undefined,
             start: 46,
             end: 88,
@@ -181,6 +183,7 @@ Deno.test("Each Loop with Else", () => {
             children: [
               { type: "Text", data: "Testing Expression", start: 51, end: 69 },
             ],
+            classes: ["test"],
             slot: undefined,
             start: 33,
             end: 75,
@@ -202,6 +205,7 @@ Deno.test("Each Loop with Else", () => {
               children: [
                 { type: "Text", data: "No tasks!", start: 99, end: 108 },
               ],
+              classes: [],
               slot: undefined,
               start: 94,
               end: 114,
@@ -301,6 +305,7 @@ Deno.test("Each Loop with Break", () => {
                       end: 129,
                     },
                   ],
+                  classes: ["test"],
                   slot: undefined,
                   start: 93,
                   end: 135,
@@ -414,6 +419,7 @@ Deno.test("Each Loop with Continue", () => {
                       end: 132,
                     },
                   ],
+                  classes: ["test"],
                   slot: undefined,
                   start: 96,
                   end: 138,

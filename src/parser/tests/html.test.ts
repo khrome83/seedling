@@ -73,6 +73,7 @@ Deno.test("Self Closing Tag", () => {
         data: "br",
         attributes: [],
         children: [],
+        classes: [],
         slot: undefined,
         start: 0,
         end: 5,
@@ -96,6 +97,7 @@ Deno.test("Tag With No Children", () => {
         data: "ul",
         attributes: [],
         children: [],
+        classes: [],
         slot: undefined,
         start: 0,
         end: 9,
@@ -119,6 +121,7 @@ Deno.test("Tag With Named Slot", () => {
         data: "ul",
         attributes: [],
         children: [],
+        classes: [],
         slot: {
           type: "Literal",
           data: '"Foo"',
@@ -160,6 +163,7 @@ Deno.test("Tag With Children", () => {
                 end: 11,
               },
             ],
+            classes: [],
             slot: undefined,
             start: 4,
             end: 16,
@@ -176,11 +180,13 @@ Deno.test("Tag With Children", () => {
                 end: 23,
               },
             ],
+            classes: [],
             slot: undefined,
             start: 16,
             end: 28,
           },
         ],
+        classes: [],
         slot: undefined,
         start: 0,
         end: 33,
@@ -219,6 +225,7 @@ Deno.test("Void Elements", () => {
           },
         ],
         children: [],
+        classes: [],
         slot: undefined,
         start: 0,
         end: 22,
@@ -260,6 +267,7 @@ Deno.test("Void Elements", () => {
           },
         ],
         children: [],
+        classes: [],
         slot: undefined,
         start: 22,
         end: 92,
@@ -310,6 +318,7 @@ Deno.test("Attribute", () => {
           },
         ],
         children: [],
+        classes: ["foo"],
         slot: undefined,
         start: 0,
         end: 27,
@@ -322,14 +331,122 @@ Deno.test("Attribute", () => {
   assertEquals(output, expected);
 });
 
-Deno.test("Script Tag", () => {
-  const html = "<script>console.log('hello world');</script>";
+Deno.test("Attribute Classes", () => {
+  const html =
+    `<br class="foo bar md:p-4  my-4 mx-2" class:buzz="true" :class="{'quack': true, 'moo' : cow === 'dolly'}" x-bind:class="{'duck': false}" />`;
   const p = new Parser(html);
   const output = p.parse();
   const expected = {
     html: [
       {
         type: "Tag",
+        data: "br",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' class="foo bar md:p-4  my-4 mx-2"',
+            start: 3,
+            end: 37,
+            name: {
+              type: "AttributeName",
+              data: "class",
+              start: 4,
+              end: 9,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "foo bar md:p-4  my-4 mx-2",
+              start: 11,
+              end: 38,
+            },
+          },
+          {
+            type: "Attribute",
+            data: ' class:buzz="true"',
+            start: 37,
+            end: 55,
+            name: {
+              type: "AttributeName",
+              data: "class:buzz",
+              start: 38,
+              end: 48,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "true",
+              start: 50,
+              end: 56,
+            },
+          },
+          {
+            type: "Attribute",
+            data: " :class=\"{'quack': true, 'moo' : cow === 'dolly'}\"",
+            start: 55,
+            end: 105,
+            name: {
+              type: "AttributeName",
+              data: ":class",
+              start: 56,
+              end: 62,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "{'quack': true, 'moo' : cow === 'dolly'}",
+              start: 64,
+              end: 106,
+            },
+          },
+          {
+            type: "Attribute",
+            data: " x-bind:class=\"{'duck': false}\"",
+            start: 105,
+            end: 136,
+            name: {
+              type: "AttributeName",
+              data: "x-bind:class",
+              start: 106,
+              end: 118,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "{'duck': false}",
+              start: 120,
+              end: 137,
+            },
+          },
+        ],
+        children: [],
+        classes: [
+          "foo",
+          "bar",
+          "md:p-4",
+          "my-4",
+          "mx-2",
+          "buzz",
+          "quack",
+          "moo",
+          "duck",
+        ],
+        slot: undefined,
+        start: 0,
+        end: 139,
+      },
+    ],
+    layout: [],
+    router: undefined,
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Script Tag without Lang", () => {
+  const html = "<script>console.log('hello world');</script>";
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    html: [
+      {
+        type: "ScriptTag",
         data: "script",
         attributes: [],
         children: [
@@ -340,9 +457,45 @@ Deno.test("Script Tag", () => {
             end: 35,
           },
         ],
-        slot: undefined,
+        lang: undefined,
         start: 0,
         end: 44,
+      },
+    ],
+    layout: [],
+    router: undefined,
+  };
+
+  assertEquals(output, expected);
+});
+
+Deno.test("Script Tag with Lang", () => {
+  const html = "<script lang=\"ts\">console.log('hello world');</script>";
+  const p = new Parser(html);
+  const output = p.parse();
+  const expected = {
+    html: [
+      {
+        type: "ScriptTag",
+        data: "script",
+        attributes: [],
+        children: [
+          {
+            type: "Text",
+            data: "console.log('hello world');",
+            start: 18,
+            end: 45,
+          },
+        ],
+        lang: {
+          type: "Literal",
+          data: '"ts"',
+          value: "ts",
+          start: 14,
+          end: 18,
+        },
+        start: 0,
+        end: 54,
       },
     ],
     layout: [],
@@ -360,7 +513,7 @@ Deno.test("Style Tag", () => {
   const expected = {
     html: [
       {
-        type: "Tag",
+        type: "StyleTag",
         data: "style",
         attributes: [],
         children: [
@@ -372,7 +525,6 @@ Deno.test("Style Tag", () => {
             end: 91,
           },
         ],
-        slot: undefined,
         start: 0,
         end: 99,
       },
@@ -437,6 +589,7 @@ Deno.test("Textarea Tag", () => {
             end: 216,
           },
         ],
+        classes: ["border", "border-blue-100"],
         slot: undefined,
         start: 0,
         end: 227,
@@ -529,6 +682,7 @@ Deno.test("Complex Document", () => {
                   },
                 ],
                 children: [],
+                classes: [],
                 slot: undefined,
                 start: 63,
                 end: 85,
@@ -576,6 +730,7 @@ Deno.test("Complex Document", () => {
                   },
                 ],
                 children: [],
+                classes: [],
                 slot: undefined,
                 start: 94,
                 end: 164,
@@ -588,12 +743,14 @@ Deno.test("Complex Document", () => {
                 children: [
                   { type: "Text", data: "Document", start: 180, end: 188 },
                 ],
+                classes: [],
                 slot: undefined,
                 start: 173,
                 end: 196,
               },
               { type: "Text", data: "\n      ", start: 196, end: 203 },
             ],
+            classes: [],
             slot: undefined,
             start: 48,
             end: 210,
@@ -683,6 +840,7 @@ Deno.test("Complex Document", () => {
                                 end: 371,
                               },
                             ],
+                            classes: [],
                             slot: undefined,
                             start: 327,
                             end: 380,
@@ -694,6 +852,7 @@ Deno.test("Complex Document", () => {
                             end: 393,
                           },
                         ],
+                        classes: [],
                         slot: undefined,
                         start: 300,
                         end: 397,
@@ -705,12 +864,14 @@ Deno.test("Complex Document", () => {
                         end: 408,
                       },
                     ],
+                    classes: [],
                     slot: undefined,
                     start: 282,
                     end: 414,
                   },
                   { type: "Text", data: "\n        ", start: 414, end: 423 },
                 ],
+                classes: ["bg-gray-900", "text-white"],
                 slot: undefined,
                 start: 232,
                 end: 432,
@@ -790,12 +951,14 @@ Deno.test("Complex Document", () => {
                         end: 548,
                       },
                     ],
+                    classes: ["text-black", "font-bold"],
                     slot: undefined,
                     start: 500,
                     end: 553,
                   },
                   { type: "Text", data: "\n        ", start: 553, end: 562 },
                 ],
+                classes: ["full-width", "bg-gray-100"],
                 slot: undefined,
                 start: 441,
                 end: 568,
@@ -838,24 +1001,28 @@ Deno.test("Complex Document", () => {
                         end: 651,
                       },
                     ],
+                    classes: ["text-xs"],
                     slot: undefined,
                     start: 596,
                     end: 655,
                   },
                   { type: "Text", data: "\n        ", start: 655, end: 664 },
                 ],
+                classes: [],
                 slot: undefined,
                 start: 577,
                 end: 673,
               },
               { type: "Text", data: "\n      ", start: 673, end: 680 },
             ],
+            classes: [],
             slot: undefined,
             start: 217,
             end: 687,
           },
           { type: "Text", data: "\n    ", start: 687, end: 692 },
         ],
+        classes: [],
         slot: undefined,
         start: 25,
         end: 699,

@@ -43,6 +43,13 @@ import {
   PathDefinition,
   PathPart,
   PathSegment,
+  ScriptTag,
+  StyleTag,
+  UpdateType,
+  CompilerResponse,
+  ScriptInstance,
+  StyleInstance,
+  HeadDirective,
 } from "../types.ts";
 import voidElements from "../dict/voidElements.ts";
 import htmlElements from "../dict/htmlElements.ts";
@@ -50,7 +57,7 @@ import { resolveData } from "../resolvers/data.ts";
 import { resolveComponent } from "../resolvers/component.ts";
 import { resolveLayout } from "../resolvers/layout.ts";
 import config from "../config/index.ts";
-
+import { networkAuthenticationRequired } from "https://deno.land/x/pogo@v0.5.0/lib/bang.ts";
 // TODO: Finish All Types
 //
 //   01.    [X] Comment
@@ -90,17 +97,20 @@ import config from "../config/index.ts";
 //   32.    [X] UpdateExpression
 //   33.    [X] Identifier
 //   34.    [X] Literal
+//   35.    [ ] ScriptTag - missing file
+//   36.    [ ] StyleTag - missing file
+//   37.    [X] HeadDirective
 
 const nodeTypes = new Map();
 
 // Tag AST Node
-const tag = async (node: Tag, state: State): Promise<string> => {
+const tag = async (node: Tag, state: State, cb: Function): Promise<string> => {
   let attributes = "";
   let children = "";
 
   // Attributes
   if (node.attributes.length) {
-    attributes = await unionAttributes(node.attributes, state);
+    attributes = await unionAttributes(node.attributes, state, cb);
   }
 
   // Void Element - Exit Early
@@ -110,7 +120,12 @@ const tag = async (node: Tag, state: State): Promise<string> => {
 
   // Children
   if (node.children.length) {
-    children = await unionChildren(node.children, state);
+    children = await unionChildren(node.children, state, cb);
+  }
+
+  // Report
+  if (node.classes.length) {
+    cb(["Classes", node.classes]);
   }
 
   return `<${node.data}${attributes}>${children}</${node.data}>`;
@@ -118,13 +133,107 @@ const tag = async (node: Tag, state: State): Promise<string> => {
 
 nodeTypes.set("Tag", tag);
 
+// ScriptTag AST Node
+const scriptTag = async (
+  node: ScriptTag,
+  state: State,
+  cb: Function,
+): Promise<string> => {
+  let attributes = "";
+  let children = "";
+
+  // Attributes
+  if (node.attributes.length) {
+    attributes = await unionAttributes(node.attributes, state, cb);
+  }
+
+  // Children
+  if (node.children.length) {
+    children = await unionChildren(node.children, state, cb);
+  }
+
+  // Lang
+  let lang = "js";
+  if (node.lang !== undefined) {
+    lang = await compileNode(node.lang, state, cb);
+    if (lang.toLowerCase() === "ts") {
+      lang = "ts";
+    }
+  }
+
+  if (!children.length) {
+    // Script tags include src
+    return `<${node.data}${attributes}>${children}</${node.data}>`;
+  } else {
+    // Report - Inline Script
+    cb(["Scripts", {
+      file: state.__internals__.fileName,
+      source: children,
+      lang,
+    }]);
+    return "";
+  }
+};
+
+nodeTypes.set("ScriptTag", scriptTag);
+
+// StyleTag AST Node
+const styleTag = async (
+  node: StyleTag,
+  state: State,
+  cb: Function,
+): Promise<string> => {
+  let children = "";
+
+  // Attributes
+  if (node.attributes.length) {
+    emitWarning(`Style Tag has invalid attributes that will be ignored`);
+  }
+
+  // Children
+  if (node.children.length) {
+    children = await unionChildren(node.children, state, cb);
+  }
+
+  // Report
+  cb(["Styles", {
+    file: state.__internals__.fileName,
+    source: children,
+  }]);
+
+  return "";
+};
+
+nodeTypes.set("StyleTag", styleTag);
+
 // Attribute AST Node
 const attribute = async (
   node: Attribute,
   state: State,
+  cb: Function,
 ): Promise<Array<State>> => {
-  const name = await compileNode(node.name, state);
-  const value = await compileNode(node.value, state);
+  const name = await compileNode(node.name, state, cb);
+  const value = await compileNode(node.value, state, cb);
+  const classes = [];
+
+  if (
+    name === "class" && node.value.type === "AttributeExpression" &&
+    value === "string"
+  ) {
+    const parts = (value as string).split(" ");
+
+    for (let i = 0, len = parts.length; i < len; i++) {
+      if (parts[i] === undefined || parts[i].length === 0) {
+        continue;
+      }
+      classes.push(parts[i]);
+    }
+  }
+
+  // Report
+  if (classes.length) {
+    cb(["Classes", classes]);
+  }
 
   return [[name, value]];
 };
@@ -150,8 +259,12 @@ nodeTypes.set("AttributeValue", attributeValue);
 
 // AttributeExpression AST Node
 // deno-lint-ignore no-explicit-any
-const attributeExpression = (node: AttributeExpression, state: State): any => {
-  return compileNode(node.expression, state);
+const attributeExpression = (
+  node: AttributeExpression,
+  state: State,
+  cb: Function,
+): any => {
+  return compileNode(node.expression, state, cb);
 };
 
 nodeTypes.set("AttributeExpression", attributeExpression);
@@ -160,11 +273,29 @@ nodeTypes.set("AttributeExpression", attributeExpression);
 const attributeSpread = async (
   node: AttributeSpread,
   state: State,
+  cb: Function,
 ): Promise<Array<State>> => {
   const output = [];
-  const spread = await compileNode(node.expression, state);
+  const classes = [];
+  const spread = await compileNode(node.expression, state, cb);
   for (let name of Object.keys(spread)) {
+    if (name === "class") {
+      const parts = spread[name].value.split(" ");
+
+      for (let i = 0, len = parts.length; i < len; i++) {
+        if (parts[i] === undefined || parts[i].length === 0) {
+          continue;
+        }
+        classes.push(parts[i]);
+      }
+    }
+
     output.push([name, spread[name]]);
+  }
+
+  // Report
+  if (classes.length) {
+    cb(["Classes", classes]);
   }
 
   return output;
@@ -191,7 +322,6 @@ nodeTypes.set("Comment", comment);
 const identifier = (node: Identifier, state: State): any => {
   if (node.data === "__internals__") {
     return emitWarning(`Identifier '${cyan(node.data)}' is disallowed.`);
-    return undefined;
   }
 
   try {
@@ -214,8 +344,12 @@ const literal = (
 nodeTypes.set("Literal", literal);
 
 // UnaryExpression AST Node
-const unaryExpression = async (node: UnaryExpression, state: State) => {
-  const argument = await compileNode(node.argument, state);
+const unaryExpression = async (
+  node: UnaryExpression,
+  state: State,
+  cb: Function,
+) => {
+  const argument = await compileNode(node.argument, state, cb);
   try {
     switch (node.operator) {
       case "!":
@@ -250,8 +384,12 @@ const unaryExpression = async (node: UnaryExpression, state: State) => {
 nodeTypes.set("UnaryExpression", unaryExpression);
 
 // UpdateExpression AST Node
-const updateExpression = async (node: UpdateExpression, state: State) => {
-  let argument = await compileNode(node.argument, state);
+const updateExpression = async (
+  node: UpdateExpression,
+  state: State,
+  cb: Function,
+) => {
+  let argument = await compileNode(node.argument, state, cb);
   let output;
   try {
     if (node.operator === "++" && node.prefix) {
@@ -290,9 +428,13 @@ const updateExpression = async (node: UpdateExpression, state: State) => {
 nodeTypes.set("UpdateExpression", updateExpression);
 
 // BinaryExpression AST Node
-const binaryExpression = async (node: BinaryExpression, state: State) => {
-  const left = await compileNode(node.left, state);
-  const right = await compileNode(node.right, state);
+const binaryExpression = async (
+  node: BinaryExpression,
+  state: State,
+  cb: Function,
+) => {
+  const left = await compileNode(node.left, state, cb);
+  const right = await compileNode(node.right, state, cb);
   try {
     switch (node.operator) {
       case "|":
@@ -356,9 +498,13 @@ const binaryExpression = async (node: BinaryExpression, state: State) => {
 nodeTypes.set("BinaryExpression", binaryExpression);
 
 // LogicalExpression AST Node
-const logicalExpression = async (node: LogicalExpression, state: State) => {
-  const left = await compileNode(node.left, state);
-  const right = await compileNode(node.right, state);
+const logicalExpression = async (
+  node: LogicalExpression,
+  state: State,
+  cb: Function,
+) => {
+  const left = await compileNode(node.left, state, cb);
+  const right = await compileNode(node.right, state, cb);
   try {
     switch (node.operator) {
       case "||":
@@ -387,19 +533,38 @@ const logicalExpression = async (node: LogicalExpression, state: State) => {
 
 nodeTypes.set("LogicalExpression", logicalExpression);
 
-// // Text AST Node
-const text = (node: Text, state: State) => {
+// Text AST Node
+const text = (node: Text, state: State, cb: Function) => {
   return node.data;
 };
 
 nodeTypes.set("Text", text);
 
+// HeadDirective AST Node
+const headDirective = async (
+  node: HeadDirective,
+  state: State,
+  cb: Function,
+): Promise<string> => {
+  // Report
+  if (node.children.length) {
+    cb(["Head", node.children]);
+  } else {
+    emitWarning(`HeadDirective has no children, ignoring.`);
+  }
+
+  return "";
+};
+
+nodeTypes.set("HeadDirective", headDirective);
+
 // ComponentDirective AST Node
 const componentDirective = async (
   node: ComponentDirective,
   state: State,
+  cb: Function,
 ): Promise<string> => {
-  const component = await compileNode(node.expression, state);
+  const component = await compileNode(node.expression, state, cb);
   const attrs = new Map();
   let localState: State = {
     __internals__: {
@@ -421,7 +586,7 @@ const componentDirective = async (
 
   // Need to build a map of all attributes and process
   for (let i = 0, aLen = node.attributes.length; i < aLen; i++) {
-    const list = await compileNode(node.attributes[i], state);
+    const list = await compileNode(node.attributes[i], state, cb);
     for (let x = 0, lLen = list.length; x < lLen; x++) {
       const [name, value] = list[x];
       attrs.set(name, value);
@@ -449,7 +614,7 @@ const componentDirective = async (
           undefined
       ) {
         // Named
-        const slot = await compileNode(child.slot as Literal, state);
+        const slot = await compileNode(child.slot as Literal, state, cb);
 
         if (typeof slot !== "string") {
           emitWarning(
@@ -481,7 +646,19 @@ const componentDirective = async (
   try {
     // Return Component
     const res = await resolveComponent(component);
-    return await unionChildren(res.ast.html, localState);
+
+    // Report
+    if (res.meta.file) {
+      cb(["File", res.meta.file]);
+      localState.__internals__.fileName = res.meta.file;
+      if (res.meta.cacheHit) {
+        cb(["CacheHit"]);
+      } else {
+        cb(["CacheMiss"]);
+      }
+    }
+
+    return await unionChildren(res.ast.html, localState, cb);
   } catch (e) {
     emitError(`Unable to process Component Directive ${bold(red(component))}.`);
     return "";
@@ -494,10 +671,15 @@ nodeTypes.set("ComponentDirective", componentDirective);
 const layoutDirective = async (
   node: LayoutDirective,
   state: State,
+  cb: Function,
 ): Promise<string> => {
-  const layout = await compileNode(node.expression, state);
+  const layout = await compileNode(node.expression, state, cb);
   const attrs = new Map();
-  let localState: State = {};
+  let localState: State = {
+    __internals__: {
+      fileName: "",
+    },
+  };
 
   // Can't Render Component
   if (typeof layout !== "string") {
@@ -513,7 +695,7 @@ const layoutDirective = async (
 
   // Need to build a map of all attributes and process
   for (let i = 0, aLen = node.attributes.length; i < aLen; i++) {
-    const list = await compileNode(node.attributes[i], state);
+    const list = await compileNode(node.attributes[i], state, cb);
     for (let x = 0, lLen = list.length; x < lLen; x++) {
       const [name, value] = list[x];
       attrs.set(name, value);
@@ -530,9 +712,21 @@ const layoutDirective = async (
   try {
     // Return Layout
     const res = await resolveLayout(layout);
-    return await unionChildren(res.ast.html, scopeState(state, localState));
+
+    // Report
+    if (res.meta.file) {
+      cb(["File", res.meta.file]);
+      localState.__internals__.fileName = res.meta.file;
+      if (res.meta.cacheHit) {
+        cb(["CacheHit"]);
+      } else {
+        cb(["CacheMiss"]);
+      }
+    }
+
+    return await unionChildren(res.ast.html, scopeState(state, localState), cb);
   } catch (e) {
-    emitError(`Unable to process Layut Directive ${bold(red(layout))}.`);
+    emitError(`Unable to process Layout Directive ${bold(red(layout))}.`);
     return "";
   }
 };
@@ -543,10 +737,11 @@ nodeTypes.set("LayoutDirective", layoutDirective);
 const slotDirective = async (
   node: SlotDirective,
   state: State,
+  cb: Function,
 ): Promise<string> => {
   let name = "default";
   if (node.expression) {
-    name = await compileNode(node.expression, state);
+    name = await compileNode(node.expression, state, cb);
   }
 
   // Can't Render Tag
@@ -565,9 +760,9 @@ const slotDirective = async (
   const slots = state?.["__internals__"]?.["slots"];
 
   if (slots?.[name] && slots?.[name].length) {
-    return await unionChildren(slots[name], state);
+    return await unionChildren(slots[name], state, cb);
   } else if (node.children.length) {
-    return await unionChildren(node.children, state);
+    return await unionChildren(node.children, state, cb);
   } else {
     return "";
   }
@@ -579,8 +774,9 @@ nodeTypes.set("SlotDirective", slotDirective);
 const elementDirective = async (
   node: ElementDirective,
   state: State,
+  cb: Function,
 ): Promise<string> => {
-  const tagType = await compileNode(node.expression, state);
+  const tagType = await compileNode(node.expression, state, cb);
 
   // Can't Render Tag
   if (typeof tagType !== "string") {
@@ -611,7 +807,7 @@ const elementDirective = async (
   tag.type = "Tag";
   tag.data = tagType;
 
-  return await compileNode(tag, state);
+  return await compileNode(tag, state, cb);
 };
 
 nodeTypes.set("ElementDirective", elementDirective);
@@ -620,22 +816,23 @@ nodeTypes.set("ElementDirective", elementDirective);
 const dataDirective = async (
   node: DataDirective,
   state: State,
+  cb: Function,
 ): Promise<DataResponse> => {
   let body = "";
-  const use = await compileNode(node.expression, state);
+  const use = await compileNode(node.expression, state, cb);
   const attrs = new Map();
   const values: State = {};
 
   // Get Body
   if (node.children.length) {
-    body = await unionChildren(node.children, state);
+    body = await unionChildren(node.children, state, cb);
   }
 
   // Get Attributes
   if (node.attributes.length) {
     const attributes = node.attributes;
     for (let i = 0, aLen = attributes.length; i < aLen; i++) {
-      const list = await compileNode(attributes[i], state);
+      const list = await compileNode(attributes[i], state, cb);
       for (let x = 0, lLen = list.length; x < lLen; x++) {
         const [name, value] = list[x];
         attrs.set(name, value);
@@ -650,10 +847,20 @@ const dataDirective = async (
 
   const res = await resolveData(use, values, body);
 
+  // Report
+  if (res.meta.file) {
+    cb(["File", res.meta.file]);
+    if (res.meta.cacheHit) {
+      cb(["CacheHit"]);
+    } else {
+      cb(["CacheMiss"]);
+    }
+  }
+
   // Namespace state to key if available
   let outgoingState;
   if (node.key !== undefined) {
-    const key = await compileNode(node.key, state);
+    const key = await compileNode(node.key, state, cb);
     outgoingState = {
       [key]: res.response,
     };
@@ -671,10 +878,14 @@ const dataDirective = async (
 nodeTypes.set("DataDirective", dataDirective);
 
 // MemberExpression AST Node
-const memberExpression = async (node: MemberExpression, state: State) => {
-  const obj = await compileNode(node.object, state);
+const memberExpression = async (
+  node: MemberExpression,
+  state: State,
+  cb: Function,
+) => {
+  const obj = await compileNode(node.object, state, cb);
   if (node.property.type === "Literal") {
-    const key = await compileNode(node.property, state);
+    const key = await compileNode(node.property, state, cb);
     try {
       return obj[key];
     } catch (e) {
@@ -682,24 +893,24 @@ const memberExpression = async (node: MemberExpression, state: State) => {
     }
   }
 
-  return compileNode(node.property, obj);
+  return compileNode(node.property, obj, cb);
 };
 
 nodeTypes.set("MemberExpression", memberExpression);
 
 // IfBlock AST Node
-const ifBlock = async (node: IfBlock, state: State) => {
-  const expression = await compileNode(node.expression, state);
+const ifBlock = async (node: IfBlock, state: State, cb: Function) => {
+  const expression = await compileNode(node.expression, state, cb);
   let output = "";
   if (expression) {
     // Use Children
     if (node.children.length) {
-      output = await unionChildren(node.children, state);
+      output = await unionChildren(node.children, state, cb);
     }
 
     return output;
   } else if (node.else !== null) {
-    return await compileNode(node.else, state);
+    return await compileNode(node.else, state, cb);
   } else {
     return "";
   }
@@ -708,10 +919,10 @@ const ifBlock = async (node: IfBlock, state: State) => {
 nodeTypes.set("IfBlock", ifBlock);
 
 // ElseBlock AST Node
-const elseBlock = async (node: ElseBlock, state: State) => {
+const elseBlock = async (node: ElseBlock, state: State, cb: Function) => {
   let output = "";
   if (node.children.length) {
-    output = await unionChildren(node.children, state);
+    output = await unionChildren(node.children, state, cb);
   }
 
   return output;
@@ -720,27 +931,27 @@ const elseBlock = async (node: ElseBlock, state: State) => {
 nodeTypes.set("ElseBlock", elseBlock);
 
 // ElseIfBlock AST Node
-const elseIfBlock = (node: ElseIfBlock, state: State) => {
+const elseIfBlock = (node: ElseIfBlock, state: State, cb: Function) => {
   // Convert to IfBlock and return results
   const ifBlock = (node as unknown) as IfBlock;
   ifBlock.type = "IfBlock";
   ifBlock.data = ":if";
 
-  return compileNode(ifBlock, state);
+  return compileNode(ifBlock, state, cb);
 };
 
 nodeTypes.set("ElseIfBlock", elseIfBlock);
 
 // SkipBlock AST Node
-const skipBlock = async (node: SkipBlock, state: State) => {
-  const expression = await compileNode(node.expression, state);
+const skipBlock = async (node: SkipBlock, state: State, cb: Function) => {
+  const expression = await compileNode(node.expression, state, cb);
   let output = "";
 
   // Skip Checks for the inverse of If
   if (!expression) {
     // Use Children
     if (node.children.length) {
-      output = await unionChildren(node.children, state);
+      output = await unionChildren(node.children, state, cb);
     }
 
     return output;
@@ -752,8 +963,12 @@ const skipBlock = async (node: SkipBlock, state: State) => {
 nodeTypes.set("SkipBlock", skipBlock);
 
 // WhenBlock AST Node
-const whenBlock = async (node: WhenBlock, state: State): Promise<string> => {
-  const match = await compileNode(node.expression, state);
+const whenBlock = async (
+  node: WhenBlock,
+  state: State,
+  cb: Function,
+): Promise<string> => {
+  const match = await compileNode(node.expression, state, cb);
   let output = "";
 
   if (node.children.length) {
@@ -769,17 +984,18 @@ const whenBlock = async (node: WhenBlock, state: State): Promise<string> => {
         const [expression, contents] = await compileNode(
           node.children[i],
           state,
+          cb,
         );
 
         if (match !== expression) {
           continue;
         }
 
-        return unionChildren(contents, state);
+        return unionChildren(contents, state, cb);
       }
 
       if (node.children[i].type === "ElseBlock") {
-        return compileNode(node.children[i], state);
+        return compileNode(node.children[i], state, cb);
       }
     }
   } else {
@@ -792,8 +1008,8 @@ const whenBlock = async (node: WhenBlock, state: State): Promise<string> => {
 nodeTypes.set("WhenBlock", whenBlock);
 
 // IsBlock AST Node
-const isBlock = async (node: IsBlock, state: State) => {
-  const expression = await compileNode(node.expression, state);
+const isBlock = async (node: IsBlock, state: State, cb: Function) => {
+  const expression = await compileNode(node.expression, state, cb);
 
   return [expression, node.children];
 };
@@ -801,8 +1017,12 @@ const isBlock = async (node: IsBlock, state: State) => {
 nodeTypes.set("IsBlock", isBlock);
 
 // EachBlock AST Node
-const eachBlock = async (node: EachBlock, state: State): Promise<string> => {
-  const expression = await compileNode(node.expression, state);
+const eachBlock = async (
+  node: EachBlock,
+  state: State,
+  cb: Function,
+): Promise<string> => {
+  const expression = await compileNode(node.expression, state, cb);
   const context = node.context.data;
   const index = node.index === null ? null : node.index.data;
   let output = "";
@@ -812,7 +1032,7 @@ const eachBlock = async (node: EachBlock, state: State): Promise<string> => {
     node.else !== null &&
     (context === undefined || !expression || !expression.length)
   ) {
-    return await compileNode(node.else, state);
+    return await compileNode(node.else, state, cb);
   }
 
   // The loop contents
@@ -834,6 +1054,7 @@ const eachBlock = async (node: EachBlock, state: State): Promise<string> => {
           output += await unionChildren(
             node.children,
             scopeState(state, internal),
+            cb,
           );
         }
       } catch (capture) {
@@ -873,6 +1094,7 @@ nodeTypes.set("EachBlock", eachBlock);
 const breakStatement = async (
   node: BreakStatement,
   state: State,
+  cb: Function,
 ): Promise<void> => {
   throw ["BREAK"];
 };
@@ -883,6 +1105,7 @@ nodeTypes.set("BreakStatement", breakStatement);
 const continueStatement = async (
   node: ContinueStatement,
   state: State,
+  cb: Function,
 ): Promise<void> => {
   throw ["CONTINUE"];
 };
@@ -890,18 +1113,36 @@ const continueStatement = async (
 nodeTypes.set("ContinueStatement", continueStatement);
 
 // Special function to return deep copy of state that is modified
-const scopeState = (state: State, incomingState: State): State => {
-  return { ...state, ...incomingState };
+const scopeState = (...states: Array<State>): State => {
+  const isObject = (obj: State): boolean => obj && typeof obj === "object";
+
+  return states.reduce((prev, obj) => {
+    Object.keys(obj).forEach((key) => {
+      const pVal = prev[key];
+      const oVal = obj[key];
+
+      if (Array.isArray(pVal) && Array.isArray(oVal)) {
+        prev[key] = pVal.concat(...oVal);
+      } else if (isObject(pVal) && isObject(oVal)) {
+        prev[key] = scopeState(pVal, oVal);
+      } else {
+        prev[key] = oVal;
+      }
+    });
+
+    return prev;
+  }, {});
 };
 
 // RangePathSegment AST Node
 const rangePathSegment = async (
   node: RangePathSegment,
   state: State,
+  cb: Function,
 ): Promise<PathPart[]> => {
-  const stateKey = await compileNode(node.expression, state);
-  const firstExpression = await compileNode(node.first, state);
-  const lastExpression = await compileNode(node.last, state);
+  const stateKey = await compileNode(node.expression, state, cb);
+  const firstExpression = await compileNode(node.first, state, cb);
+  const lastExpression = await compileNode(node.last, state, cb);
   let outputPaths: PathPart[] = [];
 
   try {
@@ -932,8 +1173,9 @@ nodeTypes.set("RangePathSegment", rangePathSegment);
 const paginationPathSegment = async (
   node: PaginationPathSegment,
   state: State,
+  cb: Function,
 ): Promise<PathPart[]> => {
-  const stateKey = await compileNode(node.expression, state);
+  const stateKey = await compileNode(node.expression, state, cb);
   let scoped: State = state;
   let outputPaths: PathPart[] = [];
   let counter = 0;
@@ -948,17 +1190,12 @@ const paginationPathSegment = async (
   while (true) {
     try {
       // Process Data, Pass the Counter as State
-      // TODO: remove this workaround for $params and build better deep copy for scopeState
-      const params = scopeState(
-        state.$params,
-        { [stateKey]: "" + counter },
-      );
-      scoped.$params = params;
+      scoped = scopeState(scoped, { $params: { [stateKey]: "" + counter } });
 
       // Call all nested data directives
       for (let i = 0; i < data.length; i++) {
         try {
-          await compileNode(data[i], scoped);
+          await compileNode(data[i], scoped, cb);
         } catch (capture) {
           if (Array.isArray(capture)) {
             const [code, append] = capture;
@@ -1020,13 +1257,14 @@ nodeTypes.set("PaginationPathSegment", paginationPathSegment);
 const optionalPathSegment = async (
   node: OptionalPathSegment,
   state: State,
+  cb: Function,
 ): Promise<PathPart[]> => {
   // Reuse Dynamic parsing by converting type and rerunning
   // since all Optional is is Dynamic plus empty path segment
   const tag = (node as unknown) as DynamicPathSegment;
   tag.type = "DynamicPathSegment";
   const key = tag.expression.data;
-  const output = await compileNode(tag, state);
+  const output = await compileNode(tag, state, cb);
 
   return [["", { "$params": { [key]: "" } }], ...output];
 };
@@ -1037,9 +1275,10 @@ nodeTypes.set("OptionalPathSegment", optionalPathSegment);
 const dynamicPathSegment = async (
   node: DynamicPathSegment,
   state: State,
+  cb: Function,
 ): Promise<PathPart[]> => {
   const stateKey = node.expression.data;
-  const newPaths = await compileNode(node.expression, state);
+  const newPaths = await compileNode(node.expression, state, cb);
   let outputPaths: PathPart[] = [];
 
   // Validate segments and convert to string if possible
@@ -1072,6 +1311,7 @@ nodeTypes.set("DynamicPathSegment", dynamicPathSegment);
 const staticPathSegment = async (
   node: StaticPathSegment,
   state: State,
+  cb: Function,
 ): Promise<PathPart[]> => {
   return [[node.data, {}]];
 };
@@ -1082,6 +1322,7 @@ nodeTypes.set("StaticPathSegment", staticPathSegment);
 const pathDirective = async (
   node: PathDirective,
   state: State,
+  cb: Function,
 ): Promise<PathDefinition[]> => {
   let paths: PathDefinition[] = [];
   let data: DataDirective[] = [];
@@ -1097,7 +1338,7 @@ const pathDirective = async (
   }
 
   // Callback for Recording final Paths
-  const cb = (p: string, s: State) => {
+  const routerCB = (p: string, s: State) => {
     paths.push({
       path: p,
       state: s,
@@ -1114,10 +1355,16 @@ const pathDirective = async (
 
   // Process the Paths
   if (node.path.length) {
-    await processPathPart("", scopeState(state, localState), node.path, cb);
+    await processPathPart(
+      "",
+      scopeState(state, localState),
+      node.path,
+      routerCB,
+      cb,
+    );
   } else {
     // Special processing for Root
-    cb("/", scopeState(state, localState));
+    routerCB("/", scopeState(state, localState));
   }
 
   return paths;
@@ -1129,6 +1376,7 @@ nodeTypes.set("PathDirective", pathDirective);
 const routerDirective = async (
   node: RouterDirective,
   state: State,
+  cb: Function,
 ): Promise<PathDefinition[]> => {
   let scoped: State = state;
   let paths: PathDefinition[] = [];
@@ -1141,7 +1389,7 @@ const routerDirective = async (
           continue;
         }
 
-        const newPaths = await compileNode(children[i], scoped);
+        const newPaths = await compileNode(children[i], scoped, cb);
         paths = [...paths, ...newPaths];
       } catch (capture) {
         // Speacial handling for bubbling via throws to capture the last output
@@ -1177,21 +1425,19 @@ const processPathPart = async (
   path: string,
   state: State,
   pathSegments: PathSegment[],
+  routerCB: Function,
   cb: Function,
 ): Promise<void> => {
   const [first, ...rest] = pathSegments || [];
-  const newPathParts = await compileNode(first, state);
+  const newPathParts = await compileNode(first, state, cb);
   for (let i = 0; i < newPathParts.length; i++) {
     const [p, s] = newPathParts[i];
     const newPath = (path === "/") ? path + p : path + "/" + p;
-    // TODO: remove this workaround for $params and build better deep copy for scopeState
-    const params = scopeState(state.$params, s.$params);
-    s.$params = params;
     const scoped = scopeState(state, s);
     if (rest.length) {
-      await processPathPart(newPath, scoped, rest, cb);
+      await processPathPart(newPath, scoped, rest, routerCB, cb);
     } else {
-      cb(newPath, scoped);
+      routerCB(newPath, scoped);
     }
   }
 };
@@ -1205,13 +1451,14 @@ const convertPaths = (path: string | number): string => {
 const unionChildren = async (
   children: Array<Node>,
   state: State,
+  cb: Function,
 ): Promise<string> => {
   let scoped = state;
   let output = "";
 
   for (let i = 0; i < children.length; i++) {
     try {
-      output += await compileNode(children[i], scoped);
+      output += await compileNode(children[i], scoped, cb);
     } catch (capture) {
       // Speacial handling for bubbling via throws to capture the last output
       // Used when something impacts state or impacts flow
@@ -1242,12 +1489,13 @@ const unionChildren = async (
 const unionAttributes = async (
   attributes: Array<Attribute | AttributeSpread>,
   state: State,
+  cb: Function,
 ): Promise<string> => {
   const attrs = new Map();
   let output = "";
 
   for (let i = 0, aLen = attributes.length; i < aLen; i++) {
-    const list = await compileNode(attributes[i], state);
+    const list = await compileNode(attributes[i], state, cb);
     for (let x = 0, lLen = list.length; x < lLen; x++) {
       const [name, value] = list[x];
       attrs.set(name, value);
@@ -1270,9 +1518,13 @@ const unionAttributes = async (
 
 // Hands off to the correct compile function
 // deno-lint-ignore no-explicit-any
-const compileNode = async (node: Node, state: State): Promise<any> => {
+const compileNode = async (
+  node: Node,
+  state: State,
+  cb: Function,
+): Promise<any> => {
   if (nodeTypes.has(node.type)) {
-    return await nodeTypes.get(node.type)(node, state);
+    return await nodeTypes.get(node.type)(node, state, cb);
   } else {
     // TOOD: Emit Warning
     return Promise.resolve("");
@@ -1291,18 +1543,151 @@ const emitError = (msg: string): undefined => {
   throw new Error(`${bold(red("ERROR"))} - ${msg}`);
 };
 
+const compileAST = async (
+  ast: Node | Array<Node>,
+  state: State,
+  cb: Function,
+): Promise<string | PathDefinition[]> => {
+  if (Array.isArray(ast) && ast.length) {
+    return "" + (await unionChildren(ast, state, cb));
+  } else if ((ast as Node).type === "RouterDirective") {
+    // Special processing for RouterDirective
+    // Should not be passed back as string
+    return await compileNode(ast as Node, state, cb) as PathDefinition[];
+  } else {
+    return "" + (await compileNode(ast as Node, state, cb));
+  }
+};
+
 // Loops over AST array or single AST object
 export default async (
   ast: Node | Array<Node>,
   state: State,
-): Promise<string | PathDefinition[]> => {
-  if (Array.isArray(ast) && ast.length) {
-    return "" + (await unionChildren(ast, state));
-  } else if ((ast as Node).type === "RouterDirective") {
-    // Special processing for RouterDirective
-    // Should not be passed back as string
-    return await compileNode(ast as Node, state) as PathDefinition[];
+  fileName: string,
+): Promise<CompilerResponse> => {
+  // Stubbed Out Compiler Response
+  const output: CompilerResponse = {
+    cacheHits: 0,
+    cacheMisses: 0,
+    files: new Set(),
+    classes: new Set(),
+    styles: new Set(),
+    scripts: new Set(),
+    head: [],
+    paths: [],
+    source: undefined,
+  };
+
+  // Add File to State
+  let localState: State = {
+    __internals__: {
+      fileName: fileName,
+    },
+  };
+
+  // And Reporting
+  output.files.add(fileName);
+
+  // Callback to report stats and bundled data
+  const cb = (
+    update: UpdateType,
+  ) => {
+    switch (update[0]) {
+      case "CacheHit":
+        output.cacheHits = output.cacheHits + 1;
+        break;
+      case "CacheMiss":
+        output.cacheMisses = output.cacheMisses + 1;
+        break;
+      case "File":
+        if (typeof update[1] === "string") {
+          output.files.add(update[1]);
+        } else {
+          emitError(
+            `Unable to add file entry to compiler output, unsupported type ${
+              bold(red(typeof update[1]))
+            }.`,
+          );
+        }
+        break;
+      case "Classes":
+        if (Array.isArray(update[1])) {
+          for (let i = 0, len = update[1].length; i < len; i++) {
+            output.classes.add(update[1][i] as string);
+          }
+        } else {
+          emitError(
+            `Unable to add classes entry to compiler output, unsupported type ${
+              bold(red(typeof update[1]))
+            }.`,
+          );
+        }
+        break;
+      case "Styles":
+        if (
+          (update[1] as StyleInstance)?.file &&
+          (update[1] as StyleInstance)?.source
+        ) {
+          output.styles.add(update[1] as StyleInstance);
+        } else {
+          emitError(
+            `Unable to add styles entry to compiler output, unsupported type ${
+              bold(red(typeof update[1]))
+            }.`,
+          );
+        }
+        break;
+      case "Scripts":
+        if (
+          (update[1] as ScriptInstance)?.file &&
+          (update[1] as ScriptInstance)?.source
+        ) {
+          output.scripts.add(update[1] as ScriptInstance);
+        } else {
+          emitError(
+            `Unable to add scripts entry to compiler output, unsupported type ${
+              bold(red(typeof update[1]))
+            }.`,
+          );
+        }
+        break;
+      case "Head":
+        if (Array.isArray(update[1])) {
+          for (let i = 0, len = update[1].length; i < len; i++) {
+            output.head.push(update[1][i] as Node);
+          }
+        } else {
+          emitError(
+            `Unable to add head entires to compiler output, unsupported type ${
+              bold(red(typeof update[1]))
+            }.`,
+          );
+        }
+        break;
+      default:
+        emitError(
+          `Unable to add unknown update entry to compiler output, unsupported type ${
+            bold(red(typeof update[1]))
+          } for ${bold(yellow(update[0]))}.`,
+        );
+    }
+  };
+
+  // Compile Contents
+  const compiled = await compileAST(ast, scopeState(state, localState), cb);
+
+  // Finish populating Output
+  if (typeof compiled === "string") {
+    output.source = compiled;
+  } else if (Array.isArray(compiled)) {
+    output.paths = compiled;
   } else {
-    return "" + (await compileNode(ast as Node, state));
+    emitError(
+      `Unable to compile, unsupported response type ${
+        bold(red(typeof compiled))
+      }.`,
+    );
   }
+
+  return output;
 };

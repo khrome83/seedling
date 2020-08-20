@@ -7,6 +7,8 @@ export type Type =
   | "Comment"
   | "Doctype"
   | "Tag"
+  | "ScriptTag"
+  | "StyleTag"
   | "Attribute"
   | "AttributeExpression"
   | "AttributeSpread"
@@ -18,6 +20,7 @@ export type Type =
   | "LayoutDirective"
   | "RouterDirective"
   | "PathDirective"
+  | "HeadDirective"
   | "DynamicPathSegment"
   | "StaticPathSegment"
   | "OptionalPathSegment"
@@ -95,6 +98,16 @@ export interface BaseTag extends BaseAST {
 export interface Tag extends BaseTag {
   type: "Tag";
   slot: Literal | undefined;
+  classes: string[];
+}
+
+export interface ScriptTag extends BaseTag {
+  type: "ScriptTag";
+  lang: Literal | undefined;
+}
+
+export interface StyleTag extends BaseTag {
+  type: "StyleTag";
 }
 
 // Directives
@@ -108,6 +121,7 @@ export interface ElementDirective extends BaseTag {
   type: "ElementDirective";
   expression: Identifier | Literal | MemberExpression;
   slot: Literal | undefined;
+  classes: string[];
 }
 
 export interface LayoutDirective extends BaseTag {
@@ -117,6 +131,10 @@ export interface LayoutDirective extends BaseTag {
 
 export interface RouterDirective extends BaseTag {
   type: "RouterDirective";
+}
+
+export interface HeadDirective extends BaseTag {
+  type: "HeadDirective";
 }
 
 export interface StaticPathSegment extends BaseAST {
@@ -309,6 +327,8 @@ export interface Literal extends BaseAST {
 export type AST =
   | Text
   | Tag
+  | ScriptTag
+  | StyleTag
   | Comment
   | Doctype
   | ComponentDirective
@@ -318,6 +338,7 @@ export type AST =
   | PathDirective
   | DataDirective
   | SlotDirective
+  | HeadDirective
   | IfBlock
   | ElseIfBlock
   | SkipBlock
@@ -354,7 +375,10 @@ export type DynamicTag =
   | PathDirective
   | RouterDirective
   | SlotDirective
-  | Tag;
+  | HeadDirective
+  | Tag
+  | ScriptTag
+  | StyleTag;
 
 export interface RootAST {
   html: AST[];
@@ -381,6 +405,42 @@ export interface PathDefinition {
 
 export type PathPart = [string, object];
 
+// Instance of a Style
+export interface StyleInstance {
+  file: string;
+  source: string;
+}
+
+// Instance of a Script
+export interface ScriptInstance {
+  file: string;
+  source: string;
+  lang: "js" | "ts";
+}
+
+// Returned from Compiler
+export interface CompilerResponse {
+  cacheHits: number;
+  cacheMisses: number;
+  files: Set<string>;
+  classes: Set<string>;
+  scripts: Set<ScriptInstance>;
+  styles: Set<StyleInstance>;
+  head: Array<Node>;
+  paths: Array<PathDefinition>;
+  source: string | undefined;
+}
+
+// Types of Callback Updates
+export type UpdateType =
+  | ["CacheHit"]
+  | ["CacheMiss"]
+  | ["File", string]
+  | ["Classes", Array<string>]
+  | ["Styles", StyleInstance]
+  | ["Scripts", ScriptInstance]
+  | ["Head", Array<Node>];
+
 /**
  * Resolvers
  */
@@ -391,6 +451,7 @@ export interface ComponentResponse {
   meta: {
     cacheKey: CacheIdentifier;
     cacheHit: boolean;
+    file: string;
   };
 }
 
@@ -400,6 +461,7 @@ export interface LayoutResponse {
   meta: {
     cacheKey: CacheIdentifier;
     cacheHit: boolean;
+    file: string;
   };
 }
 
@@ -453,11 +515,12 @@ export interface DataResponse {
   meta: {
     cacheKey: CacheKey;
     cacheHit: boolean;
+    file: string;
   };
 }
 
 /**
- * Standard Libaries - Tagged to 0.61.0 for Deno 1.2.0
+ * Standard Libaries - Tagged to 0.65.0 for Deno 1.3.0
  */
 
 // Benchmarks

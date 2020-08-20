@@ -51,6 +51,9 @@ import {
   OptionalPathSegment,
   PaginationPathSegment,
   RangePathSegment,
+  ScriptTag,
+  StyleTag,
+  HeadDirective,
 } from "../types.ts";
 
 // Parser
@@ -1066,7 +1069,7 @@ export class Parser {
       const [full, name, eq, value, ...rest] = parts;
 
       if (
-        !alpineAttributes.has(name) &&
+        !this.isAlpineAttribute(name) &&
         full.indexOf("{") > -1 &&
         full.indexOf("}") > -1
       ) {
@@ -1109,7 +1112,7 @@ export class Parser {
 
           if (value === undefined && expression.type === "Identifier") {
             // Name is Implicit
-            const expressionStatement = this.getExpressionAttribute(
+            const expressionStatement = this.getAttributeExpression(
               name,
               expression,
               this.pos + full.indexOf("{"),
@@ -1120,7 +1123,7 @@ export class Parser {
             );
           } else {
             // Name is Specified
-            const expressionStatement = this.getExpressionAttribute(
+            const expressionStatement = this.getAttributeExpression(
               value,
               expression,
               this.pos + full.indexOf("{"),
@@ -1210,11 +1213,20 @@ export class Parser {
           return this.getRouterDirective.bind(this);
         case ":slot":
           return this.getSlotDirective.bind(this);
+        case ":head":
+          return this.getHeadDirective.bind(this);
         default:
           throw this.throwError(`Unknown Directive ${cyan(bold(tagName))}`);
       }
     } else if (htmlElements.has(tagName)) {
-      return this.getTag.bind(this);
+      switch (tagName) {
+        case "style":
+          return this.getStyleTag.bind(this);
+        case "script":
+          return this.getScriptTag.bind(this);
+        default:
+          return this.getTag.bind(this);
+      }
     }
 
     return this.getComponentDirective.bind(this);
@@ -1291,6 +1303,71 @@ export class Parser {
       attributes,
       children,
       slot: slot as Literal | undefined,
+      classes: this.getClasses(attributes),
+      start,
+      end,
+    };
+  }
+
+  // Tag AST Object
+  private getScriptTag(
+    data: string,
+    start: number,
+    end: number,
+    attributes: Array<Attribute | AttributeSpread> = [],
+    children: Array<AST> = [],
+  ): ScriptTag {
+    let lang;
+    const foundLang = attributes.find(
+      (element) =>
+        element?.type === "Attribute" && element?.name?.data === "lang",
+    ) as Attribute;
+
+    if (foundLang) {
+      if (foundLang?.value?.type === "AttributeExpression") {
+        lang = foundLang.value.expression;
+      } else {
+        lang = this.parseExpressions(
+          `"${foundLang?.value?.data}"`,
+          foundLang.value.start,
+        );
+      }
+
+      // Remove unneeded attributes
+      attributes = this.removeAttribute(attributes, "lang");
+    }
+
+    if (lang !== undefined && lang.type !== "Literal") {
+      // Throw if we have a invalid type used for a use statement
+      throw this.throwError(
+        `Invalid Lang Argument ${cyan(bold(foundLang.value.data))} For Tag.`,
+      );
+    }
+
+    return {
+      type: "ScriptTag",
+      data,
+      attributes,
+      children,
+      lang: lang as Literal | undefined,
+      start,
+      end,
+    };
+  }
+
+  // Tag AST Object
+  private getStyleTag(
+    data: string,
+    start: number,
+    end: number,
+    attributes: Array<Attribute | AttributeSpread> = [],
+    children: Array<AST> = [],
+  ): StyleTag {
+    return {
+      type: "StyleTag",
+      data,
+      attributes,
+      children,
       start,
       end,
     };
@@ -1464,6 +1541,7 @@ export class Parser {
       children,
       expression: expression as Identifier | Literal | MemberExpression,
       slot: slot as Literal | undefined,
+      classes: this.getClasses(attributes),
       start,
       end,
     };
@@ -1910,6 +1988,38 @@ export class Parser {
     };
   }
 
+  // Slot Directive AST Object
+  private getHeadDirective(
+    data: string,
+    start: number,
+    end: number,
+    attributes: Array<Attribute | AttributeSpread> = [],
+    children: Array<AST> = [],
+  ): HeadDirective {
+    // Should not contain attributes
+    if (attributes.length) {
+      throw this.throwError(
+        `No attributes are allowed for Head Directive`,
+      );
+    }
+
+    // Should contain children
+    if (!children.length) {
+      throw this.throwError(
+        `Head Directive is missing children. Need to specify what to apply to <head> tag.`,
+      );
+    }
+
+    return {
+      type: "HeadDirective",
+      data,
+      attributes,
+      children,
+      start,
+      end,
+    };
+  }
+
   // If Block AST Object
   private getIfBlock(
     data: string,
@@ -2073,7 +2183,7 @@ export class Parser {
   }
 
   // ExpressionAttribute AST Object
-  private getExpressionAttribute(
+  private getAttributeExpression(
     data: string,
     expression: ExpressionStatement,
     start: number,
@@ -2174,6 +2284,77 @@ export class Parser {
       start,
       end,
     };
+  }
+
+  private getClasses(attributes: Array<Attribute | AttributeSpread>): string[] {
+    let classes: string[] = [];
+
+    for (let i = 0, iLen = attributes.length; i < iLen; i++) {
+      // Can only handle Attributes with AttributeValues right now
+      // AttributeSpread && AttributeExpressionsneeds to be done by the compiler
+      // since it relies on real time data
+      if (
+        attributes[i].type === "Attribute" &&
+        (attributes[i] as Attribute).value.type === "AttributeValue"
+      ) {
+        const name = (attributes[i] as Attribute).name.data;
+        if (name === "class") {
+          // Handle Standard class="foo bar etc"
+          const parts = (attributes[i] as Attribute).value.data.split(" ");
+          classes = this.mergeArrays(classes, parts);
+        } else if (name === ":class" || name === "x-bind:class") {
+          // Handle Alpine x-bind:class && :class syntax - :class="{'foo': true, 'bar': false}"
+          const regex = /(?:'([\w:-]+)'|"([\w:-]+)"|`([\w:-]+)`)\s?:/g;
+          const matches =
+            [...(attributes[i] as Attribute).value.data.matchAll(regex)] || [];
+          for (let n = 0, nLen = matches.length; n < nLen; n++) {
+            const [full, ...parts] = matches[n];
+            classes = this.mergeArrays(classes, parts);
+          }
+        } else if (name.indexOf("class:") !== -1) {
+          // Handle Seedling class:<foo> syntax
+          classes.push(name.substring(6));
+        }
+      }
+    }
+
+    return classes;
+  }
+
+  private isAlpineAttribute(name: string): boolean {
+    if (
+      alpineAttributes.has(name) || name.indexOf(":") === 0 ||
+      name.indexOf("@") === 0 || name.indexOf("x-") === 0
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private mergeArrays(original: string[], added: string[]): Array<string> {
+    const originalLen = original.length;
+    const addedLen = added.length;
+    const addedModified = [];
+
+    // Filter undefines and empty strings out
+    for (let i = 0; i < addedLen; i++) {
+      if (added[i] === undefined || added[i].length === 0) {
+        continue;
+      }
+      addedModified.push(added[i]);
+    }
+
+    // Pre allocate size
+    const addedModifiedLen = addedModified.length;
+    original.length = originalLen + addedModifiedLen;
+
+    // Append Classes
+    for (let i = 0; i < addedModifiedLen; i++) {
+      original[originalLen + i] = addedModified[i];
+    }
+
+    return original;
   }
 
   // Remove Attribute from Attributes Array

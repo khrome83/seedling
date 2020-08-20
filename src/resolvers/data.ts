@@ -124,7 +124,7 @@ export const resolveData = async (
       return Promise.resolve({
         ...result,
         retries,
-        meta: { cacheHit: false, cacheKey },
+        meta: { cacheHit: false, cacheKey, file: importPath },
       }) as Promise<DataResponse>;
     } catch (e) {
       return Promise.reject(e);
@@ -133,7 +133,7 @@ export const resolveData = async (
     return Promise.resolve({
       ...cache.get(cacheKey as CacheKey),
       retries: 0,
-      meta: { cacheHit: true, cacheKey },
+      meta: { cacheHit: true, cacheKey, file: importPath },
     }) as Promise<DataResponse>;
   }
 };
