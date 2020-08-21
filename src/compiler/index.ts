@@ -258,11 +258,11 @@ const attributeValue = (
 nodeTypes.set("AttributeValue", attributeValue);
 
 // AttributeExpression AST Node
-// deno-lint-ignore no-explicit-any
 const attributeExpression = (
   node: AttributeExpression,
   state: State,
   cb: Function,
+  // deno-lint-ignore no-explicit-any
 ): any => {
   return compileNode(node.expression, state, cb);
 };
@@ -1517,11 +1517,11 @@ const unionAttributes = async (
 };
 
 // Hands off to the correct compile function
-// deno-lint-ignore no-explicit-any
 const compileNode = async (
   node: Node,
   state: State,
   cb: Function,
+  // deno-lint-ignore no-explicit-any
 ): Promise<any> => {
   if (nodeTypes.has(node.type)) {
     return await nodeTypes.get(node.type)(node, state, cb);
