@@ -83,7 +83,7 @@ const displayRequest = (
   }
 
   console.log(
-    `${reqStatus(`[${code}]`)}   ${status ? bars : "          "}    ${
+    `${reqStatus(`[${code}]`)}    ${status ? bars : "          "}    ${
       route.padEnd(60, " ")
     }     ${
       size ? `${fileSize(size.toFixed(2).padStart(8, " "))} kb` : "           "
