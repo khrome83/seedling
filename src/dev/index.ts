@@ -1,14 +1,12 @@
 import { join, pogo, RequestPogo, ToolkitPogo } from "../../deps.ts";
-import { Node, PathDefinition, CacheKey } from "../types.ts";
+import { Node, PathDefinition, CacheKey, CompilerResponse } from "../types.ts";
 import {
   expandGlob,
   red,
   yellow,
   green,
-  bgGreen,
-  bgYellow,
-  black,
   cyan,
+  gray,
   WebSocket,
   WebSocketServer,
 } from "../../deps.ts";
@@ -19,8 +17,8 @@ import { purgeFile, cache } from "../cache/index.ts";
 import mimeTypes from "../dict/mimeTypes.ts";
 import { useESBuild } from "../utils/esBuild.ts";
 import { getCacheKey } from "../cache/index.ts";
+import { bgRed } from "https://deno.land/std@0.65.0/fmt/colors.ts";
 
-// Managing Routes
 const routes = new Map();
 const fileToRoutes = new Map();
 
@@ -30,24 +28,64 @@ const jsFiles = new Map();
 const displayRequest = (
   code: number,
   route: string,
-  cache: boolean,
   time: number,
   size?: number,
+  status?: Partial<CompilerResponse>,
 ) => {
-  let status = green;
+  let reqStatus = green;
   let timing = cyan;
   let fileSize = cyan;
-  if (code >= 500) status = red;
-  if (code === 404) status = yellow;
+  let cacheStatus = green;
+  if (code >= 500) reqStatus = red;
+  if (code === 404) reqStatus = yellow;
   if (time > 250) timing = yellow;
   if (time > 750) timing = red;
   if (size && size > 150.00) fileSize = yellow;
   if (size && size > 1024.00) fileSize = red;
+  if (!cache) cacheStatus = red;
+  let bars;
+
+  if (status) {
+    let sum = (status.cacheHits as number) + (status.cacheMisses as number);
+    const hits = status.cacheHits || 0;
+
+    if (hits / sum <= 0.33) {
+      cacheStatus = red;
+    }
+
+    if (hits / sum <= 0.66) {
+      cacheStatus = yellow;
+    }
+
+    if (hits / sum === 0) {
+      bars = `${gray(`❚❚❚❚❚❚❚❚❚❚`)}`;
+    } else if (hits / sum <= 0.1) {
+      bars = `${cacheStatus(`❚`)}${gray(`❚❚❚❚❚❚❚❚❚`)}`;
+    } else if (hits / sum <= 0.2) {
+      bars = `${cacheStatus(`❚❚`)}${gray(`❚❚❚❚❚❚❚❚`)}`;
+    } else if (hits / sum <= 0.3) {
+      bars = `${cacheStatus(`❚❚❚`)}${gray(`❚❚❚❚❚❚❚`)}`;
+    } else if (hits / sum <= 0.4) {
+      bars = `${cacheStatus(`❚❚❚❚`)}${gray(`❚❚❚❚❚❚`)}`;
+    } else if (hits / sum <= 0.5) {
+      bars = `${cacheStatus(`❚❚❚❚❚`)}${gray(`❚❚❚❚❚`)}`;
+    } else if (hits / sum <= 0.6) {
+      bars = `${cacheStatus(`❚❚❚❚❚❚`)}${gray(`❚❚❚❚`)}`;
+    } else if (hits / sum <= 0.7) {
+      bars = `${cacheStatus(`❚❚❚❚❚❚❚`)}${gray(`❚❚❚`)}`;
+    } else if (hits / sum <= 0.8) {
+      bars = `${cacheStatus(`❚❚❚❚❚❚❚❚`)}${gray(`❚❚`)}`;
+    } else if (hits / sum <= 0.9) {
+      bars = `${cacheStatus(`❚❚❚❚❚❚❚❚❚`)}${gray(`❚`)}`;
+    } else if (hits / sum <= 1) {
+      bars = `${cacheStatus(`❚❚❚❚❚❚❚❚❚❚`)}`;
+    }
+  }
 
   console.log(
-    `${status(`[${code}]`)}   ${
-      cache ? `${bgGreen(black(" HIT "))} ` : bgYellow(black(" MISS "))
-    }    ${route.padEnd(60, " ")}     ${
+    `${reqStatus(`[${code}]`)}    ${status ? bars : "          "}    ${
+      route.padEnd(60, " ")
+    }     ${
       size ? `${fileSize(size.toFixed(2).padStart(8, " "))} kb` : "           "
     }     ${timing(time.toFixed(2).padStart(8, " "))} ms`,
   );
@@ -65,10 +103,8 @@ const buildRoute = async (path: string) => {
     // Parse Routes
     const p = new Parser(contents);
     const output = p.parse();
-    const routeList = await compile(
-      output.router as Node,
-      {},
-    ) as PathDefinition[];
+    const compilerResponse = await compile(output.router as Node, {}, path);
+    const routeList = compilerResponse.paths;
     // Populate Route
     for (let i = 0, len = routeList.length; i < len; i++) {
       routes.set(routeList[i].path, { ...routeList[i], file: path });
@@ -400,6 +436,47 @@ const getFileMimeType = (file: string): string => {
   return "text/plain";
 };
 
+const mergeStatus = (
+  outgoing: Partial<CompilerResponse>,
+  incoming: CompilerResponse,
+): Partial<CompilerResponse> => {
+  // Cache
+  outgoing.cacheHits = (outgoing.cacheHits as number) + incoming.cacheHits;
+  outgoing.cacheMisses = (outgoing.cacheMisses as number) +
+    incoming.cacheMisses;
+
+  // Files
+  const filesIterator = incoming.files[Symbol.iterator]();
+  for (const file of filesIterator) {
+    outgoing.files?.add(file);
+  }
+
+  // Classes
+  const classesIterator = incoming.classes[Symbol.iterator]();
+  for (const className of classesIterator) {
+    outgoing.classes?.add(className);
+  }
+
+  // Scripts
+  const scriptsIterator = incoming.scripts[Symbol.iterator]();
+  for (const script of scriptsIterator) {
+    outgoing.scripts?.add(script);
+  }
+
+  // Styles
+  const stylesIterator = incoming.styles[Symbol.iterator]();
+  for (const style of stylesIterator) {
+    outgoing.styles?.add(style);
+  }
+
+  // Head
+  for (let i = 0, len = incoming.head.length; i < len; i++) {
+    outgoing.head?.push(incoming.head[i]);
+  }
+
+  return outgoing;
+};
+
 export default async (port: number, ws: number) => {
   const serverStart = performance.now();
   await buildRoutes();
@@ -411,6 +488,15 @@ export default async (port: number, ws: number) => {
   const handler = async (request: RequestPogo, h: ToolkitPogo) => {
     const start = performance.now();
     const path = normalizeRoute(request.path);
+    let status: Partial<CompilerResponse> = {
+      cacheHits: 0,
+      cacheMisses: 0,
+      files: new Set(),
+      classes: new Set(),
+      scripts: new Set(),
+      styles: new Set(),
+      head: [],
+    };
 
     if (routes.has(path)) {
       try {
@@ -420,19 +506,32 @@ export default async (port: number, ws: number) => {
         const cacheKey = getCacheKey(routeData.file, "page", routeData);
         let rootAst;
         if (!cache.has(cacheKey as CacheKey)) {
+          // Report
+          status.cacheMisses = (status.cacheMisses as number) + 1;
+
           const contents = await Deno.readTextFile(routeData.file);
           const p = new Parser(contents);
           rootAst = p.parse();
           cache.set(cacheKey as CacheKey, rootAst);
         } else {
+          // Report
+          status.cacheHits = (status.cacheHits as number) + 1;
+
           rootAst = cache.get(cacheKey as CacheKey);
         }
 
         // Prepend Data to AST, pass state careover from Route Procesisng if Any
-        let output = await compile(
+        const compilerOutput = await compile(
           [...routeData.data, ...rootAst.html] as Array<Node>,
           routeData.state,
+          routeData.file,
         );
+
+        // Update Status
+        status = mergeStatus(status, compilerOutput);
+
+        // Update Output
+        let output = compilerOutput.source;
 
         // Need to pass contents into layout if exists
         if (rootAst.layout.length) {
@@ -453,17 +552,31 @@ export default async (port: number, ws: number) => {
             const scoped = { ...routeData.state, ...innerContents };
 
             // Process Last Layout
-            output = await compile(
+            const layoutOutput = await compile(
               [...routeData.data, rootAst.layout[i]] as Array<Node>,
               scoped,
+              routeData.file,
             );
+
+            // Update Status
+            status = mergeStatus(status, layoutOutput);
+
+            // Update Output
+            output = layoutOutput.source;
           }
         }
 
-        displayRequest(200, path, true, delta(start), size(output as string));
+        displayRequest(
+          200,
+          path,
+          delta(start),
+          size(output as string),
+          status,
+        );
         return h.response(output).code(200);
       } catch (e) {
-        displayRequest(500, path, false, delta(start));
+        console.log("SOMETHING WENT WRONG - ", e.toString());
+        displayRequest(500, path, delta(start));
         return h.response(e).code(500);
       }
     } else if (jsFiles.has(path)) {
@@ -476,10 +589,10 @@ export default async (port: number, ws: number) => {
           jsFiles.set(path, output);
         }
 
-        displayRequest(200, path, true, delta(start), size(output));
+        displayRequest(200, path, delta(start), size(output));
         return h.response(output).code(200).type("text/javascript");
       } catch (e) {
-        displayRequest(500, path, false, delta(start));
+        displayRequest(500, path, delta(start));
         return h.response(e).code(500);
       }
     } else {
@@ -495,11 +608,11 @@ export default async (port: number, ws: number) => {
         const stream = await Deno.open(file);
 
         // Return File
-        displayRequest(200, path, true, delta(start), fileData.size / 1024);
+        displayRequest(200, path, delta(start), fileData.size / 1024);
         return h.response(stream).code(200).type(type);
       } catch (e) {
         // Not Found, do 404
-        displayRequest(404, path, false, delta(start));
+        displayRequest(404, path, delta(start));
         return h.response("the void").code(404);
       }
     }

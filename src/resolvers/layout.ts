@@ -102,7 +102,11 @@ export const resolveLayout = async (name: string): Promise<LayoutResponse> => {
       cache.set(cacheKey as CacheKey, result);
       return Promise.resolve({
         ast: result,
-        meta: { cacheHit: false, cacheKey },
+        meta: {
+          cacheHit: false,
+          cacheKey,
+          file: (localPath) ? localPath : importPath,
+        },
       }) as Promise<LayoutResponse>;
     } catch (e) {
       return Promise.reject(e);
@@ -110,7 +114,11 @@ export const resolveLayout = async (name: string): Promise<LayoutResponse> => {
   } else {
     return Promise.resolve({
       ast: cache.get(cacheKey as CacheKey),
-      meta: { cacheHit: true, cacheKey },
+      meta: {
+        cacheHit: true,
+        cacheKey,
+        file: (localPath) ? localPath : importPath,
+      },
     }) as Promise<LayoutResponse>;
   }
 };

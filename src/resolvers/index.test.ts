@@ -57,6 +57,8 @@ Deno.test("Data Resolver - GraphCMS", async () => {
     meta: { cacheHit: false, cacheKey: "78c11c24-062e-5fff-b00b-5ae5fdddfa5e" },
   };
 
+  // Remove File since its dynamic and makes test flaky
+  delete output.meta.file;
   assertEquals(output, expected);
 });
 
@@ -113,6 +115,8 @@ Deno.test("Data Resolver with Key - GraphCMS", async () => {
     meta: { cacheHit: true, cacheKey: "78c11c24-062e-5fff-b00b-5ae5fdddfa5e" },
   };
 
+  // Remove File since its dynamic and makes test flaky
+  delete output.meta.file;
   assertEquals(output, expected);
 });
 
@@ -152,6 +156,7 @@ Deno.test("Component Resolver - Sample (local)", async () => {
                   data: "li",
                   attributes: [],
                   children: [{ type: "Text", data: "Foo", start: 37, end: 40 }],
+                  classes: [],
                   slot: undefined,
                   start: 33,
                   end: 45,
@@ -162,6 +167,7 @@ Deno.test("Component Resolver - Sample (local)", async () => {
                   data: "li",
                   attributes: [],
                   children: [{ type: "Text", data: "Bar", start: 54, end: 57 }],
+                  classes: [],
                   slot: undefined,
                   start: 50,
                   end: 62,
@@ -172,18 +178,21 @@ Deno.test("Component Resolver - Sample (local)", async () => {
                   data: "li",
                   attributes: [],
                   children: [{ type: "Text", data: "Baz", start: 71, end: 74 }],
+                  classes: [],
                   slot: undefined,
                   start: 67,
                   end: 79,
                 },
                 { type: "Text", data: "\n  ", start: 79, end: 82 },
               ],
+              classes: [],
               slot: undefined,
               start: 24,
               end: 87,
             },
             { type: "Text", data: "\n", start: 87, end: 88 },
           ],
+          classes: ["foo", "bar"],
           slot: undefined,
           start: 0,
           end: 94,
@@ -195,6 +204,8 @@ Deno.test("Component Resolver - Sample (local)", async () => {
     meta: { cacheHit: false, cacheKey: "300bb306-697d-5d85-80ff-b28ec2feb524" },
   };
 
+  // Remove File since its dynamic and makes test flaky
+  delete output.meta.file;
   assertEquals(output, expected);
 });
 
@@ -330,6 +341,7 @@ Deno.test("Layout Resolver - Default (local)", async () => {
             },
             { type: "Text", data: "\n", start: 23, end: 24 },
           ],
+          classes: [],
           slot: undefined,
           start: 0,
           end: 30,
@@ -340,6 +352,9 @@ Deno.test("Layout Resolver - Default (local)", async () => {
     },
     meta: { cacheHit: false, cacheKey: "d0d1aade-a374-590f-8b22-4a8bb02e45be" },
   };
+
+  // Remove File since its dynamic and makes test flaky
+  delete output.meta.file;
 
   assertEquals(output, expected);
 });

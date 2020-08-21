@@ -1,36 +1,71 @@
 import { assertEquals, denock } from "../../deps.ts";
-import { Node } from "../types.ts";
+import { Node, State } from "../types.ts";
 import "https://deno.land/x/dotenv@v0.5.0/load.ts";
 import compile from "./index.ts";
+
+const filterOutFilename = (nodes: Array<State> | State) => {
+  if (Array.isArray(nodes)) {
+    for (const node of nodes) {
+      if (Array.isArray(node) || node !== null && typeof node === "object") {
+        filterOutFilename(node);
+      }
+    }
+  } else if (nodes !== null && typeof nodes === "object") {
+    for (const node in nodes) {
+      if ((node as unknown) === "fileName") {
+        delete nodes[node];
+      }
+
+      if (
+        Array.isArray(nodes[node]) ||
+        nodes[node] !== null && typeof nodes[node] === "object"
+      ) {
+        filterOutFilename(nodes[node]);
+      }
+    }
+  }
+};
 
 Deno.test("Doctype", async () => {
   const ast = { type: "Doctype", data: "<!DOCTYPE html>", start: 0, end: 15 };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "<!DOCTYPE html>";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Comment", async () => {
   const ast = { type: "Comment", data: " Testing ", start: 0, end: 16 };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "<!-- Testing -->";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Text", async () => {
   const ast = { type: "Text", data: "This is ", start: 0, end: 8 };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "This is ";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Self Closing Tag", async () => {
@@ -39,15 +74,20 @@ Deno.test("Self Closing Tag", async () => {
     data: "br",
     attributes: [],
     children: [],
+    classes: [],
     start: 0,
     end: 5,
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "<br>";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Tag With No Children", async () => {
@@ -56,15 +96,20 @@ Deno.test("Tag With No Children", async () => {
     data: "ul",
     attributes: [],
     children: [],
+    classes: [],
     start: 0,
     end: 9,
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "<ul></ul>";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Tag With Children", async () => {
@@ -85,6 +130,7 @@ Deno.test("Tag With Children", async () => {
             end: 11,
           },
         ],
+        classes: [],
         start: 4,
         end: 16,
       },
@@ -100,19 +146,25 @@ Deno.test("Tag With Children", async () => {
             end: 23,
           },
         ],
+        classes: [],
         start: 16,
         end: 28,
       },
     ],
+    classes: [],
     start: 0,
     end: 33,
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "<ul><li>FOO</li><li>BAR</li></ul>";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Void Elements", async () => {
@@ -135,15 +187,20 @@ Deno.test("Void Elements", async () => {
       },
     ],
     children: [],
+    classes: [],
     start: 0,
     end: 22,
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = '<meta charset="UTF-8">';
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Attribute", async () => {
@@ -179,15 +236,20 @@ Deno.test("Attribute", async () => {
       },
     ],
     children: [],
+    classes: [],
     start: 0,
     end: 27,
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = '<br class="foo" disabled>';
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Attribute Expression", async () => {
@@ -260,6 +322,7 @@ Deno.test("Attribute Expression", async () => {
       },
     ],
     children: [],
+    classes: [],
     start: 0,
     end: 60,
   };
@@ -268,10 +331,14 @@ Deno.test("Attribute Expression", async () => {
     longitude: -97.73333,
   };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = '<div lat="30.266666" lng="-97.73333" distance="10"></div>';
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Attribute Spread", async () => {
@@ -301,6 +368,7 @@ Deno.test("Attribute Spread", async () => {
       },
     ],
     children: [],
+    classes: [],
     start: 0,
     end: 28,
   };
@@ -312,11 +380,15 @@ Deno.test("Attribute Spread", async () => {
     },
   };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected =
     '<div lat="30.266666" lng="-97.73333" distance="10" class="foo"></div>';
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Attribute Spread with Nested Object", async () => {
@@ -333,6 +405,7 @@ Deno.test("Attribute Spread with Nested Object", async () => {
       },
     ],
     children: [],
+    classes: [],
     start: 0,
     end: 25,
   };
@@ -347,11 +420,15 @@ Deno.test("Attribute Spread with Nested Object", async () => {
     },
   };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected =
     '<div lat="30.266666" lng="-97.73333" distance="10" nested="[object Object]"></div>';
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Attribute Overrides (ordering)", async () => {
@@ -406,6 +483,7 @@ Deno.test("Attribute Overrides (ordering)", async () => {
       },
     ],
     children: [],
+    classes: [],
     start: 0,
     end: 25,
   };
@@ -419,15 +497,19 @@ Deno.test("Attribute Overrides (ordering)", async () => {
     },
   };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = '<div lat="30.266666" lng="-97.73333" distance="10"></div>';
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
-Deno.test("Script Tag", async () => {
+Deno.test("Script Tag without Lang", async () => {
   const ast = {
-    type: "Tag",
+    type: "ScriptTag",
     data: "script",
     attributes: [],
     children: [
@@ -438,20 +520,72 @@ Deno.test("Script Tag", async () => {
         end: 35,
       },
     ],
+    lang: undefined,
     start: 0,
     end: 44,
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
-  const expected = "<script>console.log('hello world');</script>";
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
+  const expected = new Set(
+    [{
+      file: "/src/compiler/expressions.test.ts",
+      lang: "js",
+      source: "console.log('hello world');",
+    }],
+  );
 
-  assertEquals(output, expected);
+  assertEquals(output.scripts, expected);
+});
+
+Deno.test("Script Tag with Lang", async () => {
+  const ast = {
+    type: "ScriptTag",
+    data: "script",
+    attributes: [],
+    children: [
+      {
+        type: "Text",
+        data: "console.log('hello world');",
+        start: 18,
+        end: 45,
+      },
+    ],
+    lang: {
+      type: "Literal",
+      data: '"ts"',
+      value: "ts",
+      start: 14,
+      end: 18,
+    },
+    start: 0,
+    end: 54,
+  };
+  const data = {};
+
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
+  const expected = new Set(
+    [{
+      file: "/src/compiler/expressions.test.ts",
+      lang: "ts",
+      source: "console.log('hello world');",
+    }],
+  );
+
+  assertEquals(output.scripts, expected);
 });
 
 Deno.test("Style Tag", async () => {
   const ast = {
-    type: "Tag",
+    type: "StyleTag",
     data: "style",
     attributes: [],
     children: [
@@ -468,11 +602,23 @@ Deno.test("Style Tag", async () => {
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
-  const expected =
-    "<style>.border { border: 1px solid transparent; } .border-blue-100 { border-color: #3434; }</style>";
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
+  const expected = new Set(
+    [{
+      file: "/src/compiler/expressions.test.ts",
+      source:
+        ".border { border: 1px solid transparent; } .border-blue-100 { border-color: #3434; }",
+    }],
+  );
 
-  assertEquals(output, expected);
+  assertEquals(
+    output.styles,
+    expected,
+  );
 });
 
 Deno.test("Textarea Tag", async () => {
@@ -519,19 +665,103 @@ Deno.test("Textarea Tag", async () => {
         end: 216,
       },
     ],
+    classes: ["border", "border-blue-100"],
     start: 0,
     end: 227,
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = `<textarea class="border border-blue-100" rows="5" cols="33">
         It was a dark and stormy night...
         and lighting was striking all around.
         Thunder clapped the sky so hard it made my ears ring.
      </textarea>`;
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
+});
+
+Deno.test("Head Directive", async () => {
+  const ast = {
+    type: "HeadDirective",
+    data: ":head",
+    attributes: [],
+    children: [
+      {
+        type: "Tag",
+        data: "meta",
+        attributes: [
+          {
+            type: "Attribute",
+            data: ' charset="UTF-8"',
+            start: 12,
+            end: 28,
+            name: {
+              type: "AttributeName",
+              data: "charset",
+              start: 13,
+              end: 20,
+            },
+            value: {
+              type: "AttributeValue",
+              data: "UTF-8",
+              start: 22,
+              end: 29,
+            },
+          },
+        ],
+        children: [],
+        classes: [],
+        start: 7,
+        end: 29,
+      },
+    ],
+    start: 0,
+    end: 37,
+  };
+  const data = {};
+
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
+  const expected = [
+    {
+      "type": "Tag",
+      "data": "meta",
+      "attributes": [
+        {
+          "type": "Attribute",
+          "data": ' charset="UTF-8"',
+          "start": 12,
+          "end": 28,
+          "name": {
+            "type": "AttributeName",
+            "data": "charset",
+            "start": 13,
+            "end": 20,
+          },
+          "value": {
+            "type": "AttributeValue",
+            "data": "UTF-8",
+            "start": 22,
+            "end": 29,
+          },
+        },
+      ],
+      "children": [],
+      "classes": [],
+      "start": 7,
+      "end": 29,
+    },
+  ];
+
+  assertEquals(output.head, expected);
 });
 
 Deno.test("Component Directive", async () => {
@@ -566,10 +796,14 @@ Deno.test("Component Directive", async () => {
   };
   const data = {};
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "<h2>Dynamic Heading</h2>";
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("Component Directive with Named Slot", async () => {
@@ -583,6 +817,7 @@ Deno.test("Component Directive with Named Slot", async () => {
         data: "div",
         attributes: [],
         children: [{ type: "Text", data: "Top from Slot", start: 34, end: 52 }],
+        classes: [],
         slot: {
           type: "Literal",
           data: '"top"',
@@ -600,6 +835,7 @@ Deno.test("Component Directive with Named Slot", async () => {
         children: [
           { type: "Text", data: "Bottom from Slot", start: 34, end: 52 },
         ],
+        classes: [],
         slot: {
           type: "Literal",
           data: '"bottom"',
@@ -623,11 +859,15 @@ Deno.test("Component Directive with Named Slot", async () => {
   };
   const data = {};
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected =
     "<div>\n  <div>Top from Slot</div>\n  <div>Middle from Component</div>\n  <div>Bottom from Slot</div>\n</div>";
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("Layout Directive", async () => {
@@ -676,11 +916,15 @@ Deno.test("Layout Directive", async () => {
     },
   };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected =
     '<div level="2">\n  <div>\n  <div>Top from Slot</div>\n  <div>Middle from Component</div>\n  <div>Bottom from Slot</div>\n</div>\n</div>';
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("Element Directive", async () => {
@@ -703,6 +947,7 @@ Deno.test("Element Directive", async () => {
       },
     ],
     children: [{ type: "Text", data: "Dynamic Heading", start: 31, end: 46 }],
+    classes: ["foo"],
     expression: {
       type: "Literal",
       data: '"h2"',
@@ -715,10 +960,14 @@ Deno.test("Element Directive", async () => {
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = '<h2 class="foo">Dynamic Heading</h2>';
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Data Directive", async () => {
@@ -852,6 +1101,7 @@ Deno.test("Data Directive", async () => {
         },
         { type: "Text", data: "'.", start: 33, end: 35 },
       ],
+      classes: [],
       start: 0,
       end: 33,
     },
@@ -874,11 +1124,15 @@ Deno.test("Data Directive", async () => {
   ];
   const data = {};
 
-  const output = await compile(ast as Array<Node>, data);
+  const output = await compile(
+    ast as Array<Node>,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected =
     `\n         Scoped should be undefined.\n         <div>This is MarketingSocialProof for ID 'cka5lzgxk02s701761t7scrb0'.</div>\n         Scoped should be undefined.`;
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Data Directive with Key", async () => {
@@ -997,10 +1251,14 @@ Deno.test("Data Directive with Key", async () => {
   ];
   const data = {};
 
-  const output = await compile(ast as Array<Node>, data);
+  const output = await compile(
+    ast as Array<Node>,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "This is MarketingSocialProof.";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Router Directive", async () => {
@@ -1288,7 +1546,11 @@ Deno.test("Router Directive", async () => {
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = [
     {
       path: "/blog",
@@ -2674,7 +2936,10 @@ Deno.test("Router Directive", async () => {
     },
   ];
 
-  assertEquals(output, expected);
+  // Used to prevent flaky tests since file names can change
+  filterOutFilename(output.paths);
+
+  assertEquals(output.paths, expected);
 });
 
 Deno.test("Identifier", async () => {
@@ -2683,50 +2948,70 @@ Deno.test("Identifier", async () => {
     foobar: "barfoo",
   };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "barfoo";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Identifier with Bad Data", async () => {
   const ast = { type: "Identifier", data: "foobar", start: 26, end: 32 };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "undefined";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Literal (int)", async () => {
   const ast = { type: "Literal", data: "4", value: 4, start: 9, end: 10 };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "4";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Literal (float)", async () => {
   const ast = { type: "Literal", data: "4.5", value: 4.5, start: 9, end: 12 };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "4.5";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Literal (boolean)", async () => {
   const ast = { type: "Literal", data: "true", value: true, start: 9, end: 13 };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "true";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Literal (string)", async () => {
@@ -2739,10 +3024,14 @@ Deno.test("Literal (string)", async () => {
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "work";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Member Expression", async () => {
@@ -2760,10 +3049,14 @@ Deno.test("Member Expression", async () => {
     },
   };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "foobar";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Nested Member Expression", async () => {
@@ -2827,10 +3120,14 @@ Deno.test("Nested Member Expression", async () => {
     },
   };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "success";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Nested Member Expression with Bad Data", async () => {
@@ -2876,10 +3173,14 @@ Deno.test("Nested Member Expression with Bad Data", async () => {
   };
   const data = {};
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "undefined";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Unary Expression", async () => {
@@ -2894,10 +3195,14 @@ Deno.test("Unary Expression", async () => {
   };
   const data = { foo: true };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "false";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Update Expression (prefix)", async () => {
@@ -2912,10 +3217,14 @@ Deno.test("Update Expression (prefix)", async () => {
   };
   const data = { foo: 100 };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "101";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Update Expression (postfix)", async () => {
@@ -2930,10 +3239,14 @@ Deno.test("Update Expression (postfix)", async () => {
   };
   const data = { go: 25 };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "26";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Binary Expression", async () => {
@@ -2954,10 +3267,14 @@ Deno.test("Binary Expression", async () => {
   };
   const data = { foo: "foo" };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "true";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("Logical Expression", async () => {
@@ -2972,10 +3289,14 @@ Deno.test("Logical Expression", async () => {
   };
   const data = { foo: true, bar: false };
 
-  const output = await compile(ast as Node, data);
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "false";
 
-  assertEquals(output, expected);
+  assertEquals(output.source, expected);
 });
 
 Deno.test("If Block (true)", async () => {
@@ -3009,6 +3330,7 @@ Deno.test("If Block (true)", async () => {
         children: [
           { type: "Text", data: "Testing Expression", start: 34, end: 52 },
         ],
+        classes: ["test"],
         start: 16,
         end: 58,
       },
@@ -3025,10 +3347,14 @@ Deno.test("If Block (true)", async () => {
   };
   const data = { expression: true };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = '<div class="test">Testing Expression</div>';
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("If Block (false)", async () => {
@@ -3062,6 +3388,7 @@ Deno.test("If Block (false)", async () => {
         children: [
           { type: "Text", data: "Testing Expression", start: 34, end: 52 },
         ],
+        classes: ["test"],
         start: 16,
         end: 58,
       },
@@ -3078,10 +3405,14 @@ Deno.test("If Block (false)", async () => {
   };
   const data = { expression: false };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "";
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("If Else Block (else)", async () => {
@@ -3116,6 +3447,7 @@ Deno.test("If Else Block (else)", async () => {
         children: [
           { type: "Text", data: "Testing Expression", start: 46, end: 64 },
         ],
+        classes: ["test"],
         start: 28,
         end: 70,
       },
@@ -3162,10 +3494,12 @@ Deno.test("If Else Block (else)", async () => {
               data: "span",
               attributes: [],
               children: [{ type: "Text", data: "!", start: 118, end: 119 }],
+              classes: [],
               start: 112,
               end: 126,
             },
           ],
+          classes: ["what"],
           start: 89,
           end: 130,
         },
@@ -3179,10 +3513,14 @@ Deno.test("If Else Block (else)", async () => {
   };
   const data = { expression: false };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = '<p class="what">Foo Bar<span>!</span></p>';
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("If ElseIf Else Block (ElseIf)", async () => {
@@ -3217,6 +3555,7 @@ Deno.test("If ElseIf Else Block (ElseIf)", async () => {
         children: [
           { type: "Text", data: "Testing Expression", start: 46, end: 64 },
         ],
+        classes: ["test"],
         start: 28,
         end: 70,
       },
@@ -3238,6 +3577,7 @@ Deno.test("If ElseIf Else Block (ElseIf)", async () => {
           data: "br",
           attributes: [],
           children: [],
+          classes: [],
           start: 104,
           end: 108,
         },
@@ -3284,10 +3624,12 @@ Deno.test("If ElseIf Else Block (ElseIf)", async () => {
                 data: "span",
                 attributes: [],
                 children: [{ type: "Text", data: "!", start: 156, end: 157 }],
+                classes: [],
                 start: 150,
                 end: 164,
               },
             ],
+            classes: ["what"],
             start: 127,
             end: 168,
           },
@@ -3304,10 +3646,14 @@ Deno.test("If ElseIf Else Block (ElseIf)", async () => {
   };
   const data = { expression: false, expression2: true };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "<br>";
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("Skip Block (false)", async () => {
@@ -3341,6 +3687,7 @@ Deno.test("Skip Block (false)", async () => {
         children: [
           { type: "Text", data: "Testing Expression", start: 48, end: 66 },
         ],
+        classes: ["test"],
         start: 30,
         end: 72,
       },
@@ -3356,10 +3703,14 @@ Deno.test("Skip Block (false)", async () => {
   };
   const data = { expression: false };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = '<div class="test">Testing Expression</div>';
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("Skip Block (true)", async () => {
@@ -3393,6 +3744,7 @@ Deno.test("Skip Block (true)", async () => {
         children: [
           { type: "Text", data: "Testing Expression", start: 48, end: 66 },
         ],
+        classes: ["test"],
         start: 30,
         end: 72,
       },
@@ -3408,10 +3760,14 @@ Deno.test("Skip Block (true)", async () => {
   };
   const data = { expression: true };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "";
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("WhenBlock / IsBlock (caught in IsBlock)", async () => {
@@ -3456,6 +3812,7 @@ Deno.test("WhenBlock / IsBlock (caught in IsBlock)", async () => {
                 end: 83,
               },
             ],
+            classes: ["test"],
             start: 47,
             end: 89,
           },
@@ -3481,6 +3838,7 @@ Deno.test("WhenBlock / IsBlock (caught in IsBlock)", async () => {
             data: "br",
             attributes: [],
             children: [],
+            classes: [],
             start: 116,
             end: 120,
           },
@@ -3531,10 +3889,12 @@ Deno.test("WhenBlock / IsBlock (caught in IsBlock)", async () => {
                 data: "span",
                 attributes: [],
                 children: [{ type: "Text", data: "!", start: 172, end: 173 }],
+                classes: [],
                 start: 166,
                 end: 180,
               },
             ],
+            classes: ["what"],
             start: 143,
             end: 184,
           },
@@ -3550,10 +3910,14 @@ Deno.test("WhenBlock / IsBlock (caught in IsBlock)", async () => {
   };
   const data = { dessert: "cake" };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = '<div class="test">Testing Expression</div>';
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("WhenBlock / IsBlock (caught in ElseBlock)", async () => {
@@ -3598,6 +3962,7 @@ Deno.test("WhenBlock / IsBlock (caught in ElseBlock)", async () => {
                 end: 83,
               },
             ],
+            classes: ["test"],
             start: 47,
             end: 89,
           },
@@ -3623,6 +3988,7 @@ Deno.test("WhenBlock / IsBlock (caught in ElseBlock)", async () => {
             data: "br",
             attributes: [],
             children: [],
+            classes: [],
             start: 116,
             end: 120,
           },
@@ -3673,10 +4039,12 @@ Deno.test("WhenBlock / IsBlock (caught in ElseBlock)", async () => {
                 data: "span",
                 attributes: [],
                 children: [{ type: "Text", data: "!", start: 172, end: 173 }],
+                classes: [],
                 start: 166,
                 end: 180,
               },
             ],
+            classes: ["what"],
             start: 143,
             end: 184,
           },
@@ -3692,10 +4060,14 @@ Deno.test("WhenBlock / IsBlock (caught in ElseBlock)", async () => {
   };
   const data = { dessert: "steak" };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = '<p class="what">No Cake<span>!</span></p>';
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("Each Loop", async () => {
@@ -3727,6 +4099,7 @@ Deno.test("Each Loop", async () => {
           },
         ],
         children: [{ type: "Identifier", data: "value", start: 30, end: 33 }],
+        classes: ["test"],
         start: 39,
         end: 81,
       },
@@ -3745,11 +4118,15 @@ Deno.test("Each Loop", async () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected =
     '<div class="test">Ice Cream</div><div class="test">Brownie</div><div class="test">Fudge</div><div class="test">Cookie</div><div class="test">Pie</div>';
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("Each Loop with Index", async () => {
@@ -3785,6 +4162,7 @@ Deno.test("Each Loop with Index", async () => {
           { type: "Text", data: " - ", start: 134, end: 143 },
           { type: "Identifier", data: "value", start: 30, end: 33 },
         ],
+        classes: ["test"],
         start: 39,
         end: 81,
       },
@@ -3803,11 +4181,15 @@ Deno.test("Each Loop with Index", async () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected =
     '<div class="test">0 - Ice Cream</div><div class="test">1 - Brownie</div><div class="test">2 - Fudge</div><div class="test">3 - Cookie</div><div class="test">4 - Pie</div>';
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("Each Loop with Else", async () => {
@@ -3839,6 +4221,7 @@ Deno.test("Each Loop with Else", async () => {
           },
         ],
         children: [{ type: "Identifier", data: "value", start: 30, end: 33 }],
+        classes: ["test"],
         start: 39,
         end: 81,
       },
@@ -3862,6 +4245,7 @@ Deno.test("Each Loop with Else", async () => {
           children: [
             { type: "Text", data: "No desserts!", start: 99, end: 108 },
           ],
+          classes: [],
           start: 94,
           end: 114,
         },
@@ -3874,10 +4258,14 @@ Deno.test("Each Loop with Else", async () => {
   };
   const data = { desserts: [] };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected = "<div>No desserts!</div>";
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("Each Loop with Break", async () => {
@@ -3939,6 +4327,7 @@ Deno.test("Each Loop with Break", async () => {
               children: [
                 { type: "Identifier", data: "dessert", start: 30, end: 33 },
               ],
+              classes: ["test"],
               start: 39,
               end: 81,
             },
@@ -3960,11 +4349,15 @@ Deno.test("Each Loop with Break", async () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected =
     '|<div class="test">Ice Cream</div>*|<div class="test">Brownie</div>*|<div class="test">Fudge</div>*|';
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
 
 Deno.test("Each Loop with Continue", async () => {
@@ -4026,6 +4419,7 @@ Deno.test("Each Loop with Continue", async () => {
               children: [
                 { type: "Identifier", data: "dessert", start: 30, end: 33 },
               ],
+              classes: ["test"],
               start: 39,
               end: 81,
             },
@@ -4047,9 +4441,13 @@ Deno.test("Each Loop with Continue", async () => {
   };
   const data = { desserts: ["Ice Cream", "Brownie", "Fudge", "Cookie", "Pie"] };
 
-  const output = await compile(ast as Node, data) as string;
+  const output = await compile(
+    ast as Node,
+    data,
+    "/src/compiler/expressions.test.ts",
+  );
   const expected =
     '|<div class="test">Ice Cream</div>*|<div class="test">Brownie</div>*|<div class="test">Fudge</div>*||<div class="test">Pie</div>*';
 
-  assertEquals(output.trim(), expected);
+  assertEquals((output.source as string).trim(), expected);
 });
