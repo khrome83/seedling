@@ -520,6 +520,33 @@ export interface DataResponse {
 }
 
 /**
+ * Tailwind CSS Types
+ */
+
+export interface ModifySelector {
+  pre: string;
+  post: string;
+}
+
+export interface MediaQueryDefintion {
+  pre: string;
+  post: string;
+  children: Map<string, MediaQueryDefintion | SelectorDefinition>;
+}
+
+export interface SelectorDefinition {
+  pre: string;
+  post: string;
+  children: string;
+}
+
+export interface ModifyProperty {
+  children: string;
+  pre?: string;
+  post?: string;
+}
+
+/**
  * Standard Libaries - Tagged to 0.65.0 for Deno 1.3.0
  */
 
