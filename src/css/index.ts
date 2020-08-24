@@ -436,7 +436,32 @@ export default class TailwindGenerator {
           default:
             return;
         }
-
+      // Appearance
+      case "appearance":
+        return this.getAppearance(level, identifier, token, negative);
+      // Cursor
+      case "cursor":
+        return this.getCursor(level, identifier, token, negative);
+      // Outline
+      case "outline":
+        return this.getOutline(level, identifier, token, negative);
+      // Pointer Events
+      case "pointer":
+        return this.getPointerEvents(level, identifier, token, negative);
+      // Resize
+      case "resize":
+        return this.getResize(level, identifier, token, negative);
+      // User Select
+      case "select":
+        return this.getUserSelect(level, identifier, token, negative);
+      // SVG
+      case "fill":
+      case "stroke":
+        return this.getSVG(level, identifier, token, negative);
+      // Screen Reader
+      case "sr":
+      case "not":
+        return this.getScreenReader(level, identifier, token, negative);
       default:
         return;
     }
@@ -1476,6 +1501,176 @@ export default class TailwindGenerator {
     }
 
     return;
+  }
+
+  private getScreenReader(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    if (token === "only") {
+      return i + "position: absolute;" + nl +
+        i + "width: 1px;" + nl +
+        i + "height: 1px;" + nl +
+        i + "padding: 0;" + nl +
+        i + "margin: -1px;" + nl +
+        i + "overflow: hidden;" + nl +
+        i + "clip: rect(0, 0, 0, 0);" + nl +
+        i + "white-space: nowrap;" + nl +
+        i + "border-width: 0;" + nl;
+    } else if (token === "sr-only") {
+      return i + "position: static;" + nl +
+        i + "width: auto;" + nl +
+        i + "height: auto;" + nl +
+        i + "padding: 0;" + nl +
+        i + "margin: 0;" + nl +
+        i + "overflow: visible;" + nl +
+        i + "clip: auto;" + nl +
+        i + "white-space: normal;" + nl;
+    }
+
+    return;
+  }
+
+  private getSVG(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    if (token === "current") {
+      if (identifier === "fill") {
+        return i + "fill: currentColor;" + nl;
+      } else {
+        return i + "stroke: currentColor;" + nl;
+      }
+    } else {
+      return i + "stroke-width: " + token + ";" + nl;
+    }
+  }
+
+  private getAppearance(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "-webkit-appearance: " + token + ";" + nl +
+      i + "-moz-appearance: " + token + ";" + nl +
+      i + "appearance: " + token + ";" + nl;
+  }
+
+  private getCursor(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "cursor: " + token + ";" + nl;
+  }
+
+  private getOutline(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "outline: 0;" + nl;
+  }
+
+  private getPointerEvents(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    if (token === "events-none") {
+      return i + "pointer-events: none;" + nl;
+    } else if (token === "events-auto") {
+      return i + "pointer-events: auto;" + nl;
+    }
+
+    return;
+  }
+
+  private getResize(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "none":
+        return i + "resize: none;" + nl;
+      case "y":
+        return i + "resize: vertical;" + nl;
+      case "x":
+        return i + "resize: horizontal;" + nl;
+      default:
+        return i + "resize: both;" + nl;
+    }
+  }
+
+  private getUserSelect(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "-webkit-user-select: " + token + ";" + nl +
+      i + "-moz-user-select: " + token + ";" + nl +
+      i + "user-select: " + token + ";" + nl;
   }
 }
 
