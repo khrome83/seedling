@@ -275,10 +275,8 @@ export default class TailwindGenerator {
       // Display
       case "block":
       case "inline":
-      case "flex":
       case "table":
       case "flow":
-      case "grid":
       case "contents":
       case "hidden":
         return this.getDisplay(level, identifier, token, negative);
@@ -331,6 +329,65 @@ export default class TailwindGenerator {
         return this.getZIndex(level, identifier, token, negative);
       case "space":
         return this.getSpaceBetween(level, identifier, token, negative);
+      case "flex":
+        if (token === undefined) {
+          return this.getDisplay(level, identifier, token, negative);
+        }
+        return this.getFlex(level, identifier, token, negative);
+      // Align Items
+      case "items":
+        return this.getAlignItems(level, identifier, token, negative);
+      // Align Content
+      case "content":
+        return this.getAlignContent(level, identifier, token, negative);
+      // Align Self
+      case "self":
+        return this.getAlignSelf(level, identifier, token, negative);
+      // Justify Content
+      case "justify":
+        return this.getJustifyContent(level, identifier, token, negative);
+      // Order
+      case "order":
+        return this.getOrder(level, identifier, token, negative);
+      // Grid
+      case "grid":
+        if (token === undefined) {
+          return this.getDisplay(level, identifier, token, negative);
+        } else {
+          const pos = token.indexOf("-");
+          if (pos !== -1) {
+            const type = token.substring(0, pos);
+            switch (type) {
+              case "cols":
+                return this.getGridTemplateColumns(
+                  level,
+                  identifier,
+                  token,
+                  negative,
+                );
+              case "rows":
+                return this.getGridTemplateRows(
+                  level,
+                  identifier,
+                  token,
+                  negative,
+                );
+              case "flow":
+                return this.getGridAutoFlow(level, identifier, token, negative);
+              default:
+                return;
+            }
+          }
+        }
+      // Grid Column Row Start / End
+      case "col":
+        return this.getGridColumnStartEnd(level, identifier, token, negative);
+      // Grid Row Start / End
+      case "row":
+        return this.getGridRowStartEnd(level, identifier, token, negative);
+      // Gap
+      case "gap":
+        return this.getGap(level, identifier, token, negative);
       // Padding
       case "p":
       case "px":
@@ -997,6 +1054,428 @@ export default class TailwindGenerator {
       post: " > :not(template) ~ :not(template)",
       children,
     };
+  }
+
+  private getFlex(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      // Flex Direction
+      case "row":
+        return i + "flex-direction: row;" + nl;
+      case "row-reverse":
+        return i + "flex-direction: row-reverse;" + nl;
+      case "col":
+        return i + "flex-direction: column;" + nl;
+      case "col-reverse":
+        return i + "flex-direction: column-reverse;" + nl;
+      // Flex Wrap
+      case "wrap":
+        return i + "flex-wrap: wrap;" + nl;
+      case "wrap-reverse":
+        return i + "flex-wrap: wrap-reverse;" + nl;
+      case "no-wrap":
+        return i + "flex-wrap: nowrap;" + nl;
+      // Flex
+      case "1":
+        return i + "flex: 1 1 0%;" + nl;
+      case "auto":
+        return i + "flex: 1 1 auto;" + nl;
+      case "initial":
+        return i + "flex: 0 1 auto;" + nl;
+      case "none":
+        return i + "flex: none;" + nl;
+      // Flex Grow
+      case "grow-0":
+        return i + "flex-grow: 0;" + nl;
+      case "grow":
+        return i + "flex-grow: 1;" + nl;
+      // Flex Shrink
+      case "shrink-0":
+        return i + "flex-shrink: 0;" + nl;
+      case "shrink":
+        return i + "flex-shrink: 1;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getOrder(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "first":
+        return i + "order: -9999;" + nl;
+      case "last":
+        return i + "order: 9999;" + nl;
+      case "none":
+        return i + "order: 0;" + nl;
+      default:
+        return i + "order: " + token + ";" + nl;
+    }
+  }
+
+  private getJustifyContent(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "start":
+        return i + "justify-content: flex-start;" + nl;
+      case "end":
+        return i + "justify-content: flex-end;" + nl;
+      case "center":
+        return i + "justify-content: center;" + nl;
+      case "between":
+        return i + "justify-content: space-between;" + nl;
+      case "around":
+        return i + "justify-content: space-around;" + nl;
+      case "evenly":
+        return i + "justify-content: space-evenly;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getAlignItems(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "start":
+        return i + "align-items: flex-start;" + nl;
+      case "end":
+        return i + "align-items: flex-end;" + nl;
+      case "center":
+        return i + "align-items: center;" + nl;
+      case "baseline":
+        return i + "align-items: baseline;" + nl;
+      case "stretch":
+        return i + "align-items: stretch;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getAlignContent(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "center":
+        return i + "align-content: center;" + nl;
+      case "start":
+        return i + "align-content: flex-start;" + nl;
+      case "end":
+        return i + "align-content: flex-end;" + nl;
+      case "between":
+        return i + "align-content: space-between;" + nl;
+      case "around":
+        return i + "align-content: space-around;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getAlignSelf(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "auto":
+        return i + "align-self: auto;" + nl;
+      case "start":
+        return i + "align-self: flex-start;" + nl;
+      case "end":
+        return i + "align-self: flex-end;" + nl;
+      case "center":
+        return i + "align-self: center;" + nl;
+      case "stretch":
+        return i + "align-self: stretch;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getGridTemplateColumns(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let amount;
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      amount = token.substring(pos + 1);
+    } else {
+      return;
+    }
+
+    if (amount === "none") {
+      return i + "grid-template-columns: none;" + nl;
+    } else if (amount === "0") {
+      return;
+    } else {
+      return i + "grid-template-columns: repeat(" + amount +
+        ", minmax(0, 1fr));" + nl;
+    }
+  }
+
+  private getGridTemplateRows(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let amount;
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      amount = token.substring(pos + 1);
+    } else {
+      return;
+    }
+
+    if (amount === "none") {
+      return i + "grid-template-rows: none;" + nl;
+    } else if (amount === "0") {
+      return;
+    } else {
+      return i + "grid-template-rows: repeat(" + amount +
+        ", minmax(0, 1fr));" + nl;
+    }
+  }
+
+  private getGridAutoFlow(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "flow-row":
+        return i + "grid-auto-flow: row;" + nl;
+      case "flow-col":
+        return i + "grid-auto-flow: column;" + nl;
+      case "flow-row-dense":
+        return i + "grid-auto-flow: row dense;" + nl;
+      case "flow-col-dense":
+        return i + "grid-auto-flow: column dense;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getGridColumnStartEnd(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let type;
+    let amount = "";
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      type = token.substring(0, pos);
+      amount = token.substring(pos + 1);
+    } else {
+      return i + "grid-column: auto;" + nl;
+    }
+
+    switch (type) {
+      case "span":
+        return i + "grid-column: span " + amount + " / span " + amount + ";" +
+          nl;
+      case "start":
+        return i + "grid-column-start: " + amount + ";" + nl;
+      case "end":
+        return i + "grid-column-end: " + amount + ";" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getGridRowStartEnd(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let type;
+    let amount = "";
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      type = token.substring(0, pos);
+      amount = token.substring(pos + 1);
+    } else {
+      return i + "grid-row: auto;" + nl;
+    }
+
+    switch (type) {
+      case "span":
+        return i + "grid-row: span " + amount + " / span " + amount + ";" +
+          nl;
+      case "start":
+        return i + "grid-row-start: " + amount + ";" + nl;
+      case "end":
+        return i + "grid-row-end: " + amount + ";" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getGap(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let type;
+    let amount = "";
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      type = token.substring(0, pos);
+      amount = token.substring(pos + 1);
+    } else {
+      // Gap
+      switch (token) {
+        case "0":
+          return i + "grid-gap: 0;" + nl +
+            i + "gap: 0;" + nl;
+        case "px":
+          return i + "grid-gap: 1px;" + nl +
+            i + "gap: 1px;" + nl;
+        default:
+          return i + "grid-gap: " + (token as any * 0.25) + "rem;" + nl +
+            i + "gap: " + (token as any * 0.25) + "rem;" + nl;
+      }
+    }
+
+    if (type === "y") {
+      switch (amount) {
+        case "0":
+          return i + "grid-row-gap: 0;" + nl +
+            i + "row-gap: 0;" + nl;
+        case "px":
+          return i + "grid-row-gap: 1px;" + nl +
+            i + "row-gap: 1px;" + nl;
+        default:
+          return i + "grid-row-gap: " + (amount as any * 0.25) + "rem;" + nl +
+            i + "row-gap: " + (amount as any * 0.25) + "rem;" + nl;
+      }
+    } else if (type === "x") {
+      switch (amount) {
+        case "0":
+          return i + "grid-column-gap: 0;" + nl +
+            i + "column-gap: 0;" + nl;
+        case "px":
+          return i + "grid-column-gap: 1px;" + nl +
+            i + "column-gap: 1px;" + nl;
+        default:
+          return i + "grid-column-gap: " + (amount as any * 0.25) + "rem;" +
+            nl +
+            i + "column-gap: " + (amount as any * 0.25) + "rem;" + nl;
+      }
+    }
+
+    return;
   }
 }
 
