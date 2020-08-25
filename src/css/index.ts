@@ -280,7 +280,6 @@ export default class TailwindGenerator {
       // Display
       case "block":
       case "inline":
-      case "table":
       case "flow":
       case "contents":
       case "hidden":
@@ -441,6 +440,26 @@ export default class TailwindGenerator {
           default:
             return;
         }
+      // Border Collapse
+      case "border":
+        return this.getBorderCollapse(level, identifier, token, negative);
+      // Table
+      case "table":
+        switch (token) {
+          // Table Layout
+          case "auto":
+          case "fixed":
+            return this.getTableLayout(level, identifier, token, negative);
+          // Table Display
+          default:
+            return this.getDisplay(level, identifier, token, negative);
+        }
+      // Box Shadow
+      case "shadow":
+        return this.getBoxShadow(level, identifier, token, negative);
+      /// Opacity
+      case "opacity":
+        return this.getOpacity(level, identifier, token, negative);
       // Transform
       case "transform":
         return this.getTransform(level, identifier, token, negative);
@@ -1875,6 +1894,100 @@ export default class TailwindGenerator {
     const nl = this.newline();
 
     return i + "transform-origin: " + token.replace("-", " ") + ";" + nl;
+  }
+
+  private getBoxShadow(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "xs":
+        return i + "box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);" + nl;
+      case "sm":
+        return i + "box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);" + nl;
+      case "md":
+        return i +
+          "box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);" +
+          nl;
+      case "lg":
+        return i +
+          "box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);" +
+          nl;
+      case "xl":
+        return i +
+          "box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);" +
+          nl;
+      case "2xl":
+        return i + "box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);" + nl;
+      case "inner":
+        return i + "box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);" + nl;
+      case "outline":
+        return i + "box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);" + nl;
+      case "none":
+        return i + "box-shadow: none;" + nl;
+      default:
+        return i +
+          "box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);" +
+          nl;
+    }
+  }
+
+  private getOpacity(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    if (token === "0") {
+      return i + "opacity: 0;" + nl;
+    }
+
+    return i + "opacity: " + (token as any / 100) + ";" + nl;
+  }
+
+  private getBorderCollapse(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "border-collapse: " + token + ";" + nl;
+  }
+
+  private getTableLayout(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "table-layout: " + token + ";" + nl;
   }
 }
 
