@@ -35,7 +35,7 @@ Deno.test("(CSS) Width", () => {
 .w-16 {
   width: 4rem;
 }
-.w-4/5 {
+.w-4\\/5 {
   width: 80%;
 }
   `;

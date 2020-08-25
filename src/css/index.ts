@@ -248,6 +248,11 @@ export default class TailwindGenerator {
         }
       }
 
+      // Scale for 1/2 to 1\/2
+      if (display.indexOf("/") !== -1) {
+        display = display.replace("/", "\\/");
+      }
+
       if (children) {
         // Assign Seet
         sheet.set(className, {
@@ -436,6 +441,24 @@ export default class TailwindGenerator {
           default:
             return;
         }
+      // Transform
+      case "transform":
+        return this.getTransform(level, identifier, token, negative);
+      // Scale
+      case "scale":
+        return this.getScale(level, identifier, token, negative);
+      // Rotate
+      case "rotate":
+        return this.getRotate(level, identifier, token, negative);
+      // Translate
+      case "translate":
+        return this.getTranslate(level, identifier, token, negative);
+      // Skew
+      case "skew":
+        return this.getSkew(level, identifier, token, negative);
+      // Transform Origin
+      case "origin":
+        return this.getTransformOrigin(level, identifier, token, negative);
       // Appearance
       case "appearance":
         return this.getAppearance(level, identifier, token, negative);
@@ -1671,6 +1694,187 @@ export default class TailwindGenerator {
     return i + "-webkit-user-select: " + token + ";" + nl +
       i + "-moz-user-select: " + token + ";" + nl +
       i + "user-select: " + token + ";" + nl;
+  }
+
+  private getTransform(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    if (token === "none") {
+      return i + "transform: none;" + nl;
+    }
+
+    return i + "--transform-translate-x: 0;" + nl +
+      i + "--transform-translate-y: 0;" + nl +
+      i + "--transform-rotate: 0;" + nl +
+      i + "--transform-skew-x: 0;" + nl +
+      i + "--transform-skew-y: 0;" + nl +
+      i + "--transform-scale-x: 1;" + nl +
+      i + "--transform-scale-y: 1;" + nl +
+      i + "transform: translateX(var(--transform-translate-x))" + nl +
+      i +
+      "  translateY(var(--transform-translate-y)) rotate(var(--transform-rotate))" +
+      nl +
+      i + "  skewX(var(--transform-skew-x)) skewY(var(--transform-skew-y))" +
+      nl +
+      i +
+      "  scaleX(var(--transform-scale-x)) scaleY(var(--transform-scale-y));" +
+      nl;
+  }
+
+  private getScale(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let axis;
+    let amount;
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      axis = token.substring(0, pos);
+      amount = token.substring(pos + 1);
+
+      if (amount === "0") {
+        return i + "--transform-scale-" + axis + ": 0;" + nl;
+      }
+
+      return i + "--transform-scale-" + axis + ": " + (amount as any / 100) +
+        ";" + nl;
+    } else {
+      if (token === "0") {
+        return i + "--transform-scale-x: 0;" + nl +
+          i + "--transform-scale-y: 0;" + nl;
+      }
+
+      return i + "--transform-scale-x: " + (token as any / 100) + ";" + nl +
+        i + "--transform-scale-y: " + (token as any / 100) + ";" + nl;
+    }
+  }
+
+  private getRotate(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    const n = (negative && token !== "0") ? "-" : "";
+    const d = (token !== "0") ? "deg" : "";
+
+    return i + "--transform-rotate: " + n + token + d + ";" + nl;
+  }
+
+  private getTranslate(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let axis;
+    let amount;
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      axis = "-" + token.substring(0, pos);
+      amount = token.substring(pos + 1);
+
+      const split = amount?.indexOf("/");
+
+      const n = (negative) ? "-" : "";
+      let u;
+      let a;
+
+      if (amount === "px") {
+        u = "px";
+        a = "1";
+      } else if (split !== -1) {
+        u = "%";
+        const d = amount.substring(0, split);
+        const n = amount.substring(split + 1);
+        a = (((d as any) / (n as any)) * 100).toString();
+      } else if (amount === "full") {
+        u = "%";
+        a = "100";
+      } else if (amount === "0") {
+        u = "";
+        a = "0";
+      } else {
+        u = "rem";
+        a = (amount as any * 0.25);
+      }
+
+      return i + "--transform-translate-" + axis + ": " + n + a + u + ";" + nl;
+    }
+
+    return;
+  }
+
+  private getSkew(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+    let axis;
+    let amount;
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      axis = "-" + token.substring(0, pos);
+      amount = token.substring(pos + 1);
+
+      const n = (negative && amount !== "0") ? "-" : "";
+      const d = (amount !== "0") ? "deg" : "";
+
+      return i + "--transform-skew-" + axis + ": " + n + amount + d + ";" + nl;
+    }
+  }
+
+  private getTransformOrigin(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "transform-origin: " + token.replace("-", " ") + ";" + nl;
   }
 }
 
