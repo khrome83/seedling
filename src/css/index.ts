@@ -44,12 +44,15 @@ export default class TailwindGenerator {
       // Do nothing if .container was not used in sheet
       if (additions.size === 0) return;
 
+      let addContainer = false;
       let containerClasses = "";
 
       // Loop Over Additions
       const additionsIterator = additions[Symbol.iterator]();
       for (const key of additionsIterator) {
+        // Container
         if (key.indexOf("container") !== -1) {
+          addContainer = true;
           if (containerClasses.length === 0) {
             containerClasses += ".";
           } else {
@@ -57,33 +60,92 @@ export default class TailwindGenerator {
           }
           containerClasses += key.replaceAll(":", "\\:");
         }
+
+        // Adds Keyframes - Spin
+        if (key === "spin") {
+          sheet.set("spin", {
+            pre: this.indent(0) + "@keyframes spin {" + this.newline(),
+            children: this.indent(1) + "to {" + this.newline() +
+              this.indent(2) + "transform: rotate(360deg);" + this.newline() +
+              this.indent(1) + "}" + this.newline(),
+            post: this.indent(0) + "}" + this.newline(),
+          });
+        }
+
+        // Adds Keyframes - Ping
+        if (key === "ping") {
+          sheet.set("ping", {
+            pre: this.indent(0) + "@keyframes ping {" + this.newline(),
+            children: this.indent(1) + "100%," + this.newline() +
+              this.indent(1) + "75% {" + this.newline() +
+              this.indent(2) + "transform: scale(2);" + this.newline() +
+              this.indent(2) + "opacity: 0;" + this.newline() +
+              this.indent(1) + "}" + this.newline(),
+            post: this.indent(0) + "}" + this.newline(),
+          });
+        }
+
+        // Adds Keyframes - Pulse
+        if (key === "pulse") {
+          sheet.set("pulse", {
+            pre: this.indent(0) + "@keyframes pulse {" + this.newline(),
+            children: this.indent(1) + "50% {" + this.newline() +
+              this.indent(2) + "opacity: 0.5;" + this.newline() +
+              this.indent(1) + "}" + this.newline(),
+            post: this.indent(0) + "}" + this.newline(),
+          });
+        }
+
+        // Adds Keyframes - Bounce
+        if (key === "bounce") {
+          sheet.set("bounce", {
+            pre: this.indent(0) + "@keyframes bounce {" + this.newline(),
+            children: this.indent(1) + "0%," + this.newline() +
+              this.indent(1) + "100% {" + this.newline() +
+              this.indent(2) + "transform: translateY(-25%);" + this.newline() +
+              this.indent(2) +
+              "animation-timing-function: cubic-bezier(0.8, 0, 1, 1);" +
+              this.newline() +
+              this.indent(1) + "}" + this.newline() +
+              this.indent(1) + "50% {" + this.newline() +
+              this.indent(2) + "transform: none;" + this.newline() +
+              this.indent(2) +
+              "animation-timing-function: cubic-bezier(0, 0, 0.2, 1);" +
+              this.newline(),
+            post: this.indent(0) + "}" + this.newline(),
+          });
+        }
       }
 
-      sheet.set("container", {
-        pre: this.indent(0) + containerClasses + " {" + this.newline(),
-        children: this.indent(1) + "width: 100%;" + this.newline(),
-        post: this.indent(0) + "}" + this.newline(),
-      });
+      // Add Container if Needed
+      if (addContainer) {
+        sheet.set("container", {
+          pre: this.indent(0) + containerClasses + " {" + this.newline(),
+          children: this.indent(1) + "width: 100%;" + this.newline(),
+          post: this.indent(0) + "}" + this.newline(),
+        });
 
-      const mediaQueryIterator = mediaQueries[Symbol.iterator]();
-      for (const [key, value] of mediaQueryIterator) {
-        if (sheet.has(key)) {
-          const mediaQuery = sheet.get(key) as MediaQueryDefintion;
-          const nested = mediaQuery.children;
+        const mediaQueryIterator = mediaQueries[Symbol.iterator]();
+        for (const [key, value] of mediaQueryIterator) {
+          if (sheet.has(key)) {
+            const mediaQuery = sheet.get(key) as MediaQueryDefintion;
+            const nested = mediaQuery.children;
 
-          const [full, amount] = mediaQuery.pre.match(/\:\s?(\d+(?:px|rem))/) ||
-            [];
+            const [full, amount] =
+              mediaQuery.pre.match(/\:\s?(\d+(?:px|rem))/) ||
+              [];
 
-          if (amount !== undefined) {
-            nested.set("container", {
-              pre: (containerClasses + " {" + this.newline()).replaceAll(
-                ".",
-                this.indent(1) + ".",
-              ),
-              children: this.indent(2) + "max-width: " + amount + ";" +
-                this.newline(),
-              post: this.indent(1) + "}" + this.newline(),
-            });
+            if (amount !== undefined) {
+              nested.set("container", {
+                pre: (containerClasses + " {" + this.newline()).replaceAll(
+                  ".",
+                  this.indent(1) + ".",
+                ),
+                children: this.indent(2) + "max-width: " + amount + ";" +
+                  this.newline(),
+                post: this.indent(1) + "}" + this.newline(),
+              });
+            }
           }
         }
       }
@@ -223,6 +285,13 @@ export default class TailwindGenerator {
       if (identifier === "container") {
         additions.add(className);
         return;
+      }
+
+      // Add Keyframes when retrieving stylesheet
+      // We skip for now since we only want to add once
+      // The token should be added and used
+      if (identifier === "animate" && token !== undefined) {
+        additions.add(token);
       }
 
       // Get Properties for Class
@@ -457,7 +526,29 @@ export default class TailwindGenerator {
       // Box Shadow
       case "shadow":
         return this.getBoxShadow(level, identifier, token, negative);
+      // Transition Property
+      case "transition":
+        return this.getTransitionProperty(level, identifier, token, negative);
+      // Transition Duration
+      case "duration":
+        return this.getTransitionDuration(level, identifier, token, negative);
+      // Transition Timing Function
+      case "ease":
+        return this.getTransitionTimingFunction(
+          level,
+          identifier,
+          token,
+          negative,
+        );
+      // Transition Delay
+      case "delay":
+        return this.getTransitionDelay(level, identifier, token, negative);
+      // Animation
+      case "animate":
+        return this.getAnimation(level, identifier, token, negative);
+
       /// Opacity
+
       case "opacity":
         return this.getOpacity(level, identifier, token, negative);
       // Transform
@@ -1988,6 +2079,131 @@ export default class TailwindGenerator {
     const nl = this.newline();
 
     return i + "table-layout: " + token + ";" + nl;
+  }
+
+  private getTransitionProperty(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "none":
+        return i + "transition-property: none;" + nl;
+      case "all":
+        return i + "transition-property: all;" + nl;
+      case "colors":
+        return i +
+          "transition-property: background-color, border-color, color, fill, stroke;" +
+          nl;
+      case "opacity":
+        return i + "transition-property: opacity" + nl;
+      case "shadow":
+        return i + "transition-property: box-shadow;" + nl;
+      case "transform":
+        return i + "transition-property: transform;" + nl;
+      default:
+        return i +
+          "transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;" +
+          nl;
+    }
+  }
+
+  private getTransitionDuration(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "transition-duration: " + token + "ms;" + nl;
+  }
+
+  private getTransitionTimingFunction(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "linear":
+        return i + "transition-timing-function: linear;" + nl;
+      case "in":
+        return i + "transition-timing-function: cubic-bezier(0.4, 0, 1, 1);" +
+          nl;
+      case "out":
+        return i + "transition-timing-function: cubic-bezier(0, 0, 0.2, 1);" +
+          nl;
+      case "in-out":
+        return i + "transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);" +
+          nl;
+      default:
+        return;
+    }
+  }
+
+  private getTransitionDelay(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "transition-delay: " + token + "ms;" + nl;
+  }
+
+  private getAnimation(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "none":
+        return i + "animation: none;" + nl;
+      case "spin":
+        return i + "animation: spin 1s linear infinite;" + nl;
+      case "ping":
+        return i + "animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;" +
+          nl;
+      case "pulse":
+        return i +
+          "animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;" + nl;
+      case "bounce":
+        return i + "animation: bounce 1s infinite;" + nl;
+      default:
+        return;
+    }
   }
 }
 
