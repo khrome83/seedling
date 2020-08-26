@@ -546,6 +546,11 @@ export interface ModifyProperty {
   post?: string;
 }
 
+export interface ColorDefinition {
+  hex: string;
+  rgb: string;
+}
+
 /**
  * Standard Libaries - Tagged to 0.65.0 for Deno 1.3.0
  */

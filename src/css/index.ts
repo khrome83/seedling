@@ -1,10 +1,12 @@
 import pseudoClasses from "./pseudoClasses.ts";
 import mediaQueries from "./mediaQueries.ts";
+import colors from "./colors.ts";
 import {
   ModifySelector,
   MediaQueryDefintion,
   SelectorDefinition,
   ModifyProperty,
+  ColorDefinition,
 } from "../types.ts";
 const seperator = ":";
 
@@ -509,9 +511,61 @@ export default class TailwindGenerator {
           default:
             return;
         }
-      // Border Collapse
+      // Border Radius
+      case "rounded":
+        return this.getBorderRadius(level, identifier, token, negative);
+      // Border
       case "border":
-        return this.getBorderCollapse(level, identifier, token, negative);
+        switch (token) {
+          // Border Collapse
+          case "collapse":
+          case "separate":
+            return this.getBorderCollapse(level, identifier, token, negative);
+          // Border Style
+          case "solid":
+          case "dashed":
+          case "dotted":
+          case "double":
+          case "none":
+            return this.getBorderStyle(level, identifier, token, negative);
+          default:
+            if (
+              token === undefined || /^(?:\d+|[trbl])(?:\-\d+)?$/.test(token)
+            ) {
+              // Border Width
+              return this.getBorderWidth(level, identifier, token, negative);
+            } else if (token?.indexOf("opacity") !== -1) {
+              // Border Opacity
+              return this.getBorderOpacity(level, identifier, token, negative);
+            } else {
+              // Border Color
+              return this.getBorderColor(level, identifier, token, negative);
+            }
+        }
+        // Divide
+      case "divide":
+        switch (token) {
+          // Divide Style
+          case "solid":
+          case "dashed":
+          case "dotted":
+          case "double":
+          case "none":
+            return this.getDivideStyle(level, identifier, token, negative);
+          default:
+            if (
+              token === undefined || /^[xy](?:\-(?:\d+|reverse))?$/.test(token)
+            ) {
+              // Divide Width
+              return this.getDivideWidth(level, identifier, token, negative);
+            } else if (token?.indexOf("opacity") !== -1) {
+              // Divide Opacity
+              return this.getDivideOpacity(level, identifier, token, negative);
+            } else {
+              // Border Color
+              return this.getDivideColor(level, identifier, token, negative);
+            }
+        }
       // Table
       case "table":
         switch (token) {
@@ -2204,6 +2258,374 @@ export default class TailwindGenerator {
       default:
         return;
     }
+  }
+
+  private getBorderRadius(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    if (token === undefined) {
+      return i + "border-radius: 0.25rem;" + nl;
+    }
+
+    const [side, amount] = token.split("-");
+    let q;
+
+    // Increment
+    switch (amount) {
+      case "none":
+        q = "0";
+        break;
+      case "sm":
+        q = "0.125rem";
+        break;
+      case "md":
+        q = "0.375rem";
+        break;
+      case "lg":
+        q = "0.5rem";
+        break;
+      case "full":
+        q = "9999px";
+        break;
+      default:
+        q = "0.25rem";
+    }
+
+    // Side
+    switch (side) {
+      case "none":
+        return i + "border-radius: 0;" + nl;
+      case "sm":
+        return i + "border-radius: 0.125rem;" + nl;
+      case "md":
+        return i + "border-radius: 0.375rem;" + nl;
+      case "lg":
+        return i + "border-radius: 0.5rem;" + nl;
+      case "full":
+        return i + "border-radius: 9999px;" + nl;
+      case "t":
+        return i + "border-top-left-radius: " + q + ";" + nl +
+          i + "border-top-right-radius: " + q + ";" + nl;
+      case "r":
+        return i + "border-top-right-radius: " + q + ";" + nl +
+          i + "border-bottom-right-radius: " + q + ";" + nl;
+      case "b":
+        return i + "border-bottom-right-radius: " + q + ";" + nl +
+          i + "border-bottom-left-radius: " + q + ";" + nl;
+      case "l":
+        return i + "border-top-left-radius: " + q + ";" + nl +
+          i + "border-bottom-left-radius: " + q + ";" + nl;
+      case "tl":
+        return i + "border-top-left-radius: " + q + ";" + nl;
+      case "tr":
+        return i + "border-top-right-radius: " + q + ";" + nl;
+      case "br":
+        return i + "border-bottom-right-radius: " + q + ";" + nl;
+      case "bl":
+        return i + "border-bottom-left-radius: " + q + ";" + nl;
+      default:
+        return i + "border-radius: 0.25rem;" + nl;
+    }
+  }
+
+  private getBorderWidth(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    if (token === undefined) {
+      return i + "border-width: 1px;" + nl;
+    }
+
+    let side;
+    let amount;
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      side = token.substring(0, pos);
+      amount = token.substring(pos + 1);
+      const u = (amount === "0") ? "" : "px";
+      switch (side) {
+        case "t":
+          return i + "border-top-width: " + amount + u + ";" + nl;
+        case "r":
+          return i + "border-right-width: " + amount + u + ";" + nl;
+        case "b":
+          return i + "border-bottom-width: " + amount + u + ";" + nl;
+        case "l":
+          return i + "border-left-width: " + amount + u + ";" + nl;
+        default:
+          return;
+      }
+    } else {
+      switch (token) {
+        case "t":
+          return i + "border-top-width: 1px;" + nl;
+        case "r":
+          return i + "border-right-width: 1px;" + nl;
+        case "b":
+          return i + "border-bottom-width: 1px;" + nl;
+        case "l":
+          return i + "border-left-width: 1px;" + nl;
+        default:
+          if (token === "0") {
+            return i + "border-width: 0;" + nl;
+          } else {
+            return i + "border-width: " + token + "px;" + nl;
+          }
+      }
+    }
+  }
+
+  private getBorderColor(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "current":
+        return i + "border-color: currentColor;" + nl;
+      case "transparent":
+        return i + "border-color: transparent;" + nl;
+      default:
+        if (colors.has(token)) {
+          const c = colors.get(token) as ColorDefinition;
+          return i + "--border-opacity: 1;" + nl +
+            i + "border-color: " + c.hex + ";" + nl +
+            i + "border-color: rgba(" + c.rgb + ", var(--border-opacity));" +
+            nl;
+        }
+        return;
+    }
+  }
+
+  private getBorderOpacity(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let amount;
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      amount = token.substring(pos + 1);
+
+      if (amount === "0") {
+        return i + "--border-opacity: 0;" + nl;
+      } else {
+        return i + "--border-opacity: " + ((amount as any) / 100) + ";" + nl;
+      }
+    }
+
+    return;
+  }
+
+  private getBorderStyle(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "border-style: " + token + ";" + nl;
+  }
+
+  private getDivideWidth(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+    let children = "";
+
+    switch (token) {
+      case "y":
+        children += i + "--divide-y-reverse: 0;" + nl;
+        children += i +
+          "border-top-width: calc(1px * calc(1 - var(--divide-y-reverse)));" +
+          nl;
+        children += i +
+          "border-bottom-width: calc(1px * var(--divide-y-reverse));" + nl;
+        break;
+      case "x":
+        children += i + "--divide-x-reverse: 0;" + nl;
+        children += i +
+          "border-right-width: calc(1px * var(--divide-x-reverse));" + nl;
+        children += i +
+          "border-left-width: calc(1px * calc(1 - var(--divide-x-reverse)));" +
+          nl;
+        break;
+      case "y-reverse":
+        children += i + "--divide-y-reverse: 1;" + nl;
+        break;
+      case "x-reverse":
+        children += i + "--divide-x-reverse: 1;" + nl;
+        break;
+      default:
+        let axis;
+        let amount;
+        const pos = token.indexOf("-");
+        if (pos !== -1) {
+          axis = token.substring(0, pos);
+          amount = token.substring(pos + 1);
+
+          if (axis === "y") {
+            children += i + "--divide-y-reverse: 0;" + nl;
+            children += i + "border-top-width: calc(" + amount +
+              "px * calc(1 - var(--divide-y-reverse)));" + nl;
+            children += i + "border-bottom-width: calc(" + amount +
+              "px * var(--divide-y-reverse));" + nl;
+          } else if (axis === "x") {
+            children += i + "--divide-x-reverse: 0;" + nl;
+            children += i + "border-right-width: calc(" + amount +
+              "px * var(--divide-x-reverse));" + nl;
+            children += i + "border-left-width: calc(" + amount +
+              "px * calc(1 - var(--divide-x-reverse)));" + nl;
+          } else {
+            return;
+          }
+        } else {
+          return;
+        }
+    }
+
+    return {
+      post: " > :not(template) ~ :not(template)",
+      children,
+    };
+  }
+
+  private getDivideColor(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+    let children = "";
+
+    switch (token) {
+      case "current":
+        children += i + "border-color: currentColor;" + nl;
+        break;
+      case "transparent":
+        children += i + "border-color: transparent;" + nl;
+        break;
+      default:
+        if (colors.has(token)) {
+          const c = colors.get(token) as ColorDefinition;
+          children += i + "--divide-opacity: 1;" + nl;
+          children += i + "border-color: " + c.hex + ";" + nl;
+          children += i + "border-color: rgba(" + c.rgb +
+            ", var(--divide-opacity));" + nl;
+        } else {
+          return;
+        }
+    }
+
+    return {
+      post: " > :not(template) ~ :not(template)",
+      children,
+    };
+  }
+
+  private getDivideOpacity(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let amount;
+    let children = "";
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      amount = token.substring(pos + 1);
+
+      if (amount === "0") {
+        children += i + "--divide-opacity: 0;" + nl;
+      } else if (amount !== undefined) {
+        children += i + "--divide-opacity: " + ((amount as any) / 100) + ";" +
+          nl;
+      } else {
+        return;
+      }
+
+      return {
+        post: " > :not(template) ~ :not(template)",
+        children,
+      };
+    }
+
+    return;
+  }
+
+  private getDivideStyle(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return {
+      post: " > :not(template) ~ :not(template)",
+      children: i + "border-style: " + token + ";" + nl,
+    };
   }
 }
 
