@@ -511,6 +511,85 @@ export default class TailwindGenerator {
           default:
             return;
         }
+      // Background
+      case "bg":
+        switch (token) {
+          // Background Attachment
+          case "fixed":
+          case "local":
+          case "scroll":
+            return this.getBackgroundAttachment(
+              level,
+              identifier,
+              token,
+              negative,
+            );
+          // Backgorund Clip
+          case "clip-border":
+          case "clip-padding":
+          case "clip-content":
+          case "clip-text":
+            return this.getBackgroundClip(level, identifier, token, negative);
+          // Background Position
+          case "bottom":
+          case "center":
+          case "left":
+          case "left-bottom":
+          case "left-top":
+          case "right":
+          case "right-bottom":
+          case "right-top":
+          case "top":
+            return this.getBackgroundPosition(
+              level,
+              identifier,
+              token,
+              negative,
+            );
+          // Background Repeat
+          case "repeat":
+          case "no-repeat":
+          case "repeat-x":
+          case "repeat-y":
+          case "repeat-round":
+          case "repeat-space":
+            return this.getBackgroundRepeat(level, identifier, token, negative);
+          // Background Size
+          case "auto":
+          case "cover":
+          case "contain":
+            return this.getBackgroundSize(level, identifier, token, negative);
+          case "none":
+            return this.getBackgroundImage(level, identifier, token, negative);
+          default:
+            if (token?.indexOf("gradient") !== -1) {
+              return this.getBackgroundImage(
+                level,
+                identifier,
+                token,
+                negative,
+              );
+            } else if (token?.indexOf("opacity") !== -1) {
+              return this.getBackgroundOpacity(
+                level,
+                identifier,
+                token,
+                negative,
+              );
+            } else {
+              return this.getBackgroundColor(
+                level,
+                identifier,
+                token,
+                negative,
+              );
+            }
+        }
+      // Gradient Color Stops
+      case "from":
+      case "via":
+      case "to":
+        return this.getGradientColorStops(level, identifier, token, negative);
       // Border Radius
       case "rounded":
         return this.getBorderRadius(level, identifier, token, negative);
@@ -542,7 +621,7 @@ export default class TailwindGenerator {
               return this.getBorderColor(level, identifier, token, negative);
             }
         }
-        // Divide
+      // Divide
       case "divide":
         switch (token) {
           // Divide Style
@@ -2626,6 +2705,287 @@ export default class TailwindGenerator {
       post: " > :not(template) ~ :not(template)",
       children: i + "border-style: " + token + ";" + nl,
     };
+  }
+
+  private getBackgroundAttachment(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "background-attachment: " + token + ";" + nl;
+  }
+
+  private getBackgroundClip(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "clip-border":
+        return i + "background-clip: border-box;" + nl;
+      case "clip-padding":
+        return i + "background-clip: padding-box;" + nl;
+      case "clip-content":
+        return i + "background-clip: content-box;" + nl;
+      case "clip-text":
+        return i + "-webkit-background-clip: text;" + nl +
+          i + "background-clip: text;" + nl;
+    }
+  }
+
+  private getBackgroundColor(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "current":
+        return i + "background-color: currentColor;" + nl;
+      case "transparent":
+        return i + "background-color: transparent;" + nl;
+      default:
+        if (colors.has(token)) {
+          const c = colors.get(token) as ColorDefinition;
+          return i + "--bg-opacity: 1;" + nl +
+            i + "background-color: " + c.hex + ";" + nl +
+            i + "background-color: rgba(" + c.rgb + ", var(--bg-opacity));" +
+            nl;
+        }
+        return;
+    }
+  }
+
+  private getBackgroundOpacity(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let amount;
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      amount = token.substring(pos + 1);
+
+      if (amount === "0") {
+        return i + "--bg-opacity: 0;" + nl;
+      } else {
+        return i + "--bg-opacity: " + ((amount as any) / 100) + ";" + nl;
+      }
+    }
+
+    return;
+  }
+
+  private getBackgroundPosition(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "background-position: " + token.replace("-", " ") + ";" + nl;
+  }
+
+  private getBackgroundRepeat(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "repeat-round":
+        return i + "background-repeat: round;" + nl;
+      case "repeat-space":
+        return i + "background-repeat: space;" + nl;
+      default:
+        return i + "background-repeat: " + token + ";" + nl;
+    }
+  }
+
+  private getBackgroundSize(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "background-size: " + token + ";" + nl;
+  }
+
+  private getBackgroundImage(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "none":
+        return i + "background-image: none;" + nl;
+      case "gradient-to-t":
+        return i +
+          "background-image: linear-gradient(to top, var(--gradient-color-stops));" +
+          nl;
+      case "gradient-to-tr":
+        return i +
+          "background-image: linear-gradient(to top right, var(--gradient-color-stops));" +
+          nl;
+      case "gradient-to-r":
+        return i +
+          "background-image: linear-gradient(to right, var(--gradient-color-stops));" +
+          nl;
+      case "gradient-to-br":
+        return i +
+          "background-image: linear-gradient(to bottom right, var(--gradient-color-stops));" +
+          nl;
+      case "gradient-to-b":
+        return i +
+          "background-image: linear-gradient(to bottom, var(--gradient-color-stops));" +
+          nl;
+      case "gradient-to-bl":
+        return i +
+          "background-image: linear-gradient(to bottom left, var(--gradient-color-stops));" +
+          nl;
+      case "gradient-to-l":
+        return i +
+          "background-image: linear-gradient(to left, var(--gradient-color-stops));" +
+          nl;
+      case "gradient-to-tl":
+        return i +
+          "background-image: linear-gradient(to top left, var(--gradient-color-stops));" +
+          nl;
+      default:
+        return;
+    }
+  }
+
+  private getGradientColorStops(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    if (identifier === "from") {
+      switch (token) {
+        case "current":
+          return i + "--gradient-from-color: currentColor;" + nl +
+            i + "--gradient-color-stops: var(--gradient-from-color)," + nl +
+            i + "  var(--gradient-to-color, rgba(255, 255, 255, 0));" + nl;
+        case "transparent":
+          return i + "--gradient-from-color: transparent;" + nl +
+            i + "--gradient-color-stops: var(--gradient-from-color)," + nl +
+            i + "  var(--gradient-to-color, rgba(0, 0, 0, 0));" + nl;
+        default:
+          if (colors.has(token)) {
+            const c = colors.get(token) as ColorDefinition;
+            return i + "--gradient-from-color: " + c.hex + ";" + nl +
+              i + "--gradient-color-stops: var(--gradient-from-color)," + nl +
+              i + "  var(--gradient-to-color, rgba(" + c.rgb + ", 0));" + nl;
+          }
+          return;
+      }
+    } else if (identifier === "via") {
+      switch (token) {
+        case "current":
+          return i + "--gradient-via-color: currentColor;" + nl +
+            i +
+            "--gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color)," +
+            nl +
+            i + "  var(--gradient-to-color, rgba(255, 255, 255, 0));" + nl;
+        case "transparent":
+          return i + "--gradient-via-color: transparent;" + nl +
+            i +
+            "--gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color)," +
+            nl +
+            i + "  var(--gradient-to-color, rgba(0, 0, 0, 0));" + nl;
+        default:
+          if (colors.has(token)) {
+            const c = colors.get(token) as ColorDefinition;
+            return i + "--gradient-via-color: " + c.hex + ";" + nl +
+              i +
+              "--gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color)," +
+              nl +
+              i + "  var(--gradient-to-color, rgba(" + c.rgb + ", 0));" + nl;
+          }
+          return;
+      }
+    } else if (identifier == "to") {
+      switch (token) {
+        case "current":
+          return i + "--gradient-to-color: currentColor;" + nl;
+        case "transparent":
+          return i + "--gradient-to-color: transparent;" + nl;
+        default:
+          if (colors.has(token)) {
+            const c = colors.get(token) as ColorDefinition;
+            return i + "--gradient-to-color: " + c.hex + ";" + nl;
+          }
+          return;
+      }
+    }
   }
 }
 
