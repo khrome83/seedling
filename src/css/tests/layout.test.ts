@@ -459,6 +459,10 @@ Deno.test("(CSS) Top / Right / Bottom / Left", () => {
     "right-auto",
     "bottom-auto",
     "left-auto",
+    "top-4",
+    "inset-y-4",
+    "-bottom-6",
+    "-inset-x-6",
   ]);
 
   const t = new TailwindGenerator();
@@ -518,6 +522,20 @@ Deno.test("(CSS) Top / Right / Bottom / Left", () => {
 .left-auto {
   left: auto;
 }
+.top-4 {
+  top: 1rem;
+}
+.inset-y-4 {
+  top: 1rem;
+  bottom: 1rem;
+}
+.-bottom-6 {
+  bottom: -1.5rem;
+}
+.-inset-x-6 {
+  right: -1.5rem;
+  left: -1.5rem;
+}
   `;
 
   assertEquals(output.trim(), expected.trim());
@@ -557,6 +575,7 @@ Deno.test("(CSS) Z-index", () => {
     "z-100",
     "z-1000",
     "z-9999",
+    "-z-1",
   ]);
 
   const t = new TailwindGenerator();
@@ -593,6 +612,9 @@ Deno.test("(CSS) Z-index", () => {
 }
 .z-9999 {
   z-index: 9999;
+}
+.-z-1 {
+  z-index: -1;
 }
   `;
 

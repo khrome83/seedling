@@ -18,6 +18,7 @@ import mimeTypes from "../dict/mimeTypes.ts";
 import { useESBuild } from "../utils/esBuild.ts";
 import { getCacheKey } from "../cache/index.ts";
 import { bgRed } from "https://deno.land/std@0.65.0/fmt/colors.ts";
+import stylesheet from "../css/index.ts";
 
 const routes = new Map();
 const fileToRoutes = new Map();

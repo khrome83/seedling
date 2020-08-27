@@ -296,6 +296,11 @@ export default class TailwindGenerator {
         additions.add(token);
       }
 
+      // Scale for 1/2 to 1\/2
+      if (display.indexOf("/") !== -1) {
+        display = display.replace("/", "\\/");
+      }
+
       // Get Properties for Class
       const item = this.getProperties(level, identifier, token, negative) as
         | string
@@ -304,31 +309,42 @@ export default class TailwindGenerator {
       let children;
       let pre = "";
       let post = "";
+      let classList = "";
 
       if (typeof item === "string") {
         // Typiocal Propertiy
         children = item;
+        classList += this.indent(level) + pre + display + post;
       } else if (item !== undefined) {
         // Need to add Post or Pre Properties
         children = (item as ModifyProperty).children;
-        if ((item as ModifyProperty).pre !== undefined) {
+        const itemPre = (item as ModifyProperty).pre;
+        const itemPost = (item as ModifyProperty).post;
+        if (itemPre !== undefined) {
           pre = (item as ModifyProperty).pre as string;
         }
-        if ((item as ModifyProperty).post !== undefined) {
-          post = (item as ModifyProperty).post as string;
+        if (itemPost !== undefined) {
+          if (Array.isArray(itemPost)) {
+            for (let i = 0, len = itemPost.length; i < len; i++) {
+              if ((i + 1) === len) {
+                post = itemPost[i];
+              } else {
+                classList += this.indent(level) + pre + display + itemPost[i] +
+                  ", " + this.newline();
+              }
+            }
+          } else {
+            post = (item as ModifyProperty).post as string;
+          }
         }
-      }
 
-      // Scale for 1/2 to 1\/2
-      if (display.indexOf("/") !== -1) {
-        display = display.replace("/", "\\/");
+        classList += this.indent(level) + pre + display + post;
       }
 
       if (children) {
         // Assign Seet
         sheet.set(className, {
-          pre: this.indent(level) + pre + display + post + " {" +
-            this.newline(),
+          pre: classList + " {" + this.newline(),
           children,
           post: this.indent(level) + "}" + this.newline(),
         });
@@ -511,6 +527,116 @@ export default class TailwindGenerator {
           default:
             return;
         }
+      // Font
+      case "font":
+        switch (token) {
+          // Font Family
+          case "sans":
+          case "serif":
+          case "mono":
+            return this.getFontFamily(level, identifier, token, negative);
+          // Font Weight
+          case "hairline":
+          case "thin":
+          case "light":
+          case "normal":
+          case "medium":
+          case "semibold":
+          case "bold":
+          case "extrabold":
+          case "black":
+            return this.getFontWeight(level, identifier, token, negative);
+          default:
+            return;
+        }
+      case "text":
+        switch (token) {
+          // Font Size
+          case "xs":
+          case "sm":
+          case "base":
+          case "lg":
+          case "xl":
+          case "2xl":
+          case "3xl":
+          case "4xl":
+          case "5xl":
+          case "6xl":
+            return this.getFontSize(level, identifier, token, negative);
+          case "left":
+          case "center":
+          case "right":
+          case "justify":
+            return this.getTextAlignment(level, identifier, token, negative);
+          default:
+            if (token !== undefined && token.indexOf("opacity") !== -1) {
+              return this.getTextOpacity(level, identifier, token, negative);
+            } else {
+              return this.getTextColor(level, identifier, token, negative);
+            }
+        }
+      // Font Smoothing
+      case "antialiased":
+      case "subpixel":
+        return this.getFontSmoothing(level, identifier, token, negative);
+      // Font Style
+      case "italic":
+        return this.getFontStyle(level, identifier, token, negative);
+      // Letter Spacing
+      case "tracking":
+        return this.getLetterSpacing(level, identifier, token, negative);
+      // Line Height
+      case "leading":
+        return this.getLineHeight(level, identifier, token, negative);
+      // List
+      case "list":
+        switch (token) {
+          // List Style Type
+          case "none":
+          case "disc":
+          case "decimal":
+            return this.getListStyleType(level, identifier, token, negative);
+          // List Style Position
+          case "inside":
+          case "outside":
+            return this.getListStylePosition(
+              level,
+              identifier,
+              token,
+              negative,
+            );
+          default:
+            return;
+        }
+      case "placeholder":
+        if (token === undefined) {
+          return;
+        } else if (token.indexOf("opacity") !== -1) {
+          return this.getPlaceholderOpacity(level, identifier, token, negative);
+        } else {
+          return this.getPlaceholderColor(level, identifier, token, negative);
+        }
+      // Text Decoration
+      case "line":
+      case "underline":
+      case "no":
+        return this.getTextDecoration(level, identifier, token, negative);
+      // Text Transform
+      case "uppercase":
+      case "lowercase":
+      case "capitalize":
+      case "normal":
+        return this.getTextTransform(level, identifier, token, negative);
+      // Vertical Alignment
+      case "align":
+        return this.getVerticalAlignment(level, identifier, token, negative);
+      // Whitespace
+      case "whitespace":
+        return this.getWhitespace(level, identifier, token, negative);
+      // Word Break
+      case "break":
+      case "truncate":
+        return this.getWordBreak(level, identifier, token, negative);
       // Background
       case "bg":
         switch (token) {
@@ -726,8 +852,13 @@ export default class TailwindGenerator {
         return this.getSVG(level, identifier, token, negative);
       // Screen Reader
       case "sr":
-      case "not":
         return this.getScreenReader(level, identifier, token, negative);
+      case "not":
+        if (token === "sr-only") {
+          return this.getScreenReader(level, identifier, token, negative);
+        } else if (token === "italic") {
+          return this.getFontStyle(level, identifier, token, negative);
+        }
       default:
         return;
     }
@@ -756,7 +887,7 @@ export default class TailwindGenerator {
     // Calulates the amount
     const i = this.indent(level + 1);
     const nl = this.newline();
-    const q = (token === "px") ? 1 : token as any * 0.25;
+    const q = (token === "px") ? 1 : (+token * 0.25);
     const u = (token === "px") ? "px" : "rem";
     const amount = ((q === 0) ? q : q + u) + ";" + nl;
 
@@ -797,7 +928,7 @@ export default class TailwindGenerator {
       ? 1
       : (token === "auto")
       ? "auto"
-      : token as any * 0.25;
+      : +token * 0.25;
     const n = negative ? "-" : "";
     const u = (token === "px") ? "px" : "rem";
     const amount = n + ((q === 0 || q === "auto") ? q : q + u) + ";" + nl;
@@ -847,7 +978,7 @@ export default class TailwindGenerator {
       case "0":
         return i + "height: 0;" + nl;
       default:
-        return i + "height: " + (token as any * 0.25) + "rem;" + nl;
+        return i + "height: " + (+token * 0.25) + "rem;" + nl;
     }
   }
 
@@ -923,15 +1054,15 @@ export default class TailwindGenerator {
         return i + "width: 100vw;" + nl;
       case "0":
         return i + "width: 0;" + nl;
-      default:
-        const pos = token.indexOf("/");
-        if (pos !== -1) {
-          const n = token.substring(0, pos) as any;
-          const d = token.substring(pos + 1) as any;
-          return i + "width: " + ((n / d) * 100) + "%;" + nl;
-        } else {
-          return i + "width: " + (token as any * 0.25) + "rem;" + nl;
-        }
+    }
+
+    const pos = token.indexOf("/");
+    if (pos !== -1) {
+      const n = +token.substring(0, pos);
+      const d = +token.substring(pos + 1);
+      return i + "width: " + ((n / d) * 100) + "%;" + nl;
+    } else {
+      return i + "width: " + (+token * 0.25) + "rem;" + nl;
     }
   }
 
@@ -1225,19 +1356,32 @@ export default class TailwindGenerator {
     token?: string,
     negative = false,
   ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
     // indent & new line
     const i = this.indent(level + 1);
     const nl = this.newline();
 
-    let type = "auto";
-    if (token?.indexOf("0") !== -1) {
-      type = "0";
+    let type;
+    let axis = "";
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      axis = token.substring(0, pos);
+      type = token.substring(pos + 1);
+    } else {
+      type = token;
     }
 
-    if (identifier === "inset" && token?.charAt(0) === "y") {
+    if (type !== "0" && type !== "auto") {
+      const n = (negative) ? "-" : "";
+      type = n + (+type * 0.25) + "rem";
+    }
+
+    if (identifier === "inset" && axis === "y") {
       return i + "top: " + type + ";" + nl +
         i + "bottom: " + type + ";" + nl;
-    } else if (identifier === "inset" && token?.charAt(0) === "x") {
+    } else if (identifier === "inset" && axis === "x") {
       return i + "right: " + type + ";" + nl +
         i + "left: " + type + ";" + nl;
     } else if (identifier === "inset") {
@@ -1278,8 +1422,9 @@ export default class TailwindGenerator {
     // indent & new line
     const i = this.indent(level + 1);
     const nl = this.newline();
+    const n = (negative) ? "-" : "";
 
-    return i + "z-index: " + token + ";" + nl;
+    return i + "z-index: " + n + token + ";" + nl;
   }
 
   private getSpaceBetween(
@@ -1323,7 +1468,7 @@ export default class TailwindGenerator {
       u = "px";
       a = (type === "px") ? 1 : 0;
     } else {
-      a = (type as any) * 0.25;
+      a = +type * 0.25;
     }
 
     let children = "";
@@ -1734,8 +1879,8 @@ export default class TailwindGenerator {
           return i + "grid-gap: 1px;" + nl +
             i + "gap: 1px;" + nl;
         default:
-          return i + "grid-gap: " + (token as any * 0.25) + "rem;" + nl +
-            i + "gap: " + (token as any * 0.25) + "rem;" + nl;
+          return i + "grid-gap: " + (+token * 0.25) + "rem;" + nl +
+            i + "gap: " + (+token * 0.25) + "rem;" + nl;
       }
     }
 
@@ -1748,8 +1893,8 @@ export default class TailwindGenerator {
           return i + "grid-row-gap: 1px;" + nl +
             i + "row-gap: 1px;" + nl;
         default:
-          return i + "grid-row-gap: " + (amount as any * 0.25) + "rem;" + nl +
-            i + "row-gap: " + (amount as any * 0.25) + "rem;" + nl;
+          return i + "grid-row-gap: " + (+amount * 0.25) + "rem;" + nl +
+            i + "row-gap: " + (+amount * 0.25) + "rem;" + nl;
       }
     } else if (type === "x") {
       switch (amount) {
@@ -1760,9 +1905,9 @@ export default class TailwindGenerator {
           return i + "grid-column-gap: 1px;" + nl +
             i + "column-gap: 1px;" + nl;
         default:
-          return i + "grid-column-gap: " + (amount as any * 0.25) + "rem;" +
+          return i + "grid-column-gap: " + (+amount * 0.25) + "rem;" +
             nl +
-            i + "column-gap: " + (amount as any * 0.25) + "rem;" + nl;
+            i + "column-gap: " + (+amount * 0.25) + "rem;" + nl;
       }
     }
 
@@ -1995,7 +2140,7 @@ export default class TailwindGenerator {
         return i + "--transform-scale-" + axis + ": 0;" + nl;
       }
 
-      return i + "--transform-scale-" + axis + ": " + (amount as any / 100) +
+      return i + "--transform-scale-" + axis + ": " + (+amount / 100) +
         ";" + nl;
     } else {
       if (token === "0") {
@@ -2003,8 +2148,8 @@ export default class TailwindGenerator {
           i + "--transform-scale-y: 0;" + nl;
       }
 
-      return i + "--transform-scale-x: " + (token as any / 100) + ";" + nl +
-        i + "--transform-scale-y: " + (token as any / 100) + ";" + nl;
+      return i + "--transform-scale-x: " + (+token / 100) + ";" + nl +
+        i + "--transform-scale-y: " + (+token / 100) + ";" + nl;
     }
   }
 
@@ -2060,7 +2205,7 @@ export default class TailwindGenerator {
         u = "%";
         const d = amount.substring(0, split);
         const n = amount.substring(split + 1);
-        a = (((d as any) / (n as any)) * 100).toString();
+        a = ((+d / +n) * 100).toString();
       } else if (amount === "full") {
         u = "%";
         a = "100";
@@ -2069,7 +2214,7 @@ export default class TailwindGenerator {
         a = "0";
       } else {
         u = "rem";
-        a = (amount as any * 0.25);
+        a = (+amount * 0.25);
       }
 
       return i + "--transform-translate-" + axis + ": " + n + a + u + ";" + nl;
@@ -2179,7 +2324,7 @@ export default class TailwindGenerator {
       return i + "opacity: 0;" + nl;
     }
 
-    return i + "opacity: " + (token as any / 100) + ";" + nl;
+    return i + "opacity: " + (+token / 100) + ";" + nl;
   }
 
   private getBorderCollapse(
@@ -2518,7 +2663,7 @@ export default class TailwindGenerator {
       if (amount === "0") {
         return i + "--border-opacity: 0;" + nl;
       } else {
-        return i + "--border-opacity: " + ((amount as any) / 100) + ";" + nl;
+        return i + "--border-opacity: " + (+amount / 100) + ";" + nl;
       }
     }
 
@@ -2578,32 +2723,34 @@ export default class TailwindGenerator {
       case "x-reverse":
         children += i + "--divide-x-reverse: 1;" + nl;
         break;
-      default:
-        let axis;
-        let amount;
-        const pos = token.indexOf("-");
-        if (pos !== -1) {
-          axis = token.substring(0, pos);
-          amount = token.substring(pos + 1);
+    }
 
-          if (axis === "y") {
-            children += i + "--divide-y-reverse: 0;" + nl;
-            children += i + "border-top-width: calc(" + amount +
-              "px * calc(1 - var(--divide-y-reverse)));" + nl;
-            children += i + "border-bottom-width: calc(" + amount +
-              "px * var(--divide-y-reverse));" + nl;
-          } else if (axis === "x") {
-            children += i + "--divide-x-reverse: 0;" + nl;
-            children += i + "border-right-width: calc(" + amount +
-              "px * var(--divide-x-reverse));" + nl;
-            children += i + "border-left-width: calc(" + amount +
-              "px * calc(1 - var(--divide-x-reverse)));" + nl;
-          } else {
-            return;
-          }
+    if (!children.length) {
+      let axis;
+      let amount;
+      const pos = token.indexOf("-");
+      if (pos !== -1) {
+        axis = token.substring(0, pos);
+        amount = token.substring(pos + 1);
+
+        if (axis === "y") {
+          children += i + "--divide-y-reverse: 0;" + nl;
+          children += i + "border-top-width: calc(" + amount +
+            "px * calc(1 - var(--divide-y-reverse)));" + nl;
+          children += i + "border-bottom-width: calc(" + amount +
+            "px * var(--divide-y-reverse));" + nl;
+        } else if (axis === "x") {
+          children += i + "--divide-x-reverse: 0;" + nl;
+          children += i + "border-right-width: calc(" + amount +
+            "px * var(--divide-x-reverse));" + nl;
+          children += i + "border-left-width: calc(" + amount +
+            "px * calc(1 - var(--divide-x-reverse)));" + nl;
         } else {
           return;
         }
+      } else {
+        return;
+      }
     }
 
     return {
@@ -2673,7 +2820,7 @@ export default class TailwindGenerator {
       if (amount === "0") {
         children += i + "--divide-opacity: 0;" + nl;
       } else if (amount !== undefined) {
-        children += i + "--divide-opacity: " + ((amount as any) / 100) + ";" +
+        children += i + "--divide-opacity: " + (+amount / 100) + ";" +
           nl;
       } else {
         return;
@@ -2800,7 +2947,7 @@ export default class TailwindGenerator {
       if (amount === "0") {
         return i + "--bg-opacity: 0;" + nl;
       } else {
-        return i + "--bg-opacity: " + ((amount as any) / 100) + ";" + nl;
+        return i + "--bg-opacity: " + (+amount / 100) + ";" + nl;
       }
     }
 
@@ -2987,6 +3134,551 @@ export default class TailwindGenerator {
       }
     }
   }
-}
 
-// ^(?:([a-z]+)(?=\:):)?(\-)?([a-z]+)\-?([\d\w]+)?
+  private getFontFamily(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "sans":
+        return i +
+          'font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";' +
+          nl;
+      case "serif":
+        return i +
+          'font-family: Georgia, Cambria, "Times New Roman", Times, serif;' +
+          nl;
+      case "mono":
+        return i +
+          'font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;' +
+          nl;
+      default:
+        return;
+    }
+  }
+
+  private getFontSize(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "xs":
+        return i + "font-size: 0.75rem;" + nl;
+      case "sm":
+        return i + "font-size: 0.875rem;" + nl;
+      case "base":
+        return i + "font-size: 1rem;" + nl;
+      case "lg":
+        return i + "font-size: 1.125rem;" + nl;
+      case "xl":
+        return i + "font-size: 1.25rem;" + nl;
+      case "2xl":
+        return i + "font-size: 1.5rem;" + nl;
+      case "3xl":
+        return i + "font-size: 1.875rem;" + nl;
+      case "4xl":
+        return i + "font-size: 2.25rem;" + nl;
+      case "5xl":
+        return i + "font-size: 3rem;" + nl;
+      case "6xl":
+        return i + "font-size: 4rem;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getFontSmoothing(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      // Subpixel Antialized
+      case "antialiased":
+        return i + "-webkit-font-smoothing: auto;" + nl +
+          i + "-moz-osx-font-smoothing: auto;" + nl;
+      default:
+        // Antialized
+        return i + "-webkit-font-smoothing: antialiased;" + nl +
+          i + "-moz-osx-font-smoothing: grayscale;" + nl;
+    }
+  }
+
+  private getFontStyle(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      // Not Italic
+      case "italic":
+        return i + "font-style: normal;" + nl;
+      default:
+        // Italic
+        return i + "font-style: italic;" + nl;
+    }
+  }
+
+  private getFontWeight(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "hairline":
+        return i + "font-weight: 100;" + nl;
+      case "thin":
+        return i + "font-weight: 200;" + nl;
+      case "light":
+        return i + "font-weight: 300;" + nl;
+      case "normal":
+        return i + "font-weight: 400;" + nl;
+      case "medium":
+        return i + "font-weight: 500;" + nl;
+      case "semibold":
+        return i + "font-weight: 600;" + nl;
+      case "bold":
+        return i + "font-weight: 700;" + nl;
+      case "extrabold":
+        return i + "font-weight: 800;" + nl;
+      case "black":
+        return i + "font-weight: 900;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getLetterSpacing(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "tighter":
+        return i + "letter-spacing: -0.05em;" + nl;
+      case "tight":
+        return i + "letter-spacing: -0.025em;" + nl;
+      case "normal":
+        return i + "letter-spacing: 0;" + nl;
+      case "wide":
+        return i + "letter-spacing: 0.025em;" + nl;
+      case "wider":
+        return i + "letter-spacing: 0.05em;" + nl;
+      case "widest":
+        return i + "letter-spacing: 0.1em;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getLineHeight(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "none":
+        return i + "line-height: 1;" + nl;
+      case "tight":
+        return i + "line-height: 1.25;" + nl;
+      case "snug":
+        return i + "line-height: 1.375;" + nl;
+      case "normal":
+        return i + "line-height: 1.5;" + nl;
+      case "relaxed":
+        return i + "line-height: 1.625;" + nl;
+      case "loose":
+        return i + "line-height: 2;" + nl;
+      default:
+        if (token === "0") {
+          return i + "line-height: 0;" + nl;
+        } else {
+          return i + "line-height: " + (+token * 0.25) + "rem;" + nl;
+        }
+        return;
+    }
+  }
+
+  private getListStyleType(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "none":
+        return i + "list-style-type: none;" + nl;
+      case "disc":
+        return i + "list-style-type: disc;" + nl;
+      case "decimal":
+        return i + "list-style-type: decimal;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getListStylePosition(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "inside":
+        return i + "list-style-position: inside;" + nl;
+      case "outside":
+        return i + "list-style-position: outside;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getPlaceholderColor(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+    let children = "";
+
+    switch (token) {
+      case "current":
+        children += i + "background-color: currentColor;" + nl;
+        break;
+      case "transparent":
+        children += i + "background-color: transparent;" + nl;
+        break;
+      default:
+        if (colors.has(token)) {
+          const c = colors.get(token) as ColorDefinition;
+          children += i + "--placeholder-opacity: 1;" + nl;
+          children += i + "color: " + c.hex + ";" + nl;
+          children += i + "color: rgba(" + c.rgb +
+            ", var(--placeholder-opacity));" + nl;
+        }
+    }
+
+    return {
+      post: [
+        ":-ms-input-placeholder",
+        "::-ms-input-placeholder",
+        "::placeholder",
+      ],
+      children,
+    };
+  }
+
+  private getPlaceholderOpacity(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+    let children = "";
+
+    let amount;
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      amount = token.substring(pos + 1);
+
+      if (amount === "0") {
+        children += i + "--placeholder-opacity: 0;" + nl;
+      } else {
+        children += i + "--placeholder-opacity: " + (+amount / 100) +
+          ";" + nl;
+      }
+
+      return {
+        post: [
+          ":-ms-input-placeholder",
+          "::-ms-input-placeholder",
+          "::placeholder",
+        ],
+        children,
+      };
+    }
+
+    return;
+  }
+
+  private getTextAlignment(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "left":
+        return i + "text-align: left;" + nl;
+      case "center":
+        return i + "text-align: center;" + nl;
+      case "right":
+        return i + "text-align: right;" + nl;
+      case "justify":
+        return i + "text-align: justify;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getTextColor(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "current":
+        return i + "color: currentColor;" + nl;
+      case "transparent":
+        return i + "color: transparent;" + nl;
+      default:
+        if (colors.has(token)) {
+          const c = colors.get(token) as ColorDefinition;
+          return i + "--text-opacity: 1;" + nl +
+            i + "color: " + c.hex + ";" + nl +
+            i + "color: rgba(" + c.rgb + ", var(--text-opacity));" +
+            nl;
+        }
+        return;
+    }
+  }
+
+  private getTextOpacity(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    let amount;
+    const pos = token.indexOf("-");
+    if (pos !== -1) {
+      amount = token.substring(pos + 1);
+
+      if (amount === "0") {
+        return i + "--text-opacity: 0;" + nl;
+      } else {
+        return i + "--text-opacity: " + (+amount / 100) + ";" + nl;
+      }
+    }
+
+    return;
+  }
+
+  private getTextDecoration(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "through":
+        return i + "text-decoration: line-through;" + nl;
+      case "underline":
+        return i + "text-decoration: none;" + nl;
+      default:
+        return i + "text-decoration: underline;" + nl;
+    }
+  }
+
+  private getTextTransform(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (identifier) {
+      case "uppercase":
+        return i + "text-transform: uppercase;" + nl;
+      case "lowercase":
+        return i + "text-transform: lowercase;" + nl;
+      case "capitalize":
+        return i + "text-transform: capitalize;" + nl;
+      case "normal":
+        return i + "text-transform: none;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getVerticalAlignment(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    return i + "vertical-align: " + token + ";" + nl;
+  }
+
+  private getWhitespace(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // Validation
+    if (token === undefined) return;
+
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    switch (token) {
+      case "normal":
+        return i + "white-space: normal;" + nl;
+      case "no-wrap":
+        return i + "white-space: nowrap;" + nl;
+      case "pre":
+        return i + "white-space: pre;" + nl;
+      case "pre-line":
+        return i + "white-space: pre-line;" + nl;
+      case "pre-wrap":
+        return i + "white-space: pre-wrap;" + nl;
+      default:
+        return;
+    }
+  }
+
+  private getWordBreak(
+    level: number,
+    identifier: string,
+    token?: string,
+    negative = false,
+  ): string | void | ModifyProperty {
+    // indent & new line
+    const i = this.indent(level + 1);
+    const nl = this.newline();
+
+    if (identifier === "truncate") {
+      return i + "overflow: hidden" + nl +
+        i + "text-overflow: ellipsis;" + nl +
+        i + "white-space: nowrap;" + nl;
+    }
+
+    switch (token) {
+      case "normal":
+        return i + "overflow-wrap: normal" + nl +
+          i + "word-break: normal;" + nl;
+      case "words":
+        return i + "overflow-wrap: break-word" + nl;
+      case "all":
+        return i + "word-break: break-all" + nl;
+      default:
+        return;
+    }
+  }
+}

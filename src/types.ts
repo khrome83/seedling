@@ -543,7 +543,7 @@ export interface SelectorDefinition {
 export interface ModifyProperty {
   children: string;
   pre?: string;
-  post?: string;
+  post?: string | string[];
 }
 
 export interface ColorDefinition {
