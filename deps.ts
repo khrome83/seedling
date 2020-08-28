@@ -44,8 +44,9 @@ export {
   expandGlob,
 } from "https://deno.land/std@0.65.0/fs/mod.ts";
 
-// TODO: Convert config to use join
 export { join } from "https://deno.land/std@0.65.0/path/mod.ts";
+
+export { createHash } from "https://deno.land/std@0.65.0/hash/mod.ts";
 
 /**
  * Third Party Libaries

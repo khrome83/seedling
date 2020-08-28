@@ -1,6 +1,7 @@
 import pseudoClasses from "./pseudoClasses.ts";
 import mediaQueries from "./mediaQueries.ts";
-import colors from "./colors.ts";
+import preflight from "./preflight.ts";
+import getColorPallet from "./colors.ts";
 import {
   ModifySelector,
   MediaQueryDefintion,
@@ -18,9 +19,11 @@ export default class TailwindGenerator {
     new Map();
   private externalAdditions: Set<string> = new Set();
   private minified: boolean;
+  private color: Map<string, ColorDefinition>;
 
-  constructor(minified: boolean = false) {
+  constructor(minified: boolean = false, pallet: string = "tailwindui") {
     this.minified = minified;
+    this.color = getColorPallet(pallet);
   }
 
   public addClasses(classList: Set<string>, critical = false): void {
@@ -31,7 +34,7 @@ export default class TailwindGenerator {
     }
   }
 
-  public getStylesheet(critical = false): string {
+  public getStylesheet(critical = false, includePreflight = true): string {
     const sheet = (critical) ? this.criticalSheet : this.externalSheet;
     const additions = (critical)
       ? this.criticalAdditions
@@ -193,7 +196,13 @@ export default class TailwindGenerator {
     };
 
     // Process the Stylesheet Map
-    return process(sheet);
+    const output = process(sheet);
+
+    if (includePreflight) {
+      return preflight + output;
+    } else {
+      return output;
+    }
   }
 
   private parseClass(className: string, critical: boolean): void {
@@ -1125,6 +1134,8 @@ export default class TailwindGenerator {
         return i + "max-width: 64rem;" + nl;
       case "w-6xl":
         return i + "max-width: 72rem;" + nl;
+      case "w-7xl":
+        return i + "max-width: 80rem;" + nl;
       case "w-full":
         return i + "max-width: 100%;" + nl;
       case "w-screen-sm":
@@ -2631,8 +2642,8 @@ export default class TailwindGenerator {
       case "transparent":
         return i + "border-color: transparent;" + nl;
       default:
-        if (colors.has(token)) {
-          const c = colors.get(token) as ColorDefinition;
+        if (this.color.has(token)) {
+          const c = this.color.get(token) as ColorDefinition;
           return i + "--border-opacity: 1;" + nl +
             i + "border-color: " + c.hex + ";" + nl +
             i + "border-color: rgba(" + c.rgb + ", var(--border-opacity));" +
@@ -2781,8 +2792,8 @@ export default class TailwindGenerator {
         children += i + "border-color: transparent;" + nl;
         break;
       default:
-        if (colors.has(token)) {
-          const c = colors.get(token) as ColorDefinition;
+        if (this.color.has(token)) {
+          const c = this.color.get(token) as ColorDefinition;
           children += i + "--divide-opacity: 1;" + nl;
           children += i + "border-color: " + c.hex + ";" + nl;
           children += i + "border-color: rgba(" + c.rgb +
@@ -2915,8 +2926,8 @@ export default class TailwindGenerator {
       case "transparent":
         return i + "background-color: transparent;" + nl;
       default:
-        if (colors.has(token)) {
-          const c = colors.get(token) as ColorDefinition;
+        if (this.color.has(token)) {
+          const c = this.color.get(token) as ColorDefinition;
           return i + "--bg-opacity: 1;" + nl +
             i + "background-color: " + c.hex + ";" + nl +
             i + "background-color: rgba(" + c.rgb + ", var(--bg-opacity));" +
@@ -3086,8 +3097,8 @@ export default class TailwindGenerator {
             i + "--gradient-color-stops: var(--gradient-from-color)," + nl +
             i + "  var(--gradient-to-color, rgba(0, 0, 0, 0));" + nl;
         default:
-          if (colors.has(token)) {
-            const c = colors.get(token) as ColorDefinition;
+          if (this.color.has(token)) {
+            const c = this.color.get(token) as ColorDefinition;
             return i + "--gradient-from-color: " + c.hex + ";" + nl +
               i + "--gradient-color-stops: var(--gradient-from-color)," + nl +
               i + "  var(--gradient-to-color, rgba(" + c.rgb + ", 0));" + nl;
@@ -3109,8 +3120,8 @@ export default class TailwindGenerator {
             nl +
             i + "  var(--gradient-to-color, rgba(0, 0, 0, 0));" + nl;
         default:
-          if (colors.has(token)) {
-            const c = colors.get(token) as ColorDefinition;
+          if (this.color.has(token)) {
+            const c = this.color.get(token) as ColorDefinition;
             return i + "--gradient-via-color: " + c.hex + ";" + nl +
               i +
               "--gradient-color-stops: var(--gradient-from-color), var(--gradient-via-color)," +
@@ -3126,8 +3137,8 @@ export default class TailwindGenerator {
         case "transparent":
           return i + "--gradient-to-color: transparent;" + nl;
         default:
-          if (colors.has(token)) {
-            const c = colors.get(token) as ColorDefinition;
+          if (this.color.has(token)) {
+            const c = this.color.get(token) as ColorDefinition;
             return i + "--gradient-to-color: " + c.hex + ";" + nl;
           }
           return;
@@ -3421,8 +3432,8 @@ export default class TailwindGenerator {
         children += i + "background-color: transparent;" + nl;
         break;
       default:
-        if (colors.has(token)) {
-          const c = colors.get(token) as ColorDefinition;
+        if (this.color.has(token)) {
+          const c = this.color.get(token) as ColorDefinition;
           children += i + "--placeholder-opacity: 1;" + nl;
           children += i + "color: " + c.hex + ";" + nl;
           children += i + "color: rgba(" + c.rgb +
@@ -3525,8 +3536,8 @@ export default class TailwindGenerator {
       case "transparent":
         return i + "color: transparent;" + nl;
       default:
-        if (colors.has(token)) {
-          const c = colors.get(token) as ColorDefinition;
+        if (this.color.has(token)) {
+          const c = this.color.get(token) as ColorDefinition;
           return i + "--text-opacity: 1;" + nl +
             i + "color: " + c.hex + ";" + nl +
             i + "color: rgba(" + c.rgb + ", var(--text-opacity));" +
