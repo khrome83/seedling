@@ -574,7 +574,7 @@ export default async (port: number, ws: number) => {
           try {
             const t = new TailwindGenerator(false, "tailwindui");
             t.addClasses(status.classes as Set<string>);
-            const sheet = t.getStylesheet();
+            const sheet = t.getStylesheet(false, true);
 
             return sheet;
           } catch (e) {

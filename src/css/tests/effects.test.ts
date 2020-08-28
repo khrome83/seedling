@@ -13,6 +13,17 @@ Deno.test("(CSS) Box Shadow", () => {
     "shadow-inner",
     "shadow-outline",
     "shadow-none",
+    "shadow-solid",
+    "shadow-outline-gray",
+    "shadow-outline-blue",
+    "shadow-outline-teal",
+    "shadow-outline-green",
+    "shadow-outline-yellow",
+    "shadow-outline-orange",
+    "shadow-outline-red",
+    "shadow-outline-pink",
+    "shadow-outline-purple",
+    "shadow-outline-indigo",
   ]);
 
   const t = new TailwindGenerator();
@@ -49,6 +60,39 @@ Deno.test("(CSS) Box Shadow", () => {
 }
 .shadow-none {
   box-shadow: none;
+}
+.shadow-solid {
+  box-shadow: 0 0 0 2px currentColor;
+}
+.shadow-outline-gray {
+  box-shadow: 0 0 0 3px rgba(159, 166, 178, 0.45);
+}
+.shadow-outline-blue {
+  box-shadow: 0 0 0 3px rgba(164, 202, 254, 0.45);
+}
+.shadow-outline-teal {
+  box-shadow: 0 0 0 3px rgba(126, 220, 226, 0.45);
+}
+.shadow-outline-green {
+  box-shadow: 0 0 0 3px rgba(132, 225, 188, 0.45);
+}
+.shadow-outline-yellow {
+  box-shadow: 0 0 0 3px rgba(250, 202, 21, 0.45);
+}
+.shadow-outline-orange {
+  box-shadow: 0 0 0 3px rgba(253, 186, 140, 0.45);
+}
+.shadow-outline-red {
+  box-shadow: 0 0 0 3px rgba(248, 180, 180, 0.45);
+}
+.shadow-outline-pink {
+  box-shadow: 0 0 0 3px rgba(248, 180, 217, 0.45);
+}
+.shadow-outline-purple {
+  box-shadow: 0 0 0 3px rgba(202, 191, 253, 0.45);
+}
+.shadow-outline-indigo {
+  box-shadow: 0 0 0 3px rgba(180, 198, 252, 0.45);
 }
   `;
 

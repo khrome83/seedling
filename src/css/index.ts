@@ -21,7 +21,7 @@ export default class TailwindGenerator {
   private minified: boolean;
   private color: Map<string, ColorDefinition>;
 
-  constructor(minified: boolean = false, pallet: string = "tailwindui") {
+  constructor(minified: boolean = false, pallet: string = "tailwindcss") {
     this.minified = minified;
     this.color = getColorPallet(pallet);
   }
@@ -34,7 +34,7 @@ export default class TailwindGenerator {
     }
   }
 
-  public getStylesheet(critical = false, includePreflight = true): string {
+  public getStylesheet(critical = false, includePreflight = false): string {
     const sheet = (critical) ? this.criticalSheet : this.externalSheet;
     const additions = (critical)
       ? this.criticalAdditions
@@ -2311,6 +2311,28 @@ export default class TailwindGenerator {
         return i + "box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);" + nl;
       case "none":
         return i + "box-shadow: none;" + nl;
+      case "solid":
+        return i + "box-shadow: 0 0 0 2px currentColor;" + nl;
+      case "outline-gray":
+        return i + "box-shadow: 0 0 0 3px rgba(159, 166, 178, 0.45);" + nl;
+      case "outline-blue":
+        return i + "box-shadow: 0 0 0 3px rgba(164, 202, 254, 0.45);" + nl;
+      case "outline-teal":
+        return i + "box-shadow: 0 0 0 3px rgba(126, 220, 226, 0.45);" + nl;
+      case "outline-green":
+        return i + "box-shadow: 0 0 0 3px rgba(132, 225, 188, 0.45);" + nl;
+      case "outline-yellow":
+        return i + "box-shadow: 0 0 0 3px rgba(250, 202, 21, 0.45);" + nl;
+      case "outline-orange":
+        return i + "box-shadow: 0 0 0 3px rgba(253, 186, 140, 0.45);" + nl;
+      case "outline-red":
+        return i + "box-shadow: 0 0 0 3px rgba(248, 180, 180, 0.45);" + nl;
+      case "outline-pink":
+        return i + "box-shadow: 0 0 0 3px rgba(248, 180, 217, 0.45);" + nl;
+      case "outline-purple":
+        return i + "box-shadow: 0 0 0 3px rgba(202, 191, 253, 0.45);" + nl;
+      case "outline-indigo":
+        return i + "box-shadow: 0 0 0 3px rgba(180, 198, 252, 0.45);" + nl;
       default:
         return i +
           "box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);" +
