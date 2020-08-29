@@ -416,16 +416,19 @@ Deno.test("(CSS) Placeholder Color", () => {
   const output = t.getStylesheet();
 
   const expected = `
+.placeholder-transparent::-moz-placeholder, 
 .placeholder-transparent:-ms-input-placeholder, 
 .placeholder-transparent::-ms-input-placeholder, 
 .placeholder-transparent::placeholder {
   background-color: transparent;
 }
+.placeholder-current::-moz-placeholder, 
 .placeholder-current:-ms-input-placeholder, 
 .placeholder-current::-ms-input-placeholder, 
 .placeholder-current::placeholder {
   background-color: currentColor;
 }
+.placeholder-black::-moz-placeholder, 
 .placeholder-black:-ms-input-placeholder, 
 .placeholder-black::-ms-input-placeholder, 
 .placeholder-black::placeholder {
@@ -433,6 +436,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #000;
   color: rgba(0, 0, 0, var(--placeholder-opacity));
 }
+.placeholder-white::-moz-placeholder, 
 .placeholder-white:-ms-input-placeholder, 
 .placeholder-white::-ms-input-placeholder, 
 .placeholder-white::placeholder {
@@ -440,6 +444,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #fff;
   color: rgba(255, 255, 255, var(--placeholder-opacity));
 }
+.placeholder-gray-100::-moz-placeholder, 
 .placeholder-gray-100:-ms-input-placeholder, 
 .placeholder-gray-100::-ms-input-placeholder, 
 .placeholder-gray-100::placeholder {
@@ -447,6 +452,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #f7fafc;
   color: rgba(247, 250, 252, var(--placeholder-opacity));
 }
+.placeholder-gray-200::-moz-placeholder, 
 .placeholder-gray-200:-ms-input-placeholder, 
 .placeholder-gray-200::-ms-input-placeholder, 
 .placeholder-gray-200::placeholder {
@@ -454,6 +460,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #edf2f7;
   color: rgba(237, 242, 247, var(--placeholder-opacity));
 }
+.placeholder-gray-300::-moz-placeholder, 
 .placeholder-gray-300:-ms-input-placeholder, 
 .placeholder-gray-300::-ms-input-placeholder, 
 .placeholder-gray-300::placeholder {
@@ -461,6 +468,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #e2e8f0;
   color: rgba(226, 232, 240, var(--placeholder-opacity));
 }
+.placeholder-gray-400::-moz-placeholder, 
 .placeholder-gray-400:-ms-input-placeholder, 
 .placeholder-gray-400::-ms-input-placeholder, 
 .placeholder-gray-400::placeholder {
@@ -468,6 +476,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #cbd5e0;
   color: rgba(203, 213, 224, var(--placeholder-opacity));
 }
+.placeholder-gray-500::-moz-placeholder, 
 .placeholder-gray-500:-ms-input-placeholder, 
 .placeholder-gray-500::-ms-input-placeholder, 
 .placeholder-gray-500::placeholder {
@@ -475,6 +484,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #a0aec0;
   color: rgba(160, 174, 192, var(--placeholder-opacity));
 }
+.placeholder-gray-600::-moz-placeholder, 
 .placeholder-gray-600:-ms-input-placeholder, 
 .placeholder-gray-600::-ms-input-placeholder, 
 .placeholder-gray-600::placeholder {
@@ -482,6 +492,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #718096;
   color: rgba(113, 128, 150, var(--placeholder-opacity));
 }
+.placeholder-gray-700::-moz-placeholder, 
 .placeholder-gray-700:-ms-input-placeholder, 
 .placeholder-gray-700::-ms-input-placeholder, 
 .placeholder-gray-700::placeholder {
@@ -489,6 +500,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #4a5568;
   color: rgba(74, 85, 104, var(--placeholder-opacity));
 }
+.placeholder-gray-800::-moz-placeholder, 
 .placeholder-gray-800:-ms-input-placeholder, 
 .placeholder-gray-800::-ms-input-placeholder, 
 .placeholder-gray-800::placeholder {
@@ -496,6 +508,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #2d3748;
   color: rgba(45, 55, 72, var(--placeholder-opacity));
 }
+.placeholder-gray-900::-moz-placeholder, 
 .placeholder-gray-900:-ms-input-placeholder, 
 .placeholder-gray-900::-ms-input-placeholder, 
 .placeholder-gray-900::placeholder {
@@ -503,6 +516,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #1a202c;
   color: rgba(26, 32, 44, var(--placeholder-opacity));
 }
+.placeholder-red-100::-moz-placeholder, 
 .placeholder-red-100:-ms-input-placeholder, 
 .placeholder-red-100::-ms-input-placeholder, 
 .placeholder-red-100::placeholder {
@@ -510,6 +524,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #fff5f5;
   color: rgba(255, 245, 245, var(--placeholder-opacity));
 }
+.placeholder-red-200::-moz-placeholder, 
 .placeholder-red-200:-ms-input-placeholder, 
 .placeholder-red-200::-ms-input-placeholder, 
 .placeholder-red-200::placeholder {
@@ -517,6 +532,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #fed7d7;
   color: rgba(254, 215, 215, var(--placeholder-opacity));
 }
+.placeholder-red-300::-moz-placeholder, 
 .placeholder-red-300:-ms-input-placeholder, 
 .placeholder-red-300::-ms-input-placeholder, 
 .placeholder-red-300::placeholder {
@@ -524,6 +540,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #feb2b2;
   color: rgba(254, 178, 178, var(--placeholder-opacity));
 }
+.placeholder-red-400::-moz-placeholder, 
 .placeholder-red-400:-ms-input-placeholder, 
 .placeholder-red-400::-ms-input-placeholder, 
 .placeholder-red-400::placeholder {
@@ -531,6 +548,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #fc8181;
   color: rgba(252, 129, 129, var(--placeholder-opacity));
 }
+.placeholder-red-500::-moz-placeholder, 
 .placeholder-red-500:-ms-input-placeholder, 
 .placeholder-red-500::-ms-input-placeholder, 
 .placeholder-red-500::placeholder {
@@ -538,6 +556,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #f56565;
   color: rgba(245, 101, 101, var(--placeholder-opacity));
 }
+.placeholder-red-600::-moz-placeholder, 
 .placeholder-red-600:-ms-input-placeholder, 
 .placeholder-red-600::-ms-input-placeholder, 
 .placeholder-red-600::placeholder {
@@ -545,6 +564,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #e53e3e;
   color: rgba(229, 62, 62, var(--placeholder-opacity));
 }
+.placeholder-red-700::-moz-placeholder, 
 .placeholder-red-700:-ms-input-placeholder, 
 .placeholder-red-700::-ms-input-placeholder, 
 .placeholder-red-700::placeholder {
@@ -552,6 +572,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #c53030;
   color: rgba(197, 48, 48, var(--placeholder-opacity));
 }
+.placeholder-red-800::-moz-placeholder, 
 .placeholder-red-800:-ms-input-placeholder, 
 .placeholder-red-800::-ms-input-placeholder, 
 .placeholder-red-800::placeholder {
@@ -559,6 +580,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #9b2c2c;
   color: rgba(155, 44, 44, var(--placeholder-opacity));
 }
+.placeholder-red-900::-moz-placeholder, 
 .placeholder-red-900:-ms-input-placeholder, 
 .placeholder-red-900::-ms-input-placeholder, 
 .placeholder-red-900::placeholder {
@@ -566,6 +588,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #742a2a;
   color: rgba(116, 42, 42, var(--placeholder-opacity));
 }
+.placeholder-orange-100::-moz-placeholder, 
 .placeholder-orange-100:-ms-input-placeholder, 
 .placeholder-orange-100::-ms-input-placeholder, 
 .placeholder-orange-100::placeholder {
@@ -573,6 +596,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #fffaf0;
   color: rgba(255, 250, 240, var(--placeholder-opacity));
 }
+.placeholder-orange-200::-moz-placeholder, 
 .placeholder-orange-200:-ms-input-placeholder, 
 .placeholder-orange-200::-ms-input-placeholder, 
 .placeholder-orange-200::placeholder {
@@ -580,6 +604,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #feebc8;
   color: rgba(254, 235, 200, var(--placeholder-opacity));
 }
+.placeholder-orange-300::-moz-placeholder, 
 .placeholder-orange-300:-ms-input-placeholder, 
 .placeholder-orange-300::-ms-input-placeholder, 
 .placeholder-orange-300::placeholder {
@@ -587,6 +612,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #fbd38d;
   color: rgba(251, 211, 141, var(--placeholder-opacity));
 }
+.placeholder-orange-400::-moz-placeholder, 
 .placeholder-orange-400:-ms-input-placeholder, 
 .placeholder-orange-400::-ms-input-placeholder, 
 .placeholder-orange-400::placeholder {
@@ -594,6 +620,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #f6ad55;
   color: rgba(246, 173, 85, var(--placeholder-opacity));
 }
+.placeholder-orange-500::-moz-placeholder, 
 .placeholder-orange-500:-ms-input-placeholder, 
 .placeholder-orange-500::-ms-input-placeholder, 
 .placeholder-orange-500::placeholder {
@@ -601,6 +628,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #ed8936;
   color: rgba(237, 137, 54, var(--placeholder-opacity));
 }
+.placeholder-orange-600::-moz-placeholder, 
 .placeholder-orange-600:-ms-input-placeholder, 
 .placeholder-orange-600::-ms-input-placeholder, 
 .placeholder-orange-600::placeholder {
@@ -608,6 +636,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #dd6b20;
   color: rgba(221, 107, 32, var(--placeholder-opacity));
 }
+.placeholder-orange-700::-moz-placeholder, 
 .placeholder-orange-700:-ms-input-placeholder, 
 .placeholder-orange-700::-ms-input-placeholder, 
 .placeholder-orange-700::placeholder {
@@ -615,6 +644,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #c05621;
   color: rgba(192, 86, 33, var(--placeholder-opacity));
 }
+.placeholder-orange-800::-moz-placeholder, 
 .placeholder-orange-800:-ms-input-placeholder, 
 .placeholder-orange-800::-ms-input-placeholder, 
 .placeholder-orange-800::placeholder {
@@ -622,6 +652,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #9c4221;
   color: rgba(156, 66, 33, var(--placeholder-opacity));
 }
+.placeholder-orange-900::-moz-placeholder, 
 .placeholder-orange-900:-ms-input-placeholder, 
 .placeholder-orange-900::-ms-input-placeholder, 
 .placeholder-orange-900::placeholder {
@@ -629,6 +660,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #7b341e;
   color: rgba(123, 52, 30, var(--placeholder-opacity));
 }
+.placeholder-yellow-100::-moz-placeholder, 
 .placeholder-yellow-100:-ms-input-placeholder, 
 .placeholder-yellow-100::-ms-input-placeholder, 
 .placeholder-yellow-100::placeholder {
@@ -636,6 +668,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: ivory;
   color: rgba(255, 255, 240, var(--placeholder-opacity));
 }
+.placeholder-yellow-200::-moz-placeholder, 
 .placeholder-yellow-200:-ms-input-placeholder, 
 .placeholder-yellow-200::-ms-input-placeholder, 
 .placeholder-yellow-200::placeholder {
@@ -643,6 +676,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #fefcbf;
   color: rgba(254, 252, 191, var(--placeholder-opacity));
 }
+.placeholder-yellow-300::-moz-placeholder, 
 .placeholder-yellow-300:-ms-input-placeholder, 
 .placeholder-yellow-300::-ms-input-placeholder, 
 .placeholder-yellow-300::placeholder {
@@ -650,6 +684,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #faf089;
   color: rgba(250, 240, 137, var(--placeholder-opacity));
 }
+.placeholder-yellow-400::-moz-placeholder, 
 .placeholder-yellow-400:-ms-input-placeholder, 
 .placeholder-yellow-400::-ms-input-placeholder, 
 .placeholder-yellow-400::placeholder {
@@ -657,6 +692,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #f6e05e;
   color: rgba(246, 224, 94, var(--placeholder-opacity));
 }
+.placeholder-yellow-500::-moz-placeholder, 
 .placeholder-yellow-500:-ms-input-placeholder, 
 .placeholder-yellow-500::-ms-input-placeholder, 
 .placeholder-yellow-500::placeholder {
@@ -664,6 +700,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #ecc94b;
   color: rgba(236, 201, 75, var(--placeholder-opacity));
 }
+.placeholder-yellow-600::-moz-placeholder, 
 .placeholder-yellow-600:-ms-input-placeholder, 
 .placeholder-yellow-600::-ms-input-placeholder, 
 .placeholder-yellow-600::placeholder {
@@ -671,6 +708,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #d69e2e;
   color: rgba(214, 158, 46, var(--placeholder-opacity));
 }
+.placeholder-yellow-700::-moz-placeholder, 
 .placeholder-yellow-700:-ms-input-placeholder, 
 .placeholder-yellow-700::-ms-input-placeholder, 
 .placeholder-yellow-700::placeholder {
@@ -678,6 +716,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #b7791f;
   color: rgba(183, 121, 31, var(--placeholder-opacity));
 }
+.placeholder-yellow-800::-moz-placeholder, 
 .placeholder-yellow-800:-ms-input-placeholder, 
 .placeholder-yellow-800::-ms-input-placeholder, 
 .placeholder-yellow-800::placeholder {
@@ -685,6 +724,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #975a16;
   color: rgba(151, 90, 22, var(--placeholder-opacity));
 }
+.placeholder-yellow-900::-moz-placeholder, 
 .placeholder-yellow-900:-ms-input-placeholder, 
 .placeholder-yellow-900::-ms-input-placeholder, 
 .placeholder-yellow-900::placeholder {
@@ -692,6 +732,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #744210;
   color: rgba(116, 66, 16, var(--placeholder-opacity));
 }
+.placeholder-green-100::-moz-placeholder, 
 .placeholder-green-100:-ms-input-placeholder, 
 .placeholder-green-100::-ms-input-placeholder, 
 .placeholder-green-100::placeholder {
@@ -699,6 +740,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #f0fff4;
   color: rgba(240, 255, 244, var(--placeholder-opacity));
 }
+.placeholder-green-200::-moz-placeholder, 
 .placeholder-green-200:-ms-input-placeholder, 
 .placeholder-green-200::-ms-input-placeholder, 
 .placeholder-green-200::placeholder {
@@ -706,6 +748,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #c6f6d5;
   color: rgba(198, 246, 213, var(--placeholder-opacity));
 }
+.placeholder-green-300::-moz-placeholder, 
 .placeholder-green-300:-ms-input-placeholder, 
 .placeholder-green-300::-ms-input-placeholder, 
 .placeholder-green-300::placeholder {
@@ -713,6 +756,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #9ae6b4;
   color: rgba(154, 230, 180, var(--placeholder-opacity));
 }
+.placeholder-green-400::-moz-placeholder, 
 .placeholder-green-400:-ms-input-placeholder, 
 .placeholder-green-400::-ms-input-placeholder, 
 .placeholder-green-400::placeholder {
@@ -720,6 +764,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #68d391;
   color: rgba(104, 211, 145, var(--placeholder-opacity));
 }
+.placeholder-green-500::-moz-placeholder, 
 .placeholder-green-500:-ms-input-placeholder, 
 .placeholder-green-500::-ms-input-placeholder, 
 .placeholder-green-500::placeholder {
@@ -727,6 +772,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #48bb78;
   color: rgba(72, 187, 120, var(--placeholder-opacity));
 }
+.placeholder-green-600::-moz-placeholder, 
 .placeholder-green-600:-ms-input-placeholder, 
 .placeholder-green-600::-ms-input-placeholder, 
 .placeholder-green-600::placeholder {
@@ -734,6 +780,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #38a169;
   color: rgba(56, 161, 105, var(--placeholder-opacity));
 }
+.placeholder-green-700::-moz-placeholder, 
 .placeholder-green-700:-ms-input-placeholder, 
 .placeholder-green-700::-ms-input-placeholder, 
 .placeholder-green-700::placeholder {
@@ -741,6 +788,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #2f855a;
   color: rgba(47, 133, 90, var(--placeholder-opacity));
 }
+.placeholder-green-800::-moz-placeholder, 
 .placeholder-green-800:-ms-input-placeholder, 
 .placeholder-green-800::-ms-input-placeholder, 
 .placeholder-green-800::placeholder {
@@ -748,6 +796,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #276749;
   color: rgba(39, 103, 73, var(--placeholder-opacity));
 }
+.placeholder-green-900::-moz-placeholder, 
 .placeholder-green-900:-ms-input-placeholder, 
 .placeholder-green-900::-ms-input-placeholder, 
 .placeholder-green-900::placeholder {
@@ -755,6 +804,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #22543d;
   color: rgba(34, 84, 61, var(--placeholder-opacity));
 }
+.placeholder-teal-100::-moz-placeholder, 
 .placeholder-teal-100:-ms-input-placeholder, 
 .placeholder-teal-100::-ms-input-placeholder, 
 .placeholder-teal-100::placeholder {
@@ -762,6 +812,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #e6fffa;
   color: rgba(230, 255, 250, var(--placeholder-opacity));
 }
+.placeholder-teal-200::-moz-placeholder, 
 .placeholder-teal-200:-ms-input-placeholder, 
 .placeholder-teal-200::-ms-input-placeholder, 
 .placeholder-teal-200::placeholder {
@@ -769,6 +820,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #b2f5ea;
   color: rgba(178, 245, 234, var(--placeholder-opacity));
 }
+.placeholder-teal-300::-moz-placeholder, 
 .placeholder-teal-300:-ms-input-placeholder, 
 .placeholder-teal-300::-ms-input-placeholder, 
 .placeholder-teal-300::placeholder {
@@ -776,6 +828,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #81e6d9;
   color: rgba(129, 230, 217, var(--placeholder-opacity));
 }
+.placeholder-teal-400::-moz-placeholder, 
 .placeholder-teal-400:-ms-input-placeholder, 
 .placeholder-teal-400::-ms-input-placeholder, 
 .placeholder-teal-400::placeholder {
@@ -783,6 +836,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #4fd1c5;
   color: rgba(79, 209, 197, var(--placeholder-opacity));
 }
+.placeholder-teal-500::-moz-placeholder, 
 .placeholder-teal-500:-ms-input-placeholder, 
 .placeholder-teal-500::-ms-input-placeholder, 
 .placeholder-teal-500::placeholder {
@@ -790,6 +844,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #38b2ac;
   color: rgba(56, 178, 172, var(--placeholder-opacity));
 }
+.placeholder-teal-600::-moz-placeholder, 
 .placeholder-teal-600:-ms-input-placeholder, 
 .placeholder-teal-600::-ms-input-placeholder, 
 .placeholder-teal-600::placeholder {
@@ -797,6 +852,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #319795;
   color: rgba(49, 151, 149, var(--placeholder-opacity));
 }
+.placeholder-teal-700::-moz-placeholder, 
 .placeholder-teal-700:-ms-input-placeholder, 
 .placeholder-teal-700::-ms-input-placeholder, 
 .placeholder-teal-700::placeholder {
@@ -804,6 +860,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #2c7a7b;
   color: rgba(44, 122, 123, var(--placeholder-opacity));
 }
+.placeholder-teal-800::-moz-placeholder, 
 .placeholder-teal-800:-ms-input-placeholder, 
 .placeholder-teal-800::-ms-input-placeholder, 
 .placeholder-teal-800::placeholder {
@@ -811,6 +868,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #285e61;
   color: rgba(40, 94, 97, var(--placeholder-opacity));
 }
+.placeholder-teal-900::-moz-placeholder, 
 .placeholder-teal-900:-ms-input-placeholder, 
 .placeholder-teal-900::-ms-input-placeholder, 
 .placeholder-teal-900::placeholder {
@@ -818,6 +876,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #234e52;
   color: rgba(35, 78, 82, var(--placeholder-opacity));
 }
+.placeholder-blue-100::-moz-placeholder, 
 .placeholder-blue-100:-ms-input-placeholder, 
 .placeholder-blue-100::-ms-input-placeholder, 
 .placeholder-blue-100::placeholder {
@@ -825,6 +884,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #ebf8ff;
   color: rgba(235, 248, 255, var(--placeholder-opacity));
 }
+.placeholder-blue-200::-moz-placeholder, 
 .placeholder-blue-200:-ms-input-placeholder, 
 .placeholder-blue-200::-ms-input-placeholder, 
 .placeholder-blue-200::placeholder {
@@ -832,6 +892,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #bee3f8;
   color: rgba(190, 227, 248, var(--placeholder-opacity));
 }
+.placeholder-blue-300::-moz-placeholder, 
 .placeholder-blue-300:-ms-input-placeholder, 
 .placeholder-blue-300::-ms-input-placeholder, 
 .placeholder-blue-300::placeholder {
@@ -839,6 +900,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #90cdf4;
   color: rgba(144, 205, 244, var(--placeholder-opacity));
 }
+.placeholder-blue-400::-moz-placeholder, 
 .placeholder-blue-400:-ms-input-placeholder, 
 .placeholder-blue-400::-ms-input-placeholder, 
 .placeholder-blue-400::placeholder {
@@ -846,6 +908,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #63b3ed;
   color: rgba(99, 179, 237, var(--placeholder-opacity));
 }
+.placeholder-blue-500::-moz-placeholder, 
 .placeholder-blue-500:-ms-input-placeholder, 
 .placeholder-blue-500::-ms-input-placeholder, 
 .placeholder-blue-500::placeholder {
@@ -853,6 +916,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #4299e1;
   color: rgba(66, 153, 225, var(--placeholder-opacity));
 }
+.placeholder-blue-600::-moz-placeholder, 
 .placeholder-blue-600:-ms-input-placeholder, 
 .placeholder-blue-600::-ms-input-placeholder, 
 .placeholder-blue-600::placeholder {
@@ -860,6 +924,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #3182ce;
   color: rgba(49, 130, 206, var(--placeholder-opacity));
 }
+.placeholder-blue-700::-moz-placeholder, 
 .placeholder-blue-700:-ms-input-placeholder, 
 .placeholder-blue-700::-ms-input-placeholder, 
 .placeholder-blue-700::placeholder {
@@ -867,6 +932,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #2b6cb0;
   color: rgba(43, 108, 176, var(--placeholder-opacity));
 }
+.placeholder-blue-800::-moz-placeholder, 
 .placeholder-blue-800:-ms-input-placeholder, 
 .placeholder-blue-800::-ms-input-placeholder, 
 .placeholder-blue-800::placeholder {
@@ -874,6 +940,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #2c5282;
   color: rgba(44, 82, 130, var(--placeholder-opacity));
 }
+.placeholder-blue-900::-moz-placeholder, 
 .placeholder-blue-900:-ms-input-placeholder, 
 .placeholder-blue-900::-ms-input-placeholder, 
 .placeholder-blue-900::placeholder {
@@ -881,6 +948,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #2a4365;
   color: rgba(42, 67, 101, var(--placeholder-opacity));
 }
+.placeholder-indigo-100::-moz-placeholder, 
 .placeholder-indigo-100:-ms-input-placeholder, 
 .placeholder-indigo-100::-ms-input-placeholder, 
 .placeholder-indigo-100::placeholder {
@@ -888,6 +956,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #ebf4ff;
   color: rgba(235, 244, 255, var(--placeholder-opacity));
 }
+.placeholder-indigo-200::-moz-placeholder, 
 .placeholder-indigo-200:-ms-input-placeholder, 
 .placeholder-indigo-200::-ms-input-placeholder, 
 .placeholder-indigo-200::placeholder {
@@ -895,6 +964,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #c3dafe;
   color: rgba(195, 218, 254, var(--placeholder-opacity));
 }
+.placeholder-indigo-300::-moz-placeholder, 
 .placeholder-indigo-300:-ms-input-placeholder, 
 .placeholder-indigo-300::-ms-input-placeholder, 
 .placeholder-indigo-300::placeholder {
@@ -902,6 +972,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #a3bffa;
   color: rgba(163, 191, 250, var(--placeholder-opacity));
 }
+.placeholder-indigo-400::-moz-placeholder, 
 .placeholder-indigo-400:-ms-input-placeholder, 
 .placeholder-indigo-400::-ms-input-placeholder, 
 .placeholder-indigo-400::placeholder {
@@ -909,6 +980,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #7f9cf5;
   color: rgba(127, 156, 245, var(--placeholder-opacity));
 }
+.placeholder-indigo-500::-moz-placeholder, 
 .placeholder-indigo-500:-ms-input-placeholder, 
 .placeholder-indigo-500::-ms-input-placeholder, 
 .placeholder-indigo-500::placeholder {
@@ -916,6 +988,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #667eea;
   color: rgba(102, 126, 234, var(--placeholder-opacity));
 }
+.placeholder-indigo-600::-moz-placeholder, 
 .placeholder-indigo-600:-ms-input-placeholder, 
 .placeholder-indigo-600::-ms-input-placeholder, 
 .placeholder-indigo-600::placeholder {
@@ -923,6 +996,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #5a67d8;
   color: rgba(90, 103, 216, var(--placeholder-opacity));
 }
+.placeholder-indigo-700::-moz-placeholder, 
 .placeholder-indigo-700:-ms-input-placeholder, 
 .placeholder-indigo-700::-ms-input-placeholder, 
 .placeholder-indigo-700::placeholder {
@@ -930,6 +1004,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #4c51bf;
   color: rgba(76, 81, 191, var(--placeholder-opacity));
 }
+.placeholder-indigo-800::-moz-placeholder, 
 .placeholder-indigo-800:-ms-input-placeholder, 
 .placeholder-indigo-800::-ms-input-placeholder, 
 .placeholder-indigo-800::placeholder {
@@ -937,6 +1012,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #434190;
   color: rgba(67, 65, 144, var(--placeholder-opacity));
 }
+.placeholder-indigo-900::-moz-placeholder, 
 .placeholder-indigo-900:-ms-input-placeholder, 
 .placeholder-indigo-900::-ms-input-placeholder, 
 .placeholder-indigo-900::placeholder {
@@ -944,6 +1020,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #3c366b;
   color: rgba(60, 54, 107, var(--placeholder-opacity));
 }
+.placeholder-purple-100::-moz-placeholder, 
 .placeholder-purple-100:-ms-input-placeholder, 
 .placeholder-purple-100::-ms-input-placeholder, 
 .placeholder-purple-100::placeholder {
@@ -951,6 +1028,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #faf5ff;
   color: rgba(250, 245, 255, var(--placeholder-opacity));
 }
+.placeholder-purple-200::-moz-placeholder, 
 .placeholder-purple-200:-ms-input-placeholder, 
 .placeholder-purple-200::-ms-input-placeholder, 
 .placeholder-purple-200::placeholder {
@@ -958,6 +1036,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #e9d8fd;
   color: rgba(233, 216, 253, var(--placeholder-opacity));
 }
+.placeholder-purple-300::-moz-placeholder, 
 .placeholder-purple-300:-ms-input-placeholder, 
 .placeholder-purple-300::-ms-input-placeholder, 
 .placeholder-purple-300::placeholder {
@@ -965,6 +1044,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #d6bcfa;
   color: rgba(214, 188, 250, var(--placeholder-opacity));
 }
+.placeholder-purple-400::-moz-placeholder, 
 .placeholder-purple-400:-ms-input-placeholder, 
 .placeholder-purple-400::-ms-input-placeholder, 
 .placeholder-purple-400::placeholder {
@@ -972,6 +1052,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #b794f4;
   color: rgba(183, 148, 244, var(--placeholder-opacity));
 }
+.placeholder-purple-500::-moz-placeholder, 
 .placeholder-purple-500:-ms-input-placeholder, 
 .placeholder-purple-500::-ms-input-placeholder, 
 .placeholder-purple-500::placeholder {
@@ -979,6 +1060,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #9f7aea;
   color: rgba(159, 122, 234, var(--placeholder-opacity));
 }
+.placeholder-purple-600::-moz-placeholder, 
 .placeholder-purple-600:-ms-input-placeholder, 
 .placeholder-purple-600::-ms-input-placeholder, 
 .placeholder-purple-600::placeholder {
@@ -986,6 +1068,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #805ad5;
   color: rgba(128, 90, 213, var(--placeholder-opacity));
 }
+.placeholder-purple-700::-moz-placeholder, 
 .placeholder-purple-700:-ms-input-placeholder, 
 .placeholder-purple-700::-ms-input-placeholder, 
 .placeholder-purple-700::placeholder {
@@ -993,6 +1076,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #6b46c1;
   color: rgba(107, 70, 193, var(--placeholder-opacity));
 }
+.placeholder-purple-800::-moz-placeholder, 
 .placeholder-purple-800:-ms-input-placeholder, 
 .placeholder-purple-800::-ms-input-placeholder, 
 .placeholder-purple-800::placeholder {
@@ -1000,6 +1084,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #553c9a;
   color: rgba(85, 60, 154, var(--placeholder-opacity));
 }
+.placeholder-purple-900::-moz-placeholder, 
 .placeholder-purple-900:-ms-input-placeholder, 
 .placeholder-purple-900::-ms-input-placeholder, 
 .placeholder-purple-900::placeholder {
@@ -1007,6 +1092,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #44337a;
   color: rgba(68, 51, 122, var(--placeholder-opacity));
 }
+.placeholder-pink-100::-moz-placeholder, 
 .placeholder-pink-100:-ms-input-placeholder, 
 .placeholder-pink-100::-ms-input-placeholder, 
 .placeholder-pink-100::placeholder {
@@ -1014,6 +1100,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #fff5f7;
   color: rgba(255, 245, 247, var(--placeholder-opacity));
 }
+.placeholder-pink-200::-moz-placeholder, 
 .placeholder-pink-200:-ms-input-placeholder, 
 .placeholder-pink-200::-ms-input-placeholder, 
 .placeholder-pink-200::placeholder {
@@ -1021,6 +1108,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #fed7e2;
   color: rgba(254, 215, 226, var(--placeholder-opacity));
 }
+.placeholder-pink-300::-moz-placeholder, 
 .placeholder-pink-300:-ms-input-placeholder, 
 .placeholder-pink-300::-ms-input-placeholder, 
 .placeholder-pink-300::placeholder {
@@ -1028,6 +1116,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #fbb6ce;
   color: rgba(251, 182, 206, var(--placeholder-opacity));
 }
+.placeholder-pink-400::-moz-placeholder, 
 .placeholder-pink-400:-ms-input-placeholder, 
 .placeholder-pink-400::-ms-input-placeholder, 
 .placeholder-pink-400::placeholder {
@@ -1035,6 +1124,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #f687b3;
   color: rgba(246, 135, 179, var(--placeholder-opacity));
 }
+.placeholder-pink-500::-moz-placeholder, 
 .placeholder-pink-500:-ms-input-placeholder, 
 .placeholder-pink-500::-ms-input-placeholder, 
 .placeholder-pink-500::placeholder {
@@ -1042,6 +1132,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #ed64a6;
   color: rgba(237, 100, 166, var(--placeholder-opacity));
 }
+.placeholder-pink-600::-moz-placeholder, 
 .placeholder-pink-600:-ms-input-placeholder, 
 .placeholder-pink-600::-ms-input-placeholder, 
 .placeholder-pink-600::placeholder {
@@ -1049,6 +1140,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #d53f8c;
   color: rgba(213, 63, 140, var(--placeholder-opacity));
 }
+.placeholder-pink-700::-moz-placeholder, 
 .placeholder-pink-700:-ms-input-placeholder, 
 .placeholder-pink-700::-ms-input-placeholder, 
 .placeholder-pink-700::placeholder {
@@ -1056,6 +1148,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #b83280;
   color: rgba(184, 50, 128, var(--placeholder-opacity));
 }
+.placeholder-pink-800::-moz-placeholder, 
 .placeholder-pink-800:-ms-input-placeholder, 
 .placeholder-pink-800::-ms-input-placeholder, 
 .placeholder-pink-800::placeholder {
@@ -1063,6 +1156,7 @@ Deno.test("(CSS) Placeholder Color", () => {
   color: #97266d;
   color: rgba(151, 38, 109, var(--placeholder-opacity));
 }
+.placeholder-pink-900::-moz-placeholder, 
 .placeholder-pink-900:-ms-input-placeholder, 
 .placeholder-pink-900::-ms-input-placeholder, 
 .placeholder-pink-900::placeholder {
@@ -1077,8 +1171,6 @@ Deno.test("(CSS) Placeholder Color", () => {
 
 Deno.test("(CSS) Placeholder Opacity", () => {
   const css = new Set([
-    "placeholder-opacity-0",
-    "placeholder-opacity-25",
     "placeholder-opacity-33",
     "placeholder-opacity-50",
     "placeholder-opacity-75",
@@ -1090,31 +1182,26 @@ Deno.test("(CSS) Placeholder Opacity", () => {
   const output = t.getStylesheet();
 
   const expected = `
-.placeholder-opacity-0:-ms-input-placeholder, 
-.placeholder-opacity-0::-ms-input-placeholder, 
-.placeholder-opacity-0::placeholder {
-  --placeholder-opacity: 0;
-}
-.placeholder-opacity-25:-ms-input-placeholder, 
-.placeholder-opacity-25::-ms-input-placeholder, 
-.placeholder-opacity-25::placeholder {
-  --placeholder-opacity: 0.25;
-}
+
+.placeholder-opacity-33::-moz-placeholder, 
 .placeholder-opacity-33:-ms-input-placeholder, 
 .placeholder-opacity-33::-ms-input-placeholder, 
 .placeholder-opacity-33::placeholder {
   --placeholder-opacity: 0.33;
 }
+.placeholder-opacity-50::-moz-placeholder, 
 .placeholder-opacity-50:-ms-input-placeholder, 
 .placeholder-opacity-50::-ms-input-placeholder, 
 .placeholder-opacity-50::placeholder {
   --placeholder-opacity: 0.5;
 }
+.placeholder-opacity-75::-moz-placeholder, 
 .placeholder-opacity-75:-ms-input-placeholder, 
 .placeholder-opacity-75::-ms-input-placeholder, 
 .placeholder-opacity-75::placeholder {
   --placeholder-opacity: 0.75;
 }
+.placeholder-opacity-100::-moz-placeholder, 
 .placeholder-opacity-100:-ms-input-placeholder, 
 .placeholder-opacity-100::-ms-input-placeholder, 
 .placeholder-opacity-100::placeholder {

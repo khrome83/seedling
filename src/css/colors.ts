@@ -210,7 +210,7 @@ export const tailwindui = new Map([
   ["pink-900", { hex: "#751a3d", rgb: "117, 26, 61" }],
 ]) as Map<string, ColorDefinition>;
 
-export default (pallet: string = "tailwindcss") => {
+export default (pallet = "tailwindcss") => {
   switch (pallet) {
     case "tailwindui":
       return tailwindui;

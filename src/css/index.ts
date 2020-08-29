@@ -219,7 +219,6 @@ export default class TailwindGenerator {
     let preName = "";
     let postName = "";
     let level = 0;
-    let media = "";
 
     // Get Any Modifiers, like md: or hover:
     while ((pos = modifiedClassName.indexOf(seperator)) !== -1) {
@@ -245,8 +244,6 @@ export default class TailwindGenerator {
       } else if (mediaQueries.has(part)) {
         // Media Queries
         const { pre, post } = mediaQueries.get(part) as ModifySelector;
-
-        media = part;
 
         if (!sheet.has(part)) {
           sheet.set(part, {
@@ -305,9 +302,15 @@ export default class TailwindGenerator {
         additions.add(token);
       }
 
-      // Scale for 1/2 to 1\/2
+      // Modify for 1/2 to 1\/2
       if (display.indexOf("/") !== -1) {
         display = display.replace("/", "\\/");
+      }
+
+      // Modify for 0.5 to 0\.5
+      const regex = /(\w)(\.)(\w)/g;
+      if (regex.test(display)) {
+        display = display.replace(regex, "$1\\.$3");
       }
 
       // Get Properties for Class
@@ -338,7 +341,8 @@ export default class TailwindGenerator {
               if ((i + 1) === len) {
                 post = itemPost[i];
               } else {
-                classList += this.indent(level) + pre + display + itemPost[i] +
+                classList += this.indent(level) + pre + display +
+                  itemPost[i] +
                   ", " + this.newline();
               }
             }
@@ -1063,6 +1067,14 @@ export default class TailwindGenerator {
         return i + "width: 100vw;" + nl;
       case "0":
         return i + "width: 0;" + nl;
+      case "min-content":
+        return i + "width: -webkit-min-content;" + nl +
+          i + "width: -moz-min-content;" + nl +
+          i + "width: min-content;" + nl;
+      case "max-content":
+        return i + "width: -webkit-max-content;" + nl +
+          i + "width: -moz-max-content;" + nl +
+          i + "width: max-content;" + nl;
     }
 
     const pos = token.indexOf("/");
@@ -1093,6 +1105,14 @@ export default class TailwindGenerator {
         return i + "min-width: 100%;" + nl;
       case "w-0":
         return i + "min-width: 0;" + nl;
+      case "w-min-content":
+        return i + "min-width: -webkit-min-content;" + nl +
+          i + "min-width: -moz-min-content;" + nl +
+          i + "min-width: min-content;" + nl;
+      case "w-max-content":
+        return i + "min-width: -webkit-max-content;" + nl +
+          i + "min-width: -moz-max-content;" + nl +
+          i + "min-width: max-content;" + nl;
       default:
         return;
     }
@@ -1146,6 +1166,16 @@ export default class TailwindGenerator {
         return i + "max-width: 1024px;" + nl;
       case "w-screen-xl":
         return i + "max-width: 1280px;" + nl;
+      case "w-min-content":
+        return i + "max-width: -webkit-min-content;" + nl +
+          i + "max-width: -moz-min-content;" + nl +
+          i + "max-width: min-content;" + nl;
+      case "w-max-content":
+        return i + "max-width: -webkit-max-content;" + nl +
+          i + "max-width: -moz-max-content;" + nl +
+          i + "max-width: max-content;" + nl;
+      case "w-prose":
+        return i + "max-width: 65ch;" + nl;
       default:
         return;
     }
@@ -1258,7 +1288,8 @@ export default class TailwindGenerator {
     const i = this.indent(level + 1);
     const nl = this.newline();
 
-    return i + "object-fit: " + token + ";" + nl;
+    return i + "-o-object-fit: " + token + ";" + nl +
+      i + "object-fit: " + token + ";" + nl;
   }
 
   private getObjectPosition(
@@ -1274,7 +1305,8 @@ export default class TailwindGenerator {
     const i = this.indent(level + 1);
     const nl = this.newline();
 
-    return i + "object-position: " + token.replace("-", " ") + ";" + nl;
+    return i + "-o-object-position: " + token.replace("-", " ") + ";" + nl +
+      i + "object-position: " + token.replace("-", " ") + ";" + nl;
   }
 
   private getOverflow(
@@ -1812,6 +1844,10 @@ export default class TailwindGenerator {
       return i + "grid-column: auto;" + nl;
     }
 
+    const split = amount?.indexOf("/");
+    let d;
+    let n;
+
     switch (type) {
       case "span":
         return i + "grid-column: span " + amount + " / span " + amount + ";" +
@@ -1820,6 +1856,31 @@ export default class TailwindGenerator {
         return i + "grid-column-start: " + amount + ";" + nl;
       case "end":
         return i + "grid-column-end: " + amount + ";" + nl;
+      case "gap":
+        if (amount === "px") {
+          return i + "grid-column-gap: 1px;" + nl +
+            i + "-moz-column-gap: 1px;" + nl +
+            i + "column-gap: 1px;" + nl;
+        } else if (amount === "full") {
+          return i + "grid-column-gap: 100%;" + nl +
+            i + "-moz-column-gap: 100%;" + nl +
+            i + "column-gap: 100%;" + nl;
+        } else if (amount === "0") {
+          return i + "grid-column-gap: 0;" + nl +
+            i + "-moz-column-gap: 0;" + nl +
+            i + "column-gap: 0;" + nl;
+        } else if (split !== -1) {
+          d = amount.substring(0, split);
+          n = amount.substring(split + 1);
+          return i + "grid-column-gap: " + ((+d / +n) * 100) + "%;" + nl +
+            i + "-moz-column-gap: " + ((+d / +n) * 100) + "%;" + nl +
+            i + "column-gap: " + ((+d / +n) * 100) + "%;" + nl;
+        } else {
+          return i + "grid-column-gap: " + (+amount * 0.25) + "rem;" + nl +
+            i + "-moz-column-gap: " + (+amount * 0.25) + "rem;" + nl +
+            i + "column-gap: " + (+amount * 0.25) + "rem;" + nl;
+        }
+        return i + "" + nl;
       default:
         return;
     }
@@ -1848,6 +1909,10 @@ export default class TailwindGenerator {
       return i + "grid-row: auto;" + nl;
     }
 
+    const split = amount?.indexOf("/");
+    let d;
+    let n;
+
     switch (type) {
       case "span":
         return i + "grid-row: span " + amount + " / span " + amount + ";" +
@@ -1856,6 +1921,25 @@ export default class TailwindGenerator {
         return i + "grid-row-start: " + amount + ";" + nl;
       case "end":
         return i + "grid-row-end: " + amount + ";" + nl;
+      case "gap":
+        if (amount === "px") {
+          return i + "grid-row-gap: 1px;" + nl +
+            i + "row-gap: 1px;" + nl;
+        } else if (amount === "full") {
+          return i + "grid-row-gap: 100%;" + nl +
+            i + "row-gap: 100%;" + nl;
+        } else if (amount === "0") {
+          return i + "grid-row-gap: 0;" + nl +
+            i + "row-gap: 0;" + nl;
+        } else if (split !== -1) {
+          d = amount.substring(0, split);
+          n = amount.substring(split + 1);
+          return i + "grid-row-gap: " + ((+d / +n) * 100) + "%;" + nl +
+            i + "row-gap: " + ((+d / +n) * 100) + "%;" + nl;
+        } else {
+          return i + "grid-row-gap: " + (+amount * 0.25) + "rem;" + nl +
+            i + "row-gap: " + (+amount * 0.25) + "rem;" + nl;
+        }
       default:
         return;
     }
@@ -2092,6 +2176,7 @@ export default class TailwindGenerator {
 
     return i + "-webkit-user-select: " + token + ";" + nl +
       i + "-moz-user-select: " + token + ";" + nl +
+      i + "-ms-user-select: " + token + ";" + nl +
       i + "user-select: " + token + ";" + nl;
   }
 
@@ -3465,6 +3550,7 @@ export default class TailwindGenerator {
 
     return {
       post: [
+        "::-moz-placeholder",
         ":-ms-input-placeholder",
         "::-ms-input-placeholder",
         "::placeholder",
@@ -3501,6 +3587,7 @@ export default class TailwindGenerator {
 
       return {
         post: [
+          "::-moz-placeholder",
           ":-ms-input-placeholder",
           "::-ms-input-placeholder",
           "::placeholder",

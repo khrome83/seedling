@@ -42,6 +42,12 @@ Deno.test("(CSS) Grid Column Start / End", () => {
     "col-end-1",
     "col-end-20",
     "col-end-auto",
+    "col-gap-0",
+    "col-gap-1",
+    "col-gap-px",
+    "col-gap-0.5",
+    "col-gap-1/2",
+    "col-gap-full",
   ]);
 
   const t = new TailwindGenerator();
@@ -75,6 +81,36 @@ Deno.test("(CSS) Grid Column Start / End", () => {
 }
 .col-end-auto {
   grid-column-end: auto;
+}
+.col-gap-0 {
+  grid-column-gap: 0;
+  -moz-column-gap: 0;
+  column-gap: 0;
+}
+.col-gap-1 {
+  grid-column-gap: 0.25rem;
+  -moz-column-gap: 0.25rem;
+  column-gap: 0.25rem;
+}
+.col-gap-px {
+  grid-column-gap: 1px;
+  -moz-column-gap: 1px;
+  column-gap: 1px;
+}
+.col-gap-0\\.5 {
+  grid-column-gap: 0.125rem;
+  -moz-column-gap: 0.125rem;
+  column-gap: 0.125rem;
+}
+.col-gap-1\\/2 {
+  grid-column-gap: 50%;
+  -moz-column-gap: 50%;
+  column-gap: 50%;
+}
+.col-gap-full {
+  grid-column-gap: 100%;
+  -moz-column-gap: 100%;
+  column-gap: 100%;
 }
   `;
 
@@ -122,6 +158,12 @@ Deno.test("(CSS) Grid Row Start / End", () => {
     "row-end-1",
     "row-end-20",
     "row-end-auto",
+    "row-gap-0",
+    "row-gap-1",
+    "row-gap-px",
+    "row-gap-0.5",
+    "row-gap-1/2",
+    "row-gap-full",
   ]);
 
   const t = new TailwindGenerator();
@@ -155,6 +197,30 @@ Deno.test("(CSS) Grid Row Start / End", () => {
 }
 .row-end-auto {
   grid-row-end: auto;
+}
+.row-gap-0 {
+  grid-row-gap: 0;
+  row-gap: 0;
+}
+.row-gap-1 {
+  grid-row-gap: 0.25rem;
+  row-gap: 0.25rem;
+}
+.row-gap-px {
+  grid-row-gap: 1px;
+  row-gap: 1px;
+}
+.row-gap-0\\.5 {
+  grid-row-gap: 0.125rem;
+  row-gap: 0.125rem;
+}
+.row-gap-1\\/2 {
+  grid-row-gap: 50%;
+  row-gap: 50%;
+}
+.row-gap-full {
+  grid-row-gap: 100%;
+  row-gap: 100%;
 }
   `;
 

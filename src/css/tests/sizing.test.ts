@@ -10,6 +10,8 @@ Deno.test("(CSS) Width", () => {
     "w-0",
     "w-16",
     "w-4/5",
+    "w-min-content",
+    "w-max-content",
   ]);
 
   const t = new TailwindGenerator();
@@ -38,6 +40,16 @@ Deno.test("(CSS) Width", () => {
 .w-4\\/5 {
   width: 80%;
 }
+.w-min-content {
+  width: -webkit-min-content;
+  width: -moz-min-content;
+  width: min-content;
+}
+.w-max-content {
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+}
   `;
 
   assertEquals(output.trim(), expected.trim());
@@ -47,6 +59,8 @@ Deno.test("(CSS) Min-Width", () => {
   const css = new Set([
     "min-w-0",
     "min-w-full",
+    "min-w-min-content",
+    "min-w-max-content",
   ]);
 
   const t = new TailwindGenerator();
@@ -59,6 +73,16 @@ Deno.test("(CSS) Min-Width", () => {
 }
 .min-w-full {
   min-width: 100%;
+}
+.min-w-min-content {
+  min-width: -webkit-min-content;
+  min-width: -moz-min-content;
+  min-width: min-content;
+}
+.min-w-max-content {
+  min-width: -webkit-max-content;
+  min-width: -moz-max-content;
+  min-width: max-content;
 }
   `;
 
@@ -83,6 +107,9 @@ Deno.test("(CSS) Max-Width", () => {
     "max-w-screen-md",
     "max-w-screen-lg",
     "max-w-screen-xl",
+    "max-w-min-content",
+    "max-w-max-content",
+    "max-w-prose",
   ]);
 
   const t = new TailwindGenerator();
@@ -137,6 +164,19 @@ Deno.test("(CSS) Max-Width", () => {
 }
 .max-w-screen-xl {
   max-width: 1280px;
+}
+.max-w-min-content {
+  max-width: -webkit-min-content;
+  max-width: -moz-min-content;
+  max-width: min-content;
+}
+.max-w-max-content {
+  max-width: -webkit-max-content;
+  max-width: -moz-max-content;
+  max-width: max-content;
+}
+.max-w-prose {
+  max-width: 65ch;
 }
   `;
 

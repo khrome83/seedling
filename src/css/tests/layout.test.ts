@@ -216,18 +216,23 @@ Deno.test("(CSS) Object Fit", () => {
 
   const expected = `
 .object-contain {
+  -o-object-fit: contain;
   object-fit: contain;
 }
 .object-cover {
+  -o-object-fit: cover;
   object-fit: cover;
 }
 .object-fill {
+  -o-object-fit: fill;
   object-fit: fill;
 }
 .object-none {
+  -o-object-fit: none;
   object-fit: none;
 }
 .object-scale-down {
+  -o-object-fit: scale-down;
   object-fit: scale-down;
 }
   `;
@@ -254,30 +259,39 @@ Deno.test("(CSS) Object Position", () => {
 
   const expected = `
 .object-bottom {
+  -o-object-position: bottom;
   object-position: bottom;
 }
 .object-center {
+  -o-object-position: center;
   object-position: center;
 }
 .object-left {
+  -o-object-position: left;
   object-position: left;
 }
 .object-left-bottom {
+  -o-object-position: left bottom;
   object-position: left bottom;
 }
 .object-left-top {
+  -o-object-position: left top;
   object-position: left top;
 }
 .object-right {
+  -o-object-position: right;
   object-position: right;
 }
 .object-right-bottom {
+  -o-object-position: right bottom;
   object-position: right bottom;
 }
 .object-right-top {
+  -o-object-position: right top;
   object-position: right top;
 }
 .object-top {
+  -o-object-position: top;
   object-position: top;
 }
   `;
