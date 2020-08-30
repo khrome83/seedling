@@ -172,7 +172,7 @@ const scriptTag = async (
       file: state.__internals__.fileName,
       source: children,
       lang,
-    }]);
+    } as ScriptInstance]);
     return "";
   }
 };
@@ -536,7 +536,7 @@ const logicalExpression = async (
 nodeTypes.set("LogicalExpression", logicalExpression);
 
 // Text AST Node
-const text = (node: Text, state: State, cd: CB) => {
+const text = (node: Text, state: State, cb: CB) => {
   return node.data;
 };
 
@@ -905,7 +905,7 @@ const memberExpression = async (
 nodeTypes.set("MemberExpression", memberExpression);
 
 // IfBlock AST Node
-const ifBlock = async (node: IfBlock, state: State, cd: CB) => {
+const ifBlock = async (node: IfBlock, state: State, cb: CB) => {
   const expression = await compileNode(node.expression, state, cb);
   let output = "";
   if (expression) {
@@ -925,7 +925,7 @@ const ifBlock = async (node: IfBlock, state: State, cd: CB) => {
 nodeTypes.set("IfBlock", ifBlock);
 
 // ElseBlock AST Node
-const elseBlock = async (node: ElseBlock, state: State, cd: CB) => {
+const elseBlock = async (node: ElseBlock, state: State, cb: CB) => {
   let output = "";
   if (node.children.length) {
     output = await unionChildren(node.children, state, cb);
@@ -937,7 +937,7 @@ const elseBlock = async (node: ElseBlock, state: State, cd: CB) => {
 nodeTypes.set("ElseBlock", elseBlock);
 
 // ElseIfBlock AST Node
-const elseIfBlock = (node: ElseIfBlock, state: State, cd: CB) => {
+const elseIfBlock = (node: ElseIfBlock, state: State, cb: CB) => {
   // Convert to IfBlock and return results
   const ifBlock = (node as unknown) as IfBlock;
   ifBlock.type = "IfBlock";
@@ -949,7 +949,7 @@ const elseIfBlock = (node: ElseIfBlock, state: State, cd: CB) => {
 nodeTypes.set("ElseIfBlock", elseIfBlock);
 
 // SkipBlock AST Node
-const skipBlock = async (node: SkipBlock, state: State, cd: CB) => {
+const skipBlock = async (node: SkipBlock, state: State, cb: CB) => {
   const expression = await compileNode(node.expression, state, cb);
   let output = "";
 
@@ -1014,7 +1014,7 @@ const whenBlock = async (
 nodeTypes.set("WhenBlock", whenBlock);
 
 // IsBlock AST Node
-const isBlock = async (node: IsBlock, state: State, cd: CB) => {
+const isBlock = async (node: IsBlock, state: State, cb: CB) => {
   const expression = await compileNode(node.expression, state, cb);
 
   return [expression, node.children];
