@@ -981,9 +981,15 @@ export default class TailwindGenerator {
     // Calulates the amount
     const i = this.indent(level + 1);
     const nl = this.newline();
-    const q = (token === "px") ? 1 : (+token * 0.25);
-    const u = (token === "px") ? "px" : "rem";
-    const amount = ((q === 0) ? q : q + u) + ";" + nl;
+
+    let amount;
+    if (token === "full") {
+      amount = "100%;" + nl;
+    } else {
+      const q = (token === "px") ? 1 : (+token * 0.25);
+      const u = (token === "px") ? "px" : "rem";
+      amount = ((q === 0) ? q : q + u) + ";" + nl;
+    }
 
     switch (identifier) {
       case "p":
@@ -1018,14 +1024,20 @@ export default class TailwindGenerator {
     // Calulates the amount
     const i = this.indent(level + 1);
     const nl = this.newline();
-    const q = (token === "px")
-      ? 1
-      : (token === "auto")
-      ? "auto"
-      : +token * 0.25;
     const n = negative ? "-" : "";
-    const u = (token === "px") ? "px" : "rem";
-    const amount = n + ((q === 0 || q === "auto") ? q : q + u) + ";" + nl;
+
+    let amount;
+    if (token === "full") {
+      amount = n + "100%;" + nl;
+    } else {
+      const q = (token === "px")
+        ? 1
+        : (token === "auto")
+        ? "auto"
+        : +token * 0.25;
+      const u = (token === "px") ? "px" : "rem";
+      amount = n + ((q === 0 || q === "auto") ? q : q + u) + ";" + nl;
+    }
 
     switch (identifier) {
       case "m":

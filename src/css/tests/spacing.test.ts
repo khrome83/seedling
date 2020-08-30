@@ -12,6 +12,7 @@ Deno.test("(CSS) Padding", () => {
     "pr-6",
     "pb-5",
     "pl-8",
+    "p-full",
   ]);
 
   const t = new TailwindGenerator();
@@ -42,6 +43,9 @@ Deno.test("(CSS) Padding", () => {
 .pl-8 {
   padding-left: 2rem;
 }
+.p-full {
+  padding: 100%;
+}
   `;
 
   assertEquals(output.trim(), expected.trim());
@@ -57,6 +61,8 @@ Deno.test("(CSS) Margin", () => {
     "mb-5",
     "ml-8",
     "-m-16",
+    "m-full",
+    "-m-full",
   ]);
 
   const t = new TailwindGenerator();
@@ -89,6 +95,12 @@ Deno.test("(CSS) Margin", () => {
 }
 .-m-16 {
   margin: -4rem;
+}
+.m-full {
+  margin: 100%;
+}
+.-m-full {
+  margin: -100%;
 }
   `;
 
