@@ -199,7 +199,9 @@ const watchResolvers = async () => {
       purgeFile(p as string);
 
       // Ask Page to Reload
-      socket.send("RELOAD");
+      if (socket !== undefined) {
+        socket.send("RELOAD");
+      }
 
       // Remove from updates queue
       updates.delete(p);
