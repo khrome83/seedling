@@ -11,6 +11,7 @@ import {
 } from "../types.ts";
 import { indent, newline } from "./format.ts";
 import prose from "./prose.ts";
+import form from "./form.ts";
 import orderMap from "./orderMap.ts";
 const seperator = ":";
 
@@ -108,6 +109,15 @@ export default class TailwindGenerator {
               }
             }
           }
+        }
+
+        // Adds Form
+        if (key.indexOf("form") === 0) {
+          sheet.set(key, {
+            pre: "",
+            children: form(key, 0, this.minified),
+            post: "",
+          });
         }
 
         // Adds Keyframes - Spin
@@ -370,7 +380,15 @@ export default class TailwindGenerator {
       // Prose is added on retrieving stylesheet
       // We skip it now, and when we retrieve we check
       // The class list to see if we need to add it
-      if (identifier.indexOf("prose") !== -1) {
+      if (identifier === "prose") {
+        additions.add(className);
+        return;
+      }
+
+      // Form is added on retrieving stylesheet
+      // We skip it now, and when we retrieve we check
+      // The class list to see if we need to add it
+      if (identifier === "form") {
         additions.add(className);
         return;
       }
