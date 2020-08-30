@@ -13,6 +13,7 @@ import { indent, newline } from "./format.ts";
 import prose from "./prose.ts";
 import form from "./form.ts";
 import orderMap from "./orderMap.ts";
+import calcUnit from "./calcUnit.ts";
 import { yellow, gray } from "../../deps.ts";
 const seperator = ":";
 
@@ -987,28 +988,30 @@ export default class TailwindGenerator {
 
     let amount;
     if (token === "full") {
-      amount = "100%;" + nl;
+      amount = "100%";
+    } else if (token === "auto") {
+      amount = "auto";
     } else {
-      const q = (token === "px") ? 1 : (+token * 0.25);
-      const u = (token === "px") ? "px" : "rem";
-      amount = ((q === 0) ? q : q + u) + ";" + nl;
+      amount = calcUnit(token);
     }
 
     switch (identifier) {
       case "p":
-        return i + "padding: " + amount;
+        return i + "padding: " + amount + ";" + nl;
       case "px":
-        return i + "padding-left: " + amount + i + "padding-right: " + amount;
+        return i + "padding-left: " + amount + ";" + nl + i +
+          "padding-right: " + amount + ";" + nl;
       case "py":
-        return i + "padding-top: " + amount + i + "padding-bottom: " + amount;
+        return i + "padding-top: " + amount + ";" + nl + i +
+          "padding-bottom: " + amount + ";" + nl;
       case "pt":
-        return i + "padding-top: " + amount;
+        return i + "padding-top: " + amount + ";" + nl;
       case "pr":
-        return i + "padding-right: " + amount;
+        return i + "padding-right: " + amount + ";" + nl;
       case "pb":
-        return i + "padding-bottom: " + amount;
+        return i + "padding-bottom: " + amount + ";" + nl;
       case "pl":
-        return i + "padding-left: " + amount;
+        return i + "padding-left: " + amount + ";" + nl;
       default:
         return;
     }
@@ -1031,32 +1034,30 @@ export default class TailwindGenerator {
 
     let amount;
     if (token === "full") {
-      amount = n + "100%;" + nl;
+      amount = n + "100%";
+    } else if (token === "auto") {
+      amount = "auto";
     } else {
-      const q = (token === "px")
-        ? 1
-        : (token === "auto")
-        ? "auto"
-        : +token * 0.25;
-      const u = (token === "px") ? "px" : "rem";
-      amount = n + ((q === 0 || q === "auto") ? q : q + u) + ";" + nl;
+      amount = n + calcUnit(token);
     }
 
     switch (identifier) {
       case "m":
-        return i + "margin: " + amount;
+        return i + "margin: " + amount + ";" + nl;
       case "mx":
-        return i + "margin-left: " + amount + i + "margin-right: " + amount;
+        return i + "margin-left: " + amount + ";" + nl + i + "margin-right: " +
+          amount + ";" + nl;
       case "my":
-        return i + "margin-top: " + amount + i + "margin-bottom: " + amount;
+        return i + "margin-top: " + amount + ";" + nl + i + "margin-bottom: " +
+          amount + ";" + nl;
       case "mt":
-        return i + "margin-top: " + amount;
+        return i + "margin-top: " + amount + ";" + nl;
       case "mr":
-        return i + "margin-right: " + amount;
+        return i + "margin-right: " + amount + ";" + nl;
       case "mb":
-        return i + "margin-bottom: " + amount;
+        return i + "margin-bottom: " + amount + ";" + nl;
       case "ml":
-        return i + "margin-left: " + amount;
+        return i + "margin-left: " + amount + ";" + nl;
       default:
         return;
     }
@@ -1078,16 +1079,12 @@ export default class TailwindGenerator {
     switch (token) {
       case "auto":
         return i + "height: auto;" + nl;
-      case "px":
-        return i + "height: 1px;" + nl;
       case "full":
         return i + "height: 100%;" + nl;
       case "screen":
         return i + "height: 100vh;" + nl;
-      case "0":
-        return i + "height: 0;" + nl;
       default:
-        return i + "height: " + (+token * 0.25) + "rem;" + nl;
+        return i + "height: " + calcUnit(token, true) + ";" + nl;
     }
   }
 
@@ -1105,14 +1102,12 @@ export default class TailwindGenerator {
     const nl = this.newline();
 
     switch (token) {
-      case "h-0":
-        return i + "min-height: 0;" + nl;
       case "h-full":
         return i + "min-height: 100%;" + nl;
       case "h-screen":
         return i + "min-height: 100vh;" + nl;
       default:
-        return;
+        return i + "min-height: " + calcUnit(token, true) + ";" + nl;
     }
   }
 
@@ -1135,7 +1130,7 @@ export default class TailwindGenerator {
       case "h-screen":
         return i + "max-height: 100vh;" + nl;
       default:
-        return;
+        return i + "max-height: " + calcUnit(token, true) + ";" + nl;
     }
   }
 
@@ -1155,14 +1150,10 @@ export default class TailwindGenerator {
     switch (token) {
       case "auto":
         return i + "width: auto;" + nl;
-      case "px":
-        return i + "width: 1px;" + nl;
       case "full":
         return i + "width: 100%;" + nl;
       case "screen":
         return i + "width: 100vw;" + nl;
-      case "0":
-        return i + "width: 0;" + nl;
       case "min-content":
         return i + "width: -webkit-min-content;" + nl +
           i + "width: -moz-min-content;" + nl +
@@ -1173,14 +1164,7 @@ export default class TailwindGenerator {
           i + "width: max-content;" + nl;
     }
 
-    const pos = token.indexOf("/");
-    if (pos !== -1) {
-      const n = +token.substring(0, pos);
-      const d = +token.substring(pos + 1);
-      return i + "width: " + ((n / d) * 100) + "%;" + nl;
-    } else {
-      return i + "width: " + (+token * 0.25) + "rem;" + nl;
-    }
+    return i + "width: " + calcUnit(token) + ";" + nl;
   }
 
   private getMinWidth(
@@ -1199,8 +1183,6 @@ export default class TailwindGenerator {
     switch (token) {
       case "w-full":
         return i + "min-width: 100%;" + nl;
-      case "w-0":
-        return i + "min-width: 0;" + nl;
       case "w-min-content":
         return i + "min-width: -webkit-min-content;" + nl +
           i + "min-width: -moz-min-content;" + nl +
@@ -1210,7 +1192,7 @@ export default class TailwindGenerator {
           i + "min-width: -moz-max-content;" + nl +
           i + "min-width: max-content;" + nl;
       default:
-        return;
+        return i + "min-width: " + calcUnit(token, true) + ";" + nl;
     }
   }
 
@@ -1512,9 +1494,9 @@ export default class TailwindGenerator {
       type = token;
     }
 
-    if (type !== "0" && type !== "auto") {
-      const n = (negative) ? "-" : "";
-      type = n + (+type * 0.25) + "rem";
+    if (type !== "auto") {
+      const n = (negative && type !== "0") ? "-" : "";
+      type = n + calcUnit(type);
     }
 
     if (identifier === "inset" && axis === "y") {
@@ -1599,29 +1581,20 @@ export default class TailwindGenerator {
 
     // Negative
     const n = (negative && type !== "0") ? "-" : "";
-
-    // Unit & Amount
-    let u = "rem";
-    let a;
-    if (type === "0" || type === "px") {
-      u = "px";
-      a = (type === "px") ? 1 : 0;
-    } else {
-      a = +type * 0.25;
-    }
+    let amount = n + calcUnit(type);
 
     let children = "";
 
     children += i + "--space-" + axis + "-reverse: 0;" + nl;
     if (axis === "y") {
-      children += i + "margin-top: calc(" + n + a + u +
+      children += i + "margin-top: calc(" + amount +
         " * calc(1 - var(--space-y-reverse)));" + nl;
-      children += i + "margin-bottom: calc(" + n + a + u +
+      children += i + "margin-bottom: calc(" + amount +
         " * var(--space-y-reverse));" + nl;
     } else {
-      children += i + "margin-right: calc(" + n + a + u +
+      children += i + "margin-right: calc(" + amount +
         " * var(--space-x-reverse));" + nl;
-      children += i + "margin-left: calc(" + n + a + u +
+      children += i + "margin-left: calc(" + amount +
         " * calc(1 - var(--space-x-reverse)));" + nl;
     }
 
@@ -1940,10 +1913,6 @@ export default class TailwindGenerator {
       return i + "grid-column: auto;" + nl;
     }
 
-    const split = amount?.indexOf("/");
-    let d;
-    let n;
-
     switch (type) {
       case "span":
         return i + "grid-column: span " + amount + " / span " + amount + ";" +
@@ -1953,30 +1922,9 @@ export default class TailwindGenerator {
       case "end":
         return i + "grid-column-end: " + amount + ";" + nl;
       case "gap":
-        if (amount === "px") {
-          return i + "grid-column-gap: 1px;" + nl +
-            i + "-moz-column-gap: 1px;" + nl +
-            i + "column-gap: 1px;" + nl;
-        } else if (amount === "full") {
-          return i + "grid-column-gap: 100%;" + nl +
-            i + "-moz-column-gap: 100%;" + nl +
-            i + "column-gap: 100%;" + nl;
-        } else if (amount === "0") {
-          return i + "grid-column-gap: 0;" + nl +
-            i + "-moz-column-gap: 0;" + nl +
-            i + "column-gap: 0;" + nl;
-        } else if (split !== -1) {
-          d = amount.substring(0, split);
-          n = amount.substring(split + 1);
-          return i + "grid-column-gap: " + ((+d / +n) * 100) + "%;" + nl +
-            i + "-moz-column-gap: " + ((+d / +n) * 100) + "%;" + nl +
-            i + "column-gap: " + ((+d / +n) * 100) + "%;" + nl;
-        } else {
-          return i + "grid-column-gap: " + (+amount * 0.25) + "rem;" + nl +
-            i + "-moz-column-gap: " + (+amount * 0.25) + "rem;" + nl +
-            i + "column-gap: " + (+amount * 0.25) + "rem;" + nl;
-        }
-        return i + "" + nl;
+        return i + "grid-column-gap: " + calcUnit(amount) + ";" + nl +
+          i + "-moz-column-gap: " + calcUnit(amount) + ";" + nl +
+          i + "column-gap: " + calcUnit(amount) + ";" + nl;
       default:
         return;
     }
@@ -2005,10 +1953,6 @@ export default class TailwindGenerator {
       return i + "grid-row: auto;" + nl;
     }
 
-    const split = amount?.indexOf("/");
-    let d;
-    let n;
-
     switch (type) {
       case "span":
         return i + "grid-row: span " + amount + " / span " + amount + ";" +
@@ -2018,24 +1962,8 @@ export default class TailwindGenerator {
       case "end":
         return i + "grid-row-end: " + amount + ";" + nl;
       case "gap":
-        if (amount === "px") {
-          return i + "grid-row-gap: 1px;" + nl +
-            i + "row-gap: 1px;" + nl;
-        } else if (amount === "full") {
-          return i + "grid-row-gap: 100%;" + nl +
-            i + "row-gap: 100%;" + nl;
-        } else if (amount === "0") {
-          return i + "grid-row-gap: 0;" + nl +
-            i + "row-gap: 0;" + nl;
-        } else if (split !== -1) {
-          d = amount.substring(0, split);
-          n = amount.substring(split + 1);
-          return i + "grid-row-gap: " + ((+d / +n) * 100) + "%;" + nl +
-            i + "row-gap: " + ((+d / +n) * 100) + "%;" + nl;
-        } else {
-          return i + "grid-row-gap: " + (+amount * 0.25) + "rem;" + nl +
-            i + "row-gap: " + (+amount * 0.25) + "rem;" + nl;
-        }
+        return i + "grid-row-gap: " + calcUnit(amount) + ";" + nl +
+          i + "row-gap: " + calcUnit(amount) + ";" + nl;
       default:
         return;
     }
@@ -2062,44 +1990,16 @@ export default class TailwindGenerator {
       amount = token.substring(pos + 1);
     } else {
       // Gap
-      switch (token) {
-        case "0":
-          return i + "grid-gap: 0;" + nl +
-            i + "gap: 0;" + nl;
-        case "px":
-          return i + "grid-gap: 1px;" + nl +
-            i + "gap: 1px;" + nl;
-        default:
-          return i + "grid-gap: " + (+token * 0.25) + "rem;" + nl +
-            i + "gap: " + (+token * 0.25) + "rem;" + nl;
-      }
+      return i + "grid-gap: " + calcUnit(token) + ";" + nl +
+        i + "gap: " + calcUnit(token) + ";" + nl;
     }
 
     if (type === "y") {
-      switch (amount) {
-        case "0":
-          return i + "grid-row-gap: 0;" + nl +
-            i + "row-gap: 0;" + nl;
-        case "px":
-          return i + "grid-row-gap: 1px;" + nl +
-            i + "row-gap: 1px;" + nl;
-        default:
-          return i + "grid-row-gap: " + (+amount * 0.25) + "rem;" + nl +
-            i + "row-gap: " + (+amount * 0.25) + "rem;" + nl;
-      }
+      return i + "grid-row-gap: " + calcUnit(amount) + ";" + nl +
+        i + "row-gap: " + calcUnit(amount) + ";" + nl;
     } else if (type === "x") {
-      switch (amount) {
-        case "0":
-          return i + "grid-column-gap: 0;" + nl +
-            i + "column-gap: 0;" + nl;
-        case "px":
-          return i + "grid-column-gap: 1px;" + nl +
-            i + "column-gap: 1px;" + nl;
-        default:
-          return i + "grid-column-gap: " + (+amount * 0.25) + "rem;" +
-            nl +
-            i + "column-gap: " + (+amount * 0.25) + "rem;" + nl;
-      }
+      return i + "grid-column-gap: " + calcUnit(amount) + ";" + nl +
+        i + "column-gap: " + calcUnit(amount) + ";" + nl;
     }
 
     return;
@@ -2387,29 +2287,9 @@ export default class TailwindGenerator {
       const split = amount?.indexOf("/");
 
       const n = (negative) ? "-" : "";
-      let u;
-      let a;
 
-      if (amount === "px") {
-        u = "px";
-        a = "1";
-      } else if (split !== -1) {
-        u = "%";
-        const d = amount.substring(0, split);
-        const n = amount.substring(split + 1);
-        a = ((+d / +n) * 100).toString();
-      } else if (amount === "full") {
-        u = "%";
-        a = "100";
-      } else if (amount === "0") {
-        u = "";
-        a = "0";
-      } else {
-        u = "rem";
-        a = (+amount * 0.25);
-      }
-
-      return i + "--transform-translate-" + axis + ": " + n + a + u + ";" + nl;
+      return i + "--transform-translate-" + axis + ": " + n + calcUnit(amount) +
+        ";" + nl;
     }
 
     return;
@@ -3556,12 +3436,7 @@ export default class TailwindGenerator {
       case "loose":
         return i + "line-height: 2;" + nl;
       default:
-        if (token === "0") {
-          return i + "line-height: 0;" + nl;
-        } else {
-          return i + "line-height: " + (+token * 0.25) + "rem;" + nl;
-        }
-        return;
+        return i + "line-height: " + calcUnit(token) + ";" + nl;
     }
   }
 

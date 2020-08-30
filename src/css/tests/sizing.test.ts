@@ -12,6 +12,7 @@ Deno.test("(CSS) Width", () => {
     "w-4/5",
     "w-min-content",
     "w-max-content",
+    "w-0.5",
   ]);
 
   const t = new TailwindGenerator();
@@ -49,6 +50,9 @@ Deno.test("(CSS) Width", () => {
   width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
+}
+.w-0\\.5 {
+  width: 0.125rem;
 }
   `;
 
@@ -251,6 +255,8 @@ Deno.test("(CSS) Max-Height", () => {
   const css = new Set([
     "max-h-full",
     "max-h-screen",
+    "max-h-10/12",
+    "max-h-1.5",
   ]);
 
   const t = new TailwindGenerator();
@@ -263,6 +269,12 @@ Deno.test("(CSS) Max-Height", () => {
 }
 .max-h-screen {
   max-height: 100vh;
+}
+.max-h-10\\/12 {
+  max-height: 83.33333333333334%;
+}
+.max-h-1\\.5 {
+  max-height: 0.375rem;
 }
   `;
 

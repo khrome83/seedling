@@ -130,13 +130,13 @@ Deno.test("(CSS) Space Between", () => {
   const expected = `
 .space-y-0 > :not(template) ~ :not(template) {
   --space-y-reverse: 0;
-  margin-top: calc(0px * calc(1 - var(--space-y-reverse)));
-  margin-bottom: calc(0px * var(--space-y-reverse));
+  margin-top: calc(0 * calc(1 - var(--space-y-reverse)));
+  margin-bottom: calc(0 * var(--space-y-reverse));
 }
 .space-x-0 > :not(template) ~ :not(template) {
   --space-x-reverse: 0;
-  margin-right: calc(0px * var(--space-x-reverse));
-  margin-left: calc(0px * calc(1 - var(--space-x-reverse)));
+  margin-right: calc(0 * var(--space-x-reverse));
+  margin-left: calc(0 * calc(1 - var(--space-x-reverse)));
 }
 .space-y-4 > :not(template) ~ :not(template) {
   --space-y-reverse: 0;
