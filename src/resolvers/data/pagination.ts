@@ -8,7 +8,7 @@ interface Pagination {
 }
 
 export default async (request: Request, response: Response) => {
-  const { page } = request.attrs as Pagination;
+  const { page } = (request.attrs as unknown) as Pagination;
 
   switch (page) {
     case "0":
