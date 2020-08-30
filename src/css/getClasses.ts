@@ -22,7 +22,6 @@ for await (let line of readLines(fileReader)) {
         case "focus-visible":
         case "checked":
         case "disabled":
-        case "visited":
         case "first-child":
         case "last-child":
         case "nth-child(odd)":
@@ -32,7 +31,6 @@ for await (let line of readLines(fileReader)) {
         case "placeholder":
         case "-ms-expand":
         case "-ms-check":
-        case "placeholder":
           return false;
         default:
           return true;
@@ -55,7 +53,7 @@ order.forEach((value) => {
   content += `\n  "${value}",`;
 });
 
-content += "\n]) as Set<string>;";
+content += "\n]) as Set<string>;\n";
 
 const orderMapPath = path.join(Deno.cwd(), `src/css/orderMap.ts`);
 
