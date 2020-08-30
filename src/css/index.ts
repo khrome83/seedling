@@ -9,6 +9,9 @@ import {
   ModifyProperty,
   ColorDefinition,
 } from "../types.ts";
+import { indent, newline } from "./format.ts";
+import prose from "./prose.ts";
+import orderMap from "./orderMap.ts";
 const seperator = ":";
 
 export default class TailwindGenerator {
@@ -20,10 +23,14 @@ export default class TailwindGenerator {
   private externalAdditions: Set<string> = new Set();
   private minified: boolean;
   private color: Map<string, ColorDefinition>;
+  private indent: Function;
+  private newline: Function;
 
   constructor(minified: boolean = false, pallet: string = "tailwindcss") {
     this.minified = minified;
     this.color = getColorPallet(pallet);
+    this.indent = indent(minified);
+    this.newline = newline(minified);
   }
 
   public addClasses(classList: Set<string>, critical = false): void {
@@ -39,10 +46,6 @@ export default class TailwindGenerator {
     const additions = (critical)
       ? this.criticalAdditions
       : this.externalAdditions;
-
-    // Addd Containers Function
-    const addContainer = () => {
-    };
 
     // Adds additions, currently just .container class and needed media queries
     const addAdditions = () => {
@@ -64,6 +67,47 @@ export default class TailwindGenerator {
             containerClasses += "," + this.newline() + ".";
           }
           containerClasses += key.replaceAll(":", "\\:");
+        }
+
+        // Adds Prose
+        if (key.indexOf("prose") !== -1) {
+          let pos = key.indexOf(seperator);
+          let proseIdentifier = key;
+          let bp = "";
+          let level = 0;
+          if (pos !== -1) {
+            level = 1;
+            bp = key.substring(0, pos);
+            proseIdentifier = key.substring(pos + seperator.length);
+          }
+
+          if (bp.length === 0) {
+            sheet.set(key, {
+              pre: "",
+              children: prose(proseIdentifier, level, bp, this.minified),
+              post: "",
+            });
+          } else {
+            const mediaQueryIterator = mediaQueries[Symbol.iterator]();
+            for (const [k, v] of mediaQueryIterator) {
+              if (sheet.has(k)) {
+                const mediaQuery = sheet.get(k) as MediaQueryDefintion;
+                const nested = mediaQuery.children;
+
+                const [full, amount] =
+                  mediaQuery.pre.match(/\:\s?(\d+(?:px|rem))/) ||
+                  [];
+
+                if (amount !== undefined) {
+                  nested.set(key, {
+                    pre: "",
+                    children: prose(proseIdentifier, level, bp, this.minified),
+                    post: "",
+                  });
+                }
+              }
+            }
+          }
         }
 
         // Adds Keyframes - Spin
@@ -160,6 +204,27 @@ export default class TailwindGenerator {
     const reorder = (
       map: Map<string, MediaQueryDefintion | SelectorDefinition>,
     ) => {
+      // WARNING!!! This is EXPENSIVE opperation
+      // CSS in small sample file went from 4ms to 28ms with this operation
+      // This checks over 20k entries to validate the order
+      // When the script is minified, we assume production build
+      // This ensures order of CSS to match Tailwind CSS Output
+      if (this.minified) {
+        const orderMapIterator = orderMap[Symbol.iterator]();
+        for (const [key] of orderMapIterator) {
+          if (map.has(key)) {
+            const temp = map.get(key) as
+              | MediaQueryDefintion
+              | SelectorDefinition;
+            map.delete(key);
+            map.set(key, temp);
+          }
+        }
+      }
+
+      // This organizes the media queries to always be at the end of the file
+      // Uses the insertion order of the Map to ensure EOF
+      // Removes any found media queries and readds in the correct order
       const mediaQueryIterator = mediaQueries[Symbol.iterator]();
       for (const [key] of mediaQueryIterator) {
         if (map.has(key)) {
@@ -300,6 +365,14 @@ export default class TailwindGenerator {
       // The token should be added and used
       if (identifier === "animate" && token !== undefined) {
         additions.add(token);
+      }
+
+      // Prose is added on retrieving stylesheet
+      // We skip it now, and when we retrieve we check
+      // The class list to see if we need to add it
+      if (identifier.indexOf("prose") !== -1) {
+        additions.add(className);
+        return;
       }
 
       // Modify for 1/2 to 1\/2
@@ -875,16 +948,6 @@ export default class TailwindGenerator {
       default:
         return;
     }
-  }
-
-  // Utility method that adds indent to the start of a row
-  private indent(level: number): string {
-    return this.minified ? "" : "".padStart(level * 2);
-  }
-
-  // Utility method that adds newline to the end of a row
-  private newline(): string {
-    return this.minified ? "" : "\n";
   }
 
   private getPadding(
