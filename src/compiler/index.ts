@@ -103,8 +103,10 @@ import config from "../config/index.ts";
 
 const nodeTypes = new Map();
 
+type CB = (update: UpdateType) => void;
+
 // Tag AST Node
-const tag = async (node: Tag, state: State, cb: Function): Promise<string> => {
+const tag = async (node: Tag, state: State, cb: CB): Promise<string> => {
   let attributes = "";
   let children = "";
 
@@ -137,7 +139,7 @@ nodeTypes.set("Tag", tag);
 const scriptTag = async (
   node: ScriptTag,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   let attributes = "";
   let children = "";
@@ -181,7 +183,7 @@ nodeTypes.set("ScriptTag", scriptTag);
 const styleTag = async (
   node: StyleTag,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   let children = "";
 
@@ -210,7 +212,7 @@ nodeTypes.set("StyleTag", styleTag);
 const attribute = async (
   node: Attribute,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<Array<State>> => {
   const name = await compileNode(node.name, state, cb);
   const value = await compileNode(node.value, state, cb);
@@ -261,7 +263,7 @@ nodeTypes.set("AttributeValue", attributeValue);
 const attributeExpression = (
   node: AttributeExpression,
   state: State,
-  cb: Function,
+  cb: CB,
   // deno-lint-ignore no-explicit-any
 ): any => {
   return compileNode(node.expression, state, cb);
@@ -273,7 +275,7 @@ nodeTypes.set("AttributeExpression", attributeExpression);
 const attributeSpread = async (
   node: AttributeSpread,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<Array<State>> => {
   const output = [];
   const classes = [];
@@ -347,7 +349,7 @@ nodeTypes.set("Literal", literal);
 const unaryExpression = async (
   node: UnaryExpression,
   state: State,
-  cb: Function,
+  cb: CB,
 ) => {
   const argument = await compileNode(node.argument, state, cb);
   try {
@@ -387,7 +389,7 @@ nodeTypes.set("UnaryExpression", unaryExpression);
 const updateExpression = async (
   node: UpdateExpression,
   state: State,
-  cb: Function,
+  cb: CB,
 ) => {
   let argument = await compileNode(node.argument, state, cb);
   let output;
@@ -431,7 +433,7 @@ nodeTypes.set("UpdateExpression", updateExpression);
 const binaryExpression = async (
   node: BinaryExpression,
   state: State,
-  cb: Function,
+  cb: CB,
 ) => {
   const left = await compileNode(node.left, state, cb);
   const right = await compileNode(node.right, state, cb);
@@ -501,7 +503,7 @@ nodeTypes.set("BinaryExpression", binaryExpression);
 const logicalExpression = async (
   node: LogicalExpression,
   state: State,
-  cb: Function,
+  cb: CB,
 ) => {
   const left = await compileNode(node.left, state, cb);
   const right = await compileNode(node.right, state, cb);
@@ -534,7 +536,7 @@ const logicalExpression = async (
 nodeTypes.set("LogicalExpression", logicalExpression);
 
 // Text AST Node
-const text = (node: Text, state: State, cb: Function) => {
+const text = (node: Text, state: State, cd: CB) => {
   return node.data;
 };
 
@@ -544,7 +546,7 @@ nodeTypes.set("Text", text);
 const headDirective = async (
   node: HeadDirective,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   // Report
   if (node.children.length) {
@@ -562,7 +564,7 @@ nodeTypes.set("HeadDirective", headDirective);
 const componentDirective = async (
   node: ComponentDirective,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   const component = await compileNode(node.expression, state, cb);
   const attrs = new Map();
@@ -671,7 +673,7 @@ nodeTypes.set("ComponentDirective", componentDirective);
 const layoutDirective = async (
   node: LayoutDirective,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   const layout = await compileNode(node.expression, state, cb);
   const attrs = new Map();
@@ -737,7 +739,7 @@ nodeTypes.set("LayoutDirective", layoutDirective);
 const slotDirective = async (
   node: SlotDirective,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   let name = "default";
   if (node.expression) {
@@ -774,7 +776,7 @@ nodeTypes.set("SlotDirective", slotDirective);
 const elementDirective = async (
   node: ElementDirective,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   const tagType = await compileNode(node.expression, state, cb);
 
@@ -820,7 +822,7 @@ nodeTypes.set("ElementDirective", elementDirective);
 const dataDirective = async (
   node: DataDirective,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<DataResponse> => {
   let body = "";
   const use = await compileNode(node.expression, state, cb);
@@ -885,7 +887,7 @@ nodeTypes.set("DataDirective", dataDirective);
 const memberExpression = async (
   node: MemberExpression,
   state: State,
-  cb: Function,
+  cb: CB,
 ) => {
   const obj = await compileNode(node.object, state, cb);
   if (node.property.type === "Literal") {
@@ -903,7 +905,7 @@ const memberExpression = async (
 nodeTypes.set("MemberExpression", memberExpression);
 
 // IfBlock AST Node
-const ifBlock = async (node: IfBlock, state: State, cb: Function) => {
+const ifBlock = async (node: IfBlock, state: State, cd: CB) => {
   const expression = await compileNode(node.expression, state, cb);
   let output = "";
   if (expression) {
@@ -923,7 +925,7 @@ const ifBlock = async (node: IfBlock, state: State, cb: Function) => {
 nodeTypes.set("IfBlock", ifBlock);
 
 // ElseBlock AST Node
-const elseBlock = async (node: ElseBlock, state: State, cb: Function) => {
+const elseBlock = async (node: ElseBlock, state: State, cd: CB) => {
   let output = "";
   if (node.children.length) {
     output = await unionChildren(node.children, state, cb);
@@ -935,7 +937,7 @@ const elseBlock = async (node: ElseBlock, state: State, cb: Function) => {
 nodeTypes.set("ElseBlock", elseBlock);
 
 // ElseIfBlock AST Node
-const elseIfBlock = (node: ElseIfBlock, state: State, cb: Function) => {
+const elseIfBlock = (node: ElseIfBlock, state: State, cd: CB) => {
   // Convert to IfBlock and return results
   const ifBlock = (node as unknown) as IfBlock;
   ifBlock.type = "IfBlock";
@@ -947,7 +949,7 @@ const elseIfBlock = (node: ElseIfBlock, state: State, cb: Function) => {
 nodeTypes.set("ElseIfBlock", elseIfBlock);
 
 // SkipBlock AST Node
-const skipBlock = async (node: SkipBlock, state: State, cb: Function) => {
+const skipBlock = async (node: SkipBlock, state: State, cd: CB) => {
   const expression = await compileNode(node.expression, state, cb);
   let output = "";
 
@@ -970,7 +972,7 @@ nodeTypes.set("SkipBlock", skipBlock);
 const whenBlock = async (
   node: WhenBlock,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   const match = await compileNode(node.expression, state, cb);
   let output = "";
@@ -1012,7 +1014,7 @@ const whenBlock = async (
 nodeTypes.set("WhenBlock", whenBlock);
 
 // IsBlock AST Node
-const isBlock = async (node: IsBlock, state: State, cb: Function) => {
+const isBlock = async (node: IsBlock, state: State, cd: CB) => {
   const expression = await compileNode(node.expression, state, cb);
 
   return [expression, node.children];
@@ -1024,7 +1026,7 @@ nodeTypes.set("IsBlock", isBlock);
 const eachBlock = async (
   node: EachBlock,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   const expression = await compileNode(node.expression, state, cb);
   const context = node.context.data;
@@ -1098,7 +1100,7 @@ nodeTypes.set("EachBlock", eachBlock);
 const breakStatement = async (
   node: BreakStatement,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<void> => {
   throw ["BREAK"];
 };
@@ -1109,7 +1111,7 @@ nodeTypes.set("BreakStatement", breakStatement);
 const continueStatement = async (
   node: ContinueStatement,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<void> => {
   throw ["CONTINUE"];
 };
@@ -1142,7 +1144,7 @@ const scopeState = (...states: Array<State>): State => {
 const rangePathSegment = async (
   node: RangePathSegment,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<PathPart[]> => {
   const stateKey = await compileNode(node.expression, state, cb);
   const firstExpression = await compileNode(node.first, state, cb);
@@ -1177,7 +1179,7 @@ nodeTypes.set("RangePathSegment", rangePathSegment);
 const paginationPathSegment = async (
   node: PaginationPathSegment,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<PathPart[]> => {
   const stateKey = await compileNode(node.expression, state, cb);
   let scoped: State = state;
@@ -1261,7 +1263,7 @@ nodeTypes.set("PaginationPathSegment", paginationPathSegment);
 const optionalPathSegment = async (
   node: OptionalPathSegment,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<PathPart[]> => {
   // Reuse Dynamic parsing by converting type and rerunning
   // since all Optional is is Dynamic plus empty path segment
@@ -1279,7 +1281,7 @@ nodeTypes.set("OptionalPathSegment", optionalPathSegment);
 const dynamicPathSegment = async (
   node: DynamicPathSegment,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<PathPart[]> => {
   const stateKey = node.expression.data;
   const newPaths = await compileNode(node.expression, state, cb);
@@ -1315,7 +1317,7 @@ nodeTypes.set("DynamicPathSegment", dynamicPathSegment);
 const staticPathSegment = async (
   node: StaticPathSegment,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<PathPart[]> => {
   return [[node.data, {}]];
 };
@@ -1326,7 +1328,7 @@ nodeTypes.set("StaticPathSegment", staticPathSegment);
 const pathDirective = async (
   node: PathDirective,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<PathDefinition[]> => {
   let paths: PathDefinition[] = [];
   let data: DataDirective[] = [];
@@ -1380,7 +1382,7 @@ nodeTypes.set("PathDirective", pathDirective);
 const routerDirective = async (
   node: RouterDirective,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<PathDefinition[]> => {
   let scoped: State = state;
   let paths: PathDefinition[] = [];
@@ -1429,8 +1431,9 @@ const processPathPart = async (
   path: string,
   state: State,
   pathSegments: PathSegment[],
+  // deno-lint-ignore ban-types
   routerCB: Function,
-  cb: Function,
+  cb: CB,
 ): Promise<void> => {
   const [first, ...rest] = pathSegments || [];
   const newPathParts = await compileNode(first, state, cb);
@@ -1455,7 +1458,7 @@ const convertPaths = (path: string | number): string => {
 const unionChildren = async (
   children: Array<Node>,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   let scoped = state;
   let output = "";
@@ -1493,7 +1496,7 @@ const unionChildren = async (
 const unionAttributes = async (
   attributes: Array<Attribute | AttributeSpread>,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string> => {
   const attrs = new Map();
   let output = "";
@@ -1524,7 +1527,7 @@ const unionAttributes = async (
 const compileNode = async (
   node: Node,
   state: State,
-  cb: Function,
+  cb: CB,
   // deno-lint-ignore no-explicit-any
 ): Promise<any> => {
   if (nodeTypes.has(node.type)) {
@@ -1550,7 +1553,7 @@ const emitError = (msg: string): undefined => {
 const compileAST = async (
   ast: Node | Array<Node>,
   state: State,
-  cb: Function,
+  cb: CB,
 ): Promise<string | PathDefinition[]> => {
   if (Array.isArray(ast) && ast.length) {
     return "" + (await unionChildren(ast, state, cb));

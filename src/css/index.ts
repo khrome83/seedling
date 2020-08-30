@@ -26,7 +26,9 @@ export default class TailwindGenerator {
   private externalAdditions: Set<string> = new Set();
   private minified: boolean;
   private color: Map<string, ColorDefinition>;
+  // deno-lint-ignore ban-types
   private indent: Function;
+  // deno-lint-ignore ban-types
   private newline: Function;
 
   constructor(minified: boolean = false, pallet: string = "tailwindcss") {

@@ -6,6 +6,7 @@ import {
 
 const proseTypes = new Map();
 
+// deno-lint-ignore ban-types
 const prose = (l: number, i: Function, nl: Function, bp: string): string => {
   return i(l) + bp + "prose {" + nl +
     i(l + 1) + "color: #374151;" + nl +
@@ -298,6 +299,7 @@ const prose = (l: number, i: Function, nl: Function, bp: string): string => {
 
 proseTypes.set("prose", prose);
 
+// deno-lint-ignore ban-types
 const proseSm = (l: number, i: Function, nl: Function, bp: string): string => {
   return i(l) + bp + "prose-sm {" + nl +
     i(l + 1) + "font-size: 0.875rem;" + nl +
@@ -485,6 +487,7 @@ const proseSm = (l: number, i: Function, nl: Function, bp: string): string => {
 
 proseTypes.set("prose-sm", proseSm);
 
+// deno-lint-ignore ban-types
 const proseLg = (l: number, i: Function, nl: Function, bp: string): string => {
   return i(l) + bp + "prose-lg {" + nl +
     i(l + 1) + "font-size: 1.125rem;" + nl +
@@ -672,6 +675,7 @@ const proseLg = (l: number, i: Function, nl: Function, bp: string): string => {
 
 proseTypes.set("prose-lg", proseLg);
 
+// deno-lint-ignore ban-types
 const proseXl = (l: number, i: Function, nl: Function, bp: string): string => {
   return i(l) + bp + "prose-xl {" + nl +
     i(l + 1) + "font-size: 1.25rem;" + nl +
@@ -859,6 +863,7 @@ const proseXl = (l: number, i: Function, nl: Function, bp: string): string => {
 
 proseTypes.set("prose-xl", proseXl);
 
+// deno-lint-ignore ban-types
 const prose2xl = (l: number, i: Function, nl: Function, bp: string): string => {
   return i(l) + bp + "prose-2xl {" + nl +
     i(l + 1) + "font-size: 1.5rem;" + nl +
