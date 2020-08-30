@@ -17,13 +17,16 @@ import { purgeFile, cache } from "../cache/index.ts";
 import mimeTypes from "../dict/mimeTypes.ts";
 import { useESBuild } from "../utils/esBuild.ts";
 import { getCacheKey } from "../cache/index.ts";
-import { bgRed } from "https://deno.land/std@0.65.0/fmt/colors.ts";
+import TailwindGenerator from "../css/index.ts";
+import { createHashFromSet } from "../utils/crypto.ts";
 
 const routes = new Map();
 const fileToRoutes = new Map();
 
 // Managing JS
 const jsFiles = new Map();
+// Managing CSS
+const cssFiles = new Map();
 
 const displayRequest = (
   code: number,
@@ -566,6 +569,66 @@ export default async (port: number, ws: number) => {
           }
         }
 
+        // Prepare Stylesheet
+        const cssBuild = async () => {
+          try {
+            const t = new TailwindGenerator(false, "tailwindui");
+            t.addClasses(status.classes as Set<string>);
+            const sheet = t.getStylesheet(false, true);
+
+            return sheet;
+          } catch (e) {
+            throw e;
+          }
+        };
+
+        // Has for CSS File
+        const hash = createHashFromSet(status.classes as Set<string>);
+
+        cssFiles.set(`/main-${hash}.css`, cssBuild);
+
+        // Need to Process Page through template.html
+        const templateFile = join(config.root, "/template.html");
+        const templateContents = await Deno.readTextFile(templateFile);
+        const p = new Parser(templateContents);
+        const templateAst = p.parse();
+        const templateCacheKey = getCacheKey(
+          templateFile,
+          "template",
+          templateAst,
+        );
+        cache.set(templateCacheKey as CacheKey, templateAst);
+
+        // Setup Nodes
+        const textNode = { type: "Text", data: output, start: 0, end: 0 };
+        const styleNode = {
+          type: "Text",
+          data:
+            `<link href="/main-${hash}.css"  rel="stylesheet" data-turbolinks-track="reload">`,
+          start: 0,
+          end: 0,
+        };
+
+        // Setup as Slot
+        const innerContents = {
+          __internals__: {
+            slots: {
+              default: [textNode],
+              styles: [styleNode],
+            },
+          },
+        };
+
+        // Process Last Layout
+        const templateOutput = await compile(
+          templateAst.html,
+          innerContents,
+          templateFile,
+        );
+
+        // Update Output
+        output = templateOutput.source;
+
         displayRequest(
           200,
           path,
@@ -591,6 +654,22 @@ export default async (port: number, ws: number) => {
 
         displayRequest(200, path, delta(start), size(output));
         return h.response(output).code(200).type("text/javascript");
+      } catch (e) {
+        displayRequest(500, path, delta(start));
+        return h.response(e).code(500);
+      }
+    } else if (cssFiles.has(path)) {
+      try {
+        let output = cssFiles.get(path);
+
+        // First time, need to process
+        if (typeof output === "function") {
+          output = await output();
+          cssFiles.set(path, output);
+        }
+
+        displayRequest(200, path, delta(start), size(output));
+        return h.response(output).code(200).type("text/css");
       } catch (e) {
         displayRequest(500, path, delta(start));
         return h.response(e).code(500);

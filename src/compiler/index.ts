@@ -57,7 +57,7 @@ import { resolveData } from "../resolvers/data.ts";
 import { resolveComponent } from "../resolvers/component.ts";
 import { resolveLayout } from "../resolvers/layout.ts";
 import config from "../config/index.ts";
-import { networkAuthenticationRequired } from "https://deno.land/x/pogo@v0.5.0/lib/bang.ts";
+
 // TODO: Finish All Types
 //
 //   01.    [X] Comment
@@ -113,6 +113,11 @@ const tag = async (node: Tag, state: State, cb: Function): Promise<string> => {
     attributes = await unionAttributes(node.attributes, state, cb);
   }
 
+  // Report
+  if (node.classes.length) {
+    cb(["Classes", node.classes]);
+  }
+
   // Void Element - Exit Early
   if (voidElements.has(node.data)) {
     return `<${node.data}${attributes}>`;
@@ -121,11 +126,6 @@ const tag = async (node: Tag, state: State, cb: Function): Promise<string> => {
   // Children
   if (node.children.length) {
     children = await unionChildren(node.children, state, cb);
-  }
-
-  // Report
-  if (node.classes.length) {
-    cb(["Classes", node.classes]);
   }
 
   return `<${node.data}${attributes}>${children}</${node.data}>`;
