@@ -13,6 +13,7 @@ import { indent, newline } from "./format.ts";
 import prose from "./prose.ts";
 import form from "./form.ts";
 import orderMap from "./orderMap.ts";
+import { yellow, gray } from "../../deps.ts";
 const seperator = ":";
 
 export default class TailwindGenerator {
@@ -453,7 +454,9 @@ export default class TailwindGenerator {
           post: this.indent(level) + "}" + this.newline(),
         });
       } else {
-        console.warn(`Unknown css classname '${className}'`);
+        console.log(
+          `  ${yellow("WARN")} - Unknown css classname '${gray(className)}'`,
+        );
       }
     }
   }
