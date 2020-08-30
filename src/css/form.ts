@@ -5,6 +5,7 @@ import {
 
 const formTypes = new Map();
 
+// deno-lint-ignore ban-types
 const formInput = (l: number, i: Function, nl: Function): string => {
   return i(l) + ".form-input {" + nl +
     i(l + 1) + "-webkit-appearance: none;" + nl +
@@ -46,6 +47,7 @@ const formInput = (l: number, i: Function, nl: Function): string => {
 
 formTypes.set("form-input", formInput);
 
+// deno-lint-ignore ban-types
 const formTextarea = (l: number, i: Function, nl: Function): string => {
   return i(l) + ".form-textarea {" + nl +
     i(l + 1) + "-webkit-appearance: none;" + nl +
@@ -87,6 +89,7 @@ const formTextarea = (l: number, i: Function, nl: Function): string => {
 
 formTypes.set("form-textarea", formTextarea);
 
+// deno-lint-ignore ban-types
 const formMultiselect = (l: number, i: Function, nl: Function): string => {
   return i(l) + ".form-multiselect {" + nl +
     i(l + 1) + "-webkit-appearance: none;" + nl +
@@ -112,6 +115,7 @@ const formMultiselect = (l: number, i: Function, nl: Function): string => {
 
 formTypes.set("form-multiselect", formMultiselect);
 
+// deno-lint-ignore ban-types
 const formSelect = (l: number, i: Function, nl: Function): string => {
   return i(l) + ".form-select {" + nl +
     i(l + 1) +
@@ -160,6 +164,7 @@ const formSelect = (l: number, i: Function, nl: Function): string => {
 
 formTypes.set("form-select", formSelect);
 
+// deno-lint-ignore ban-types
 const formCheckbox = (l: number, i: Function, nl: Function): string => {
   return i(l) + ".form-checkbox:checked {" + nl +
     i(l + 1) +
@@ -214,6 +219,7 @@ const formCheckbox = (l: number, i: Function, nl: Function): string => {
 
 formTypes.set("form-checkbox", formCheckbox);
 
+// deno-lint-ignore ban-types
 const formRadio = (l: number, i: Function, nl: Function): string => {
   return i(l) + ".form-radio:checked {" + nl +
     i(l + 1) +

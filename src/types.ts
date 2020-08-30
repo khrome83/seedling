@@ -403,7 +403,7 @@ export interface PathDefinition {
   data: Array<DataDirective>;
 }
 
-export type PathPart = [string, object];
+export type PathPart = [string, Record<string, unknown>];
 
 // Instance of a Style
 export interface StyleInstance {
@@ -451,7 +451,7 @@ export interface ComponentResponse {
   meta: {
     cacheKey: CacheIdentifier;
     cacheHit: boolean;
-    file: string;
+    file?: string;
   };
 }
 
@@ -461,7 +461,7 @@ export interface LayoutResponse {
   meta: {
     cacheKey: CacheIdentifier;
     cacheHit: boolean;
-    file: string;
+    file?: string;
   };
 }
 
@@ -469,17 +469,17 @@ export interface LayoutResponse {
 
 export interface Skip {
   type: "SKIP";
-  response: object;
+  response: Record<string, unknown>;
 }
 
 export interface End {
   type: "END";
-  response: object;
+  response: Record<string, unknown>;
 }
 
 export interface Success {
   type: "SUCCESS";
-  response: object;
+  response: Record<string, unknown>;
 }
 
 export interface Retry {
@@ -495,27 +495,32 @@ export interface Error {
 }
 
 export interface Response {
+  // deno-lint-ignore ban-types
   skip: Function;
+  // deno-lint-ignore ban-types
   end: Function;
+  // deno-lint-ignore ban-types
   retry: Function;
+  // deno-lint-ignore ban-types
   error: Function;
+  // deno-lint-ignore ban-types
   success: Function;
 }
 
 export interface Request {
-  attrs?: object;
+  attrs?: Record<string, unknown>;
   body?: string;
   root: string;
 }
 
 export interface DataResponse {
   type: "SKIP" | "END" | "SUCCESS";
-  response: object;
+  response: Record<string, unknown>;
   retries: number;
   meta: {
     cacheKey: CacheKey;
     cacheHit: boolean;
-    file: string;
+    file?: string;
   };
 }
 
@@ -561,7 +566,7 @@ export {
   BenchmarkRunError,
   BenchmarkResult,
   BenchmarkRunResult,
-} from "https://deno.land/std@0.62.0/testing/bench.ts";
+} from "https://deno.land/std@0.67.0/testing/bench.ts";
 
 /**
  * Third Party
@@ -571,7 +576,7 @@ export {
 export {
   GroupDefinition,
   defaultColumns,
-} from "https://deno.land/x/pretty_benching@v0.2.0/mod.ts";
+} from "https://deno.land/x/pretty_benching@v0.2.3/mod.ts";
 
 // LRU Cache
 import { Identifier as CacheIdentifier } from "https://deno.land/x/dash@2.2.1/util.ts";

@@ -1,5 +1,4 @@
 import { v5, Cache } from "../../deps.ts";
-import file from "https://deno.land/x/pogo@v0.5.0/lib/helpers/file.ts";
 const namespace = "f6360cb2-cdac-4d8d-a269-a5f65b054128";
 
 const cache = new Cache({

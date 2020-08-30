@@ -209,6 +209,7 @@ const watchResolvers = async () => {
   };
 
   let timer = 0;
+  // deno-lint-ignore ban-types
   const debounce = (fn: Function) => {
     clearTimeout(timer);
     timer = setTimeout(() => fn(), config.interval);
@@ -260,6 +261,7 @@ const watchRoutes = async () => {
   };
 
   let timer = 0;
+  // deno-lint-ignore ban-types
   const debounce = (fn: Function) => {
     clearTimeout(timer);
     timer = setTimeout(() => fn(), config.interval);

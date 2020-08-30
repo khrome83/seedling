@@ -13,17 +13,17 @@ import {
 import { cache, getCacheKey } from "../cache/index.ts";
 import config from "../config/index.ts";
 
-const skip = (response: object): Skip => ({
+const skip = (response: Record<string, unknown>): Skip => ({
   type: "SKIP",
   response,
 });
 
-const end = (response: object): End => ({
+const end = (response: Record<string, unknown>): End => ({
   type: "END",
   response,
 });
 
-const success = (response: object): Success => ({
+const success = (response: Record<string, unknown>): Success => ({
   type: "SUCCESS",
   response,
 });
@@ -48,7 +48,10 @@ const response: Response = {
   success,
 };
 
-const buildRequest = (attrs: object = {}, body = ""): Request => ({
+const buildRequest = (
+  attrs: Record<string, unknown> = {},
+  body = "",
+): Request => ({
   attrs,
   body,
   root: config.root,
@@ -56,7 +59,7 @@ const buildRequest = (attrs: object = {}, body = ""): Request => ({
 
 export const resolveData = async (
   processor: string,
-  attrs: object,
+  attrs: Record<string, unknown>,
   body = "",
 ): Promise<DataResponse> => {
   // Determine correct path to process under

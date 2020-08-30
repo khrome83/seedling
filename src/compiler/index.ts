@@ -802,10 +802,14 @@ const elementDirective = async (
   }
 
   // Convert to Tag from Element Directive
-  delete node.expression;
-  const tag = (node as unknown) as Tag;
-  tag.type = "Tag";
-  tag.data = tagType;
+  const tag = {
+    type: "Tag",
+    data: tagType,
+    slot: node.slot,
+    classes: node.classes,
+    attributes: node.attributes,
+    children: node.children,
+  } as Tag;
 
   return await compileNode(tag, state, cb);
 };

@@ -18,6 +18,7 @@ socket.addEventListener("message", function (event) {
     if (typeof Turbolinks !== undefined && Turbolinks.supported) {
       Turbolinks.visit(window.location.pathname, { action: "replace" });
     } else {
+      // deno-lint-ignore no-self-assign - Ensures the browser redirects to itself
       window.location.href = window.location.href;
     }
   }

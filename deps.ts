@@ -7,13 +7,13 @@ export {
   assert,
   assertEquals,
   assertThrows,
-} from "https://deno.land/std@0.65.0/testing/asserts.ts";
+} from "https://deno.land/std@0.67.0/testing/asserts.ts";
 
 // Benchmarks
 export {
   runBenchmarks,
   bench,
-} from "https://deno.land/std@0.65.0/testing/bench.ts";
+} from "https://deno.land/std@0.67.0/testing/bench.ts";
 
 // Colors
 export {
@@ -27,26 +27,26 @@ export {
   bgRed,
   black,
   gray,
-} from "https://deno.land/std@0.65.0/fmt/colors.ts";
+} from "https://deno.land/std@0.67.0/fmt/colors.ts";
 
 // Async Support
-export { delay } from "https://deno.land/std@0.65.0/async/mod.ts";
+export { delay } from "https://deno.land/std@0.67.0/async/mod.ts";
 
 // UUID
-export { v5 } from "https://deno.land/std@0.65.0/uuid/mod.ts";
+export { v5 } from "https://deno.land/std@0.67.0/uuid/mod.ts";
 
 // Parse for CLI Flags
-export { parse } from "https://deno.land/std@0.62.0/flags/mod.ts";
+export { parse } from "https://deno.land/std@0.67.0/flags/mod.ts";
 
 // Ensure Directory
 export {
   ensureDir,
   expandGlob,
-} from "https://deno.land/std@0.65.0/fs/mod.ts";
+} from "https://deno.land/std@0.67.0/fs/mod.ts";
 
-export { join } from "https://deno.land/std@0.65.0/path/mod.ts";
+export { join } from "https://deno.land/std@0.67.0/path/mod.ts";
 
-export { createHash } from "https://deno.land/std@0.65.0/hash/mod.ts";
+export { createHash } from "https://deno.land/std@0.67.0/hash/mod.ts";
 
 /**
  * Third Party Libaries
@@ -60,14 +60,10 @@ export {
   prettyBenchmarkDown,
   prettyBenchmarkResult,
   prettyBenchmarkProgress,
-} from "https://deno.land/x/pretty_benching@v0.2.0/mod.ts";
+} from "https://deno.land/x/pretty_benching@v0.2.3/mod.ts";
 
 // LRU Cache
-// export { Cache } from "https://deno.land/x/dash@2.2.1/mod.ts";
-
-// TODO: Remove this fork once PR is merged
-// https://github.com/xpyxel/dash/pull/27
-export { Cache } from "https://raw.githubusercontent.com/use-seedling/dash/2.3.0/mod.ts";
+export { Cache } from "https://deno.land/x/dash@2.2.2/mod.ts";
 
 // Pogo - Used for Dev Server
 import pogo, {

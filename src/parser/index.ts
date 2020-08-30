@@ -318,7 +318,7 @@ export class Parser {
             if (child.type !== "IsBlock" && child.type !== "ElseBlock") {
               if (child.type === "Text" && !/[^\s]/g.test(child.data)) {
                 // Good to Push While Child
-                children.push(child as IsBlock | ElseBlock);
+                children.push((child as unknown) as IsBlock | ElseBlock);
               } else {
                 throw this.throwError(
                   `When block has disallowed direct child ${
