@@ -59,5 +59,4 @@ export default async (commands: Args, flags: Flag) => {
   }
 
   await server(port, ws);
-  // console.log("not implimented yet");
 };

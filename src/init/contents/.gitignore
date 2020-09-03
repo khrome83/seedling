@@ -1,0 +1,14 @@
+# Logs
+*.log
+
+# Distribution
+dist
+
+# Installation and Packages
+package/
+temp/
+
+# Enviroment Variables
+.env
+*.env
+.env-*
