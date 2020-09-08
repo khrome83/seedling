@@ -39,7 +39,6 @@ const importConfig = async () => {
             )
           }, using defaults`,
         );
-        console.error(e);
         return defaults;
       }
     })

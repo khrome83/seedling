@@ -38,7 +38,6 @@ export default async (commands: Args, flags: Flag) => {
       case "h":
       case "help":
         return console.log(helpText.get("dev"));
-        break;
       case "p":
       case "port":
         if (parseInt(flags[flag], 10) > 0) {
@@ -59,5 +58,4 @@ export default async (commands: Args, flags: Flag) => {
   }
 
   await server(port, ws);
-  // console.log("not implimented yet");
 };

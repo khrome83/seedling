@@ -66,10 +66,22 @@ export {
 export { Cache } from "https://deno.land/x/dash@2.2.2/mod.ts";
 
 // Pogo - Used for Dev Server
+// TODO: Convert this back to deno.land/x once this PR is merged
+// ISSUE: https://github.com/sholladay/pogo/issues/49
+// PR: https://github.com/sholladay/pogo/pull/50
+//
 import pogo, {
   Request as RequestPogo,
   Toolkit as ToolkitPogo,
-} from "https://deno.land/x/pogo@v0.5.0/main.ts";
+} from "https://raw.githubusercontent.com/sholladay/pogo/master/main.ts";
+// import pogo, {
+//   Request as RequestPogo,
+//   Toolkit as ToolkitPogo,
+// } from "https://deno.land/x/pogo@v0.5.0/main.ts";
+// import pogo, {
+//   Request as RequestPogo,
+//   Toolkit as ToolkitPogo,
+// } from "https://raw.githubusercontent.com/khrome83/pogo/master/main.ts";
 export { pogo, RequestPogo, ToolkitPogo };
 
 // Websocket Connection - Used for Dev Server

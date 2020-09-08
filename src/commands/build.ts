@@ -38,7 +38,6 @@ export default async (commands: Args, flags: Flag): Promise<void> => {
       case "h":
       case "help":
         return console.log(helpText.get("build"));
-        break;
       case "r":
       case "reload":
         reload = true;

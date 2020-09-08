@@ -1,6 +1,7 @@
 import { VERSION } from "../cli/const.ts";
 import helpText from "../cli/helpText.ts";
 import { Flag, Args } from "../../cli.ts";
+import init from "../init/index.ts";
 
 helpText.set(
   "init",
@@ -32,7 +33,6 @@ export default (commands: Args, flags: Flag) => {
       case "h":
       case "help":
         return console.log(helpText.get("init"));
-        break;
       case "f":
       case "force":
         force = true;
@@ -40,5 +40,5 @@ export default (commands: Args, flags: Flag) => {
     }
   }
 
-  console.log("not implimented yet");
+  init(force);
 };

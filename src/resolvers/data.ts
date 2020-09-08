@@ -105,10 +105,8 @@ export const resolveData = async (
           continue;
         } else if (result.type === "ERROR") {
           return Promise.reject(result);
-        }
-
-        // Ensure request is not malformed
-        if (result.response !== undefined) {
+        } else if (result.response !== undefined) {
+          // Ensure request is not malformed
           break;
         } else {
           return Promise.reject(
