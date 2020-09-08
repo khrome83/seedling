@@ -33,7 +33,6 @@ export default (commands: Args, flags: Flag) => {
       case "h":
       case "help":
         return console.log(helpText.get("init"));
-        break;
       case "f":
       case "force":
         force = true;

@@ -33,7 +33,6 @@ export default (commands: Args, flags: Flag) => {
       case "h":
       case "help":
         return console.log(helpText.get("upgrade"));
-        break;
       case "v":
       case "version":
         if (!!flags[flag] === true) {
