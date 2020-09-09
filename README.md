@@ -8,6 +8,11 @@ Seedling is currently pre-alpha. This document will be updated as we finish more
 
 `deno install --unstable --allow-read --allow-write --allow-env --allow-net --allow-hrtime --allow-run -f -n seed https://deno.land/x/seedling@0.0.2/cli.ts`
 
+Run `seed help` for list of commands. 
+
+> Note - `seed build` and `seed upgrade` not implimented yet.
+
+
 ## Fish
 
 Need to set .deno/bin in fish to the path
