@@ -6,7 +6,7 @@
 
 Seedling is currently pre-alpha. This document will be updated as we finish more features.
 
-`deno install --unstable --allow-read --allow-write --allow-env --allow-net --allow-hrtime --allow-run -f -n seed https://deno.land/x/seedling@0.0.1/cli.ts`
+`deno install --unstable --allow-read --allow-write --allow-env --allow-net --allow-hrtime --allow-run -f -n seed https://deno.land/x/seedling@0.0.2/cli.ts`
 
 ## Fish
 
