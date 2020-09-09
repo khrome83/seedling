@@ -4,9 +4,9 @@
 
 [![Seedling](https://img.shields.io/badge/available%20on-deno.land/x-orange.svg?style=for-the-badge&logo=deno&labelColor=black)](https://deno.land/x/seedling)
 
-TODO: Populate this with usefull information
+Seedling is currently pre-alpha. This document will be updated as we finish more features.
 
-`deno install --unstable --allow-read --allow-write --allow-env --allow-net --allow-hrtime --allow-run -f -n seed cli.ts`
+`deno install --unstable --allow-read --allow-write --allow-env --allow-net --allow-hrtime --allow-run -f -n seed https://deno.land/x/seedling@0.0.1/cli.ts`
 
 ## Fish
 
