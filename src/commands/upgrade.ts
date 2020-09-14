@@ -1,6 +1,6 @@
 import { VERSION } from "../cli/const.ts";
 import helpText from "../cli/helpText.ts";
-import { Flag, Args } from "../../cli.ts";
+import type { Flag, Args } from "../../cli.ts";
 
 helpText.set(
   "upgrade",

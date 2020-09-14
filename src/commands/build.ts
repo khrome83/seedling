@@ -3,7 +3,7 @@
 import { join, ensureDir } from "../../deps.ts";
 import { VERSION } from "../cli/const.ts";
 import helpText from "../cli/helpText.ts";
-import { Flag, Args } from "../../cli.ts";
+import type { Flag, Args } from "../../cli.ts";
 import config from "../config/index.ts";
 
 helpText.set(
