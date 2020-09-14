@@ -1,3 +1,5 @@
+// deno-lint-ignore-file no-fallthrough we allow fallhtrough for flags
+
 import { join, ensureDir } from "../../deps.ts";
 import { VERSION } from "../cli/const.ts";
 import helpText from "../cli/helpText.ts";

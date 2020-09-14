@@ -4,6 +4,7 @@
 declare const __PORT__: number;
 
 // Create WebSocket connection.
+// deno-lint-ignore no-undef - location is valid on client
 const socketUrl = `ws://${location.hostname}:${__PORT__}`;
 const socket = new WebSocket(socketUrl);
 
@@ -15,7 +16,9 @@ socket.addEventListener("open", function (event) {
 // Listen for messages
 socket.addEventListener("message", function (event) {
   if (event.data === "RELOAD") {
+    // deno-lint-ignore no-undef - Turbolinks is valid on client
     if (typeof Turbolinks !== undefined && Turbolinks.supported) {
+      // deno-lint-ignore no-undef - Turbolinks and window is valid on client
       Turbolinks.visit(window.location.pathname, { action: "replace" });
     } else {
       // deno-lint-ignore no-self-assign - Ensures the browser redirects to itself

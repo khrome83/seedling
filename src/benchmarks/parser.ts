@@ -1,5 +1,5 @@
 import { bench } from "../../deps.ts";
-import { BenchmarkTimer } from "../types.ts";
+import type { BenchmarkTimer } from "../types.ts";
 import { Parser } from "../parser/index.ts";
 
 // Basic Benchmark to Validate Parser Speed

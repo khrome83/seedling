@@ -1,8 +1,10 @@
+// deno-lint-ignore-file no-fallthrough we treat fallthrough as valid for this whole file
+
 import pseudoClasses from "./pseudoClasses.ts";
 import mediaQueries from "./mediaQueries.ts";
 import preflight from "./preflight.ts";
 import getColorPallet from "./colors.ts";
-import {
+import type {
   ModifySelector,
   MediaQueryDefintion,
   SelectorDefinition,
@@ -1164,9 +1166,9 @@ export default class TailwindGenerator {
         return i + "width: -webkit-max-content;" + nl +
           i + "width: -moz-max-content;" + nl +
           i + "width: max-content;" + nl;
+      default:
+        return i + "width: " + calcUnit(token) + ";" + nl;
     }
-
-    return i + "width: " + calcUnit(token) + ";" + nl;
   }
 
   private getMinWidth(

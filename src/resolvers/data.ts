@@ -1,5 +1,5 @@
 import { delay } from "../../deps.ts";
-import {
+import type {
   Skip,
   End,
   Success,
@@ -88,6 +88,7 @@ export const resolveData = async (
   if (!cache.has(cacheKey as CacheKey)) {
     try {
       let retries = 0;
+      // deno-lint-ignore no-undef TODO: remove when bug in 1.4.0 is resolved
       const dataProcessor = await import(importPath);
       let result;
 

@@ -1,5 +1,5 @@
 import { cyan, red, yellow, bold } from "../../deps.ts";
-import {
+import type {
   Node,
   Identifier,
   Literal,

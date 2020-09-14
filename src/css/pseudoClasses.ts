@@ -1,4 +1,4 @@
-import { ModifySelector } from "../types.ts";
+import type { ModifySelector } from "../types.ts";
 
 export default new Map([
   ["hover", { pre: "", post: ":hover" }],

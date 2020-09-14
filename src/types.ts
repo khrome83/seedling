@@ -561,23 +561,23 @@ export interface ColorDefinition {
  */
 
 // Benchmarks
-export {
+export type {
   BenchmarkTimer,
   BenchmarkRunError,
   BenchmarkResult,
   BenchmarkRunResult,
-} from "https://deno.land/std@0.67.0/testing/bench.ts";
+} from "https://deno.land/std@0.69.0/testing/bench.ts";
+
+export type {
+  WebSocket,
+} from "https://deno.land/std@0.69.0/ws/mod.ts";
+
+export type { ServerRequest } from "https://deno.land/std@0.69.0/http/server.ts";
 
 /**
  * Third Party
  */
 
-// Pretty Bencing
-export {
-  GroupDefinition,
-  defaultColumns,
-} from "https://deno.land/x/pretty_benching@v0.2.3/mod.ts";
-
 // LRU Cache
-import { Identifier as CacheIdentifier } from "https://deno.land/x/dash@2.2.1/util.ts";
+import type { Identifier as CacheIdentifier } from "https://deno.land/x/dash@2.2.1/util.ts";
 export type CacheKey = CacheIdentifier;

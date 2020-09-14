@@ -1,5 +1,5 @@
 import { bold, cyan } from "../../deps.ts";
-import { ComponentResponse, CacheKey } from "../types.ts";
+import type { ComponentResponse, CacheKey } from "../types.ts";
 import { cache, getCacheKey } from "../cache/index.ts";
 import { Parser } from "../parser/index.ts";
 import config from "../config/index.ts";
@@ -69,6 +69,7 @@ export const resolveComponent = async (
         component = await Deno.readTextFile(localPath);
       } else if (importPath) {
         // Remote Component
+        // deno-lint-ignore no-undef TODO: remove when bug in 1.4.0 is resolved
         const path = await import(importPath).then((c) => {
           if (!c.default) {
             throw new Error(

@@ -1,4 +1,4 @@
-import { ColorDefinition } from "../types.ts";
+import type { ColorDefinition } from "../types.ts";
 
 export const tailwindcss = new Map([
   ["black", { hex: "#000", rgb: "0, 0, 0" }],
