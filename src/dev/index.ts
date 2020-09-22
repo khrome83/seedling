@@ -178,7 +178,6 @@ const normalizeRoute = (path: string) => {
 let socket: WebSocket;
 const runWebSocket = async (port: number) => {
   async function handleWs(sock: WebSocket) {
-    console.log("socket connected!");
     try {
       socket = sock;
     } catch (err) {
@@ -516,213 +515,261 @@ export default async (port: number, ws: number) => {
   watchRoutes();
 
   const handler = async (request: ServerRequest) => {
-    console.log(handler);
-    // const start = performance.now();
-    // const path = normalizeRoute(request.path);
-    // let status: Partial<CompilerResponse> = {
-    //   cacheHits: 0,
-    //   cacheMisses: 0,
-    //   files: new Set(),
-    //   classes: new Set(),
-    //   scripts: new Set(),
-    //   styles: new Set(),
-    //   head: [],
-    // };
+    // console.log(request);
+    const start = performance.now();
+    const path = normalizeRoute(request.url);
+    let status: Partial<CompilerResponse> = {
+      cacheHits: 0,
+      cacheMisses: 0,
+      files: new Set(),
+      classes: new Set(),
+      scripts: new Set(),
+      styles: new Set(),
+      head: [],
+    };
 
-    // if (routes.has(path)) {
-    //   try {
-    //     const routeData = routes.get(path);
+    if (routes.has(path)) {
+      try {
+        const routeData = routes.get(path);
 
-    //     // Parser for Page, Cache AST until page is Modified
-    //     const cacheKey = getCacheKey(routeData.file, "page", routeData);
-    //     let rootAst;
-    //     if (!cache.has(cacheKey as CacheKey)) {
-    //       // Report
-    //       status.cacheMisses = (status.cacheMisses as number) + 1;
+        // Parser for Page, Cache AST until page is Modified
+        const cacheKey = getCacheKey(routeData.file, "page", routeData);
+        let rootAst;
+        if (!cache.has(cacheKey as CacheKey)) {
+          // Report
+          status.cacheMisses = (status.cacheMisses as number) + 1;
 
-    //       const contents = await Deno.readTextFile(routeData.file);
-    //       const p = new Parser(contents);
-    //       rootAst = p.parse();
-    //       cache.set(cacheKey as CacheKey, rootAst);
-    //     } else {
-    //       // Report
-    //       status.cacheHits = (status.cacheHits as number) + 1;
+          const contents = await Deno.readTextFile(routeData.file);
+          const p = new Parser(contents);
+          rootAst = p.parse();
+          cache.set(cacheKey as CacheKey, rootAst);
+        } else {
+          // Report
+          status.cacheHits = (status.cacheHits as number) + 1;
 
-    //       rootAst = cache.get(cacheKey as CacheKey);
-    //     }
+          rootAst = cache.get(cacheKey as CacheKey);
+        }
 
-    //     // Prepend Data to AST, pass state careover from Route Procesisng if Any
-    //     const compilerOutput = await compile(
-    //       [...routeData.data, ...rootAst.html] as Array<Node>,
-    //       routeData.state,
-    //       routeData.file,
-    //     );
+        // Prepend Data to AST, pass state careover from Route Procesisng if Any
+        const compilerOutput = await compile(
+          [...routeData.data, ...rootAst.html] as Array<Node>,
+          routeData.state,
+          routeData.file,
+        );
 
-    //     // Update Status
-    //     status = mergeStatus(status, compilerOutput);
+        // Update Status
+        status = mergeStatus(status, compilerOutput);
 
-    //     // Update Output
-    //     let output = compilerOutput.source;
+        // Update Output
+        let output = compilerOutput.source;
 
-    //     // Need to pass contents into layout if exists
-    //     if (rootAst.layout.length) {
-    //       // Loop through backwards so they "stack" correctly
-    //       for (let i = rootAst.layout.length - 1; i >= 0; i--) {
-    //         // Create Text Node
-    //         const textNode = { type: "Text", data: output, start: 0, end: 0 };
-    //         // Setup as Slot
+        // Need to pass contents into layout if exists
+        if (rootAst.layout.length) {
+          // Loop through backwards so they "stack" correctly
+          for (let i = rootAst.layout.length - 1; i >= 0; i--) {
+            // Create Text Node
+            const textNode = { type: "Text", data: output, start: 0, end: 0 };
+            // Setup as Slot
 
-    //         const innerContents = {
-    //           __internals__: {
-    //             slots: {
-    //               default: [textNode],
-    //             },
-    //           },
-    //         };
+            const innerContents = {
+              __internals__: {
+                slots: {
+                  default: [textNode],
+                },
+              },
+            };
 
-    //         const scoped = { ...routeData.state, ...innerContents };
+            const scoped = { ...routeData.state, ...innerContents };
 
-    //         // Process Last Layout
-    //         const layoutOutput = await compile(
-    //           [...routeData.data, rootAst.layout[i]] as Array<Node>,
-    //           scoped,
-    //           routeData.file,
-    //         );
+            // Process Last Layout
+            const layoutOutput = await compile(
+              [...routeData.data, rootAst.layout[i]] as Array<Node>,
+              scoped,
+              routeData.file,
+            );
 
-    //         // Update Status
-    //         status = mergeStatus(status, layoutOutput);
+            // Update Status
+            status = mergeStatus(status, layoutOutput);
 
-    //         // Update Output
-    //         output = layoutOutput.source;
-    //       }
-    //     }
+            // Update Output
+            output = layoutOutput.source;
+          }
+        }
 
-    //     // Prepare Stylesheet
-    //     const cssBuild = async () => {
-    //       try {
-    //         const t = new TailwindGenerator(false, "tailwindui");
-    //         t.addClasses(status.classes as Set<string>);
-    //         const sheet = t.getStylesheet(false, true);
+        // Prepare Stylesheet
+        const cssBuild = async () => {
+          try {
+            const t = new TailwindGenerator(false, "tailwindui");
+            t.addClasses(status.classes as Set<string>);
+            const sheet = t.getStylesheet(false, true);
 
-    //         return sheet;
-    //       } catch (e) {
-    //         throw e;
-    //       }
-    //     };
+            return sheet;
+          } catch (e) {
+            throw e;
+          }
+        };
 
-    //     // Has for CSS File
-    //     const hash = createHashFromSet(status.classes as Set<string>);
+        // Has for CSS File
+        const hash = createHashFromSet(status.classes as Set<string>);
 
-    //     cssFiles.set(`/main-${hash}.css`, cssBuild);
+        cssFiles.set(`/main-${hash}.css`, cssBuild);
 
-    //     // Need to Process Page through template.html
-    //     const templateFile = join(config.root, "/template.html");
-    //     const templateContents = await Deno.readTextFile(templateFile);
-    //     const p = new Parser(templateContents);
-    //     const templateAst = p.parse();
-    //     const templateCacheKey = getCacheKey(
-    //       templateFile,
-    //       "template",
-    //       templateAst,
-    //     );
-    //     cache.set(templateCacheKey as CacheKey, templateAst);
+        // Need to Process Page through template.html
+        const templateFile = join(config.root, "/template.html");
+        const templateContents = await Deno.readTextFile(templateFile);
+        const p = new Parser(templateContents);
+        const templateAst = p.parse();
+        const templateCacheKey = getCacheKey(
+          templateFile,
+          "template",
+          templateAst,
+        );
+        cache.set(templateCacheKey as CacheKey, templateAst);
 
-    //     // Setup Nodes
-    //     const textNode = { type: "Text", data: output, start: 0, end: 0 };
-    //     const styleNode = {
-    //       type: "Text",
-    //       data:
-    //         `<link href="/main-${hash}.css"  rel="stylesheet" data-turbolinks-track="reload">`,
-    //       start: 0,
-    //       end: 0,
-    //     };
+        // Setup Nodes
+        const textNode = { type: "Text", data: output, start: 0, end: 0 };
+        const styleNode = {
+          type: "Text",
+          data:
+            `<link href="/main-${hash}.css"  rel="stylesheet" data-turbolinks-track="reload">`,
+          start: 0,
+          end: 0,
+        };
 
-    //     // Setup as Slot
-    //     const innerContents = {
-    //       __internals__: {
-    //         slots: {
-    //           default: [textNode],
-    //           styles: [styleNode],
-    //         },
-    //       },
-    //     };
+        // Setup as Slot
+        const innerContents = {
+          __internals__: {
+            slots: {
+              default: [textNode],
+              styles: [styleNode],
+            },
+          },
+        };
 
-    //     // Process Last Layout
-    //     const templateOutput = await compile(
-    //       templateAst.html,
-    //       innerContents,
-    //       templateFile,
-    //     );
+        // Process Last Layout
+        const templateOutput = await compile(
+          templateAst.html,
+          innerContents,
+          templateFile,
+        );
 
-    //     // Update Output
-    //     output = templateOutput.source;
+        // Update Output
+        output = templateOutput.source;
 
-    //     displayRequest(
-    //       200,
-    //       path,
-    //       delta(start),
-    //       size(output as string),
-    //       status,
-    //     );
-    //     return h.response(output).code(200);
-    //   } catch (e) {
-    //     console.log("SOMETHING WENT WRONG - ", e.toString());
-    //     displayRequest(500, path, delta(start));
-    //     return h.response(e).code(500);
-    //   }
-    // } else if (jsFiles.has(path)) {
-    //   try {
-    //     let output = jsFiles.get(path);
+        displayRequest(
+          200,
+          path,
+          delta(start),
+          size(output as string),
+          status,
+        );
+        const headers = new Headers();
+        headers.set("content-type", `text/html; charset=utf-8`);
+        return request.respond({
+          status: 200,
+          body: new Deno.Buffer(new TextEncoder().encode(output)),
+          headers,
+        });
+      } catch (e) {
+        console.log("SOMETHING WENT WRONG - ", e.toString());
+        displayRequest(500, path, delta(start));
+        const headers = new Headers();
+        headers.set("content-type", `text/plain; charset=utf-8`);
+        return request.respond({
+          status: 500,
+          body: new Deno.Buffer(new TextEncoder().encode(e.toString())),
+          headers,
+        });
+      }
+    } else if (jsFiles.has(path)) {
+      try {
+        let output = jsFiles.get(path);
 
-    //     // First time, need to process
-    //     if (typeof output === "function") {
-    //       output = await output();
-    //       jsFiles.set(path, output);
-    //     }
+        // First time, need to process
+        if (typeof output === "function") {
+          output = await output();
+          jsFiles.set(path, output);
+        }
 
-    //     displayRequest(200, path, delta(start), size(output));
-    //     return h.response(output).code(200).type("text/javascript");
-    //   } catch (e) {
-    //     displayRequest(500, path, delta(start));
-    //     return h.response(e).code(500);
-    //   }
-    // } else if (cssFiles.has(path)) {
-    //   try {
-    //     let output = cssFiles.get(path);
+        displayRequest(200, path, delta(start), size(output));
+        const headers = new Headers();
+        headers.set("content-type", "text/javascript; charset=utf-8");
+        return request.respond({
+          status: 200,
+          body: output,
+          headers,
+        });
+      } catch (e) {
+        displayRequest(500, path, delta(start));
+        const headers = new Headers();
+        headers.set("content-type", `text/plain; charset=utf-8`);
+        return request.respond({
+          status: 500,
+          body: e,
+          headers,
+        });
+      }
+    } else if (cssFiles.has(path)) {
+      try {
+        let output = cssFiles.get(path);
 
-    //     // First time, need to process
-    //     if (typeof output === "function") {
-    //       output = await output();
-    //       cssFiles.set(path, output);
-    //     }
+        // First time, need to process
+        if (typeof output === "function") {
+          output = await output();
+          cssFiles.set(path, output);
+        }
 
-    //     displayRequest(200, path, delta(start), size(output));
-    //     return h.response(output).code(200).type("text/css");
-    //   } catch (e) {
-    //     displayRequest(500, path, delta(start));
-    //     return h.response(e).code(500);
-    //   }
-    // } else {
-    //   // Try Static Assets
-    //   try {
-    //     const file = join(config.root, "/static", path);
-    //     const type = getFileMimeType(file);
+        displayRequest(200, path, delta(start), size(output));
+        const headers = new Headers();
+        headers.set("content-type", "text/css");
+        return request.respond({
+          status: 200,
+          body: new Deno.Buffer(new TextEncoder().encode(output)),
+          headers,
+        });
+      } catch (e) {
+        displayRequest(500, path, delta(start));
+        const headers = new Headers();
+        headers.set("content-type", `text/plain; charset=utf-8`);
+        return request.respond({
+          status: 500,
+          body: new Deno.Buffer(new TextEncoder().encode(e.toString())),
+          headers,
+        });
+      }
+    } else {
+      // Try Static Assets
+      try {
+        const file = join(config.root, "/static", path);
+        const type = getFileMimeType(file);
 
-    //     // File Data
-    //     const fileData = await Deno.lstat(file);
+        // File Data
+        const fileData = await Deno.lstat(file);
 
-    //     // Open stream to Static File
-    //     const stream = await Deno.open(file);
+        // Open stream to Static File
+        const stream = await Deno.open(file);
 
-    //     // Return File
-    //     displayRequest(200, path, delta(start), fileData.size / 1024);
-    //     return h.response(stream).code(200).type(type);
-    //   } catch (e) {
-    //     // Not Found, do 404
-    //     displayRequest(404, path, delta(start));
-    //     return h.response("the void").code(404);
-    //   }
-    // }
+        // Return File
+        displayRequest(200, path, delta(start), fileData.size / 1024);
+        const headers = new Headers();
+        headers.set("content-type", `${type}; charset=utf-8`);
+        return request.respond({
+          status: 200,
+          body: stream,
+          headers,
+        });
+      } catch (e) {
+        // Not Found, do 404
+        displayRequest(404, path, delta(start));
+        const headers = new Headers();
+        headers.set("content-type", `text/plain; charset=utf-8`);
+        return request.respond({
+          status: 404,
+          body: new Deno.Buffer(new TextEncoder().encode("The Void")),
+          headers,
+        });
+      }
+    }
   };
 
   const server = serve({ port: port });

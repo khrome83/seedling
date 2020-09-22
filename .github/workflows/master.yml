@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         config:
-          - version: 1.4.0
+          - version: 1.4.1
     env:
       # Used for tests, not valid host, path or token, just needs to exist
       GRAPH_HOST: "example.com"

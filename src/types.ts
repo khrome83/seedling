@@ -566,18 +566,18 @@ export type {
   BenchmarkRunError,
   BenchmarkResult,
   BenchmarkRunResult,
-} from "https://deno.land/std@0.69.0/testing/bench.ts";
+} from "https://deno.land/std@0.70.0/testing/bench.ts";
 
 export type {
   WebSocket,
-} from "https://deno.land/std@0.69.0/ws/mod.ts";
+} from "https://deno.land/std@0.70.0/ws/mod.ts";
 
-export type { ServerRequest } from "https://deno.land/std@0.69.0/http/server.ts";
+export type { ServerRequest } from "https://deno.land/std@0.70.0/http/server.ts";
 
 /**
  * Third Party
  */
 
 // LRU Cache
-import type { Identifier as CacheIdentifier } from "https://deno.land/x/dash@2.2.1/util.ts";
+import type { Identifier as CacheIdentifier } from "https://deno.land/x/dash@2.2.3/src/util.ts";
 export type CacheKey = CacheIdentifier;

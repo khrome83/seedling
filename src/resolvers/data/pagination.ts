@@ -1,4 +1,4 @@
-import {
+import type {
   Request,
   Response,
 } from "https://raw.githubusercontent.com/use-seedling/seedling/master/mod.ts";
