@@ -12,6 +12,12 @@ Run `seed help` for list of commands.
 
 > Note - `seed build` and `seed upgrade` are not implimented yet.
 
+## VS Code Plugin
+
+Currently only offers basic syntax highligting.
+
+https://marketplace.visualstudio.com/items?itemName=Seedling.seedling
+
 ## Fish
 
 Need to set .deno/bin in fish to the path
