@@ -9,6 +9,10 @@ export default new Map([
     pre: "@media (prefers-reduced-motion: reduce) {",
     post: "}",
   }],
+  ["dark", {
+    pre: "@media (prefers-color-scheme: dark) {",
+    post: "}",
+  }],
   ["sm", {
     pre: "@media (min-width: 640px) {",
     post: "}",

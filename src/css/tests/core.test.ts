@@ -63,6 +63,8 @@ Deno.test("(CSS) Media Queries", () => {
     "motion-reduce:mx-16",
     "md:motion-safe:my-12",
     "md:motion-reduce:mt-4",
+    "dark:bg-gray-100",
+    "md:dark:bg-gray-200",
   ]);
 
   const t = new TailwindGenerator();
@@ -81,6 +83,13 @@ Deno.test("(CSS) Media Queries", () => {
     margin-right: 4rem;
   }
 }
+@media (prefers-color-scheme: dark) {
+  .dark\\:bg-gray-100 {
+    --bg-opacity: 1;
+    background-color: #f7fafc;
+    background-color: rgba(247, 250, 252, var(--bg-opacity));
+  }
+}
 @media (min-width: 768px) {
   @media (prefers-reduced-motion: no-preference) {
     .md\\:motion-safe\\:my-12 {
@@ -91,6 +100,13 @@ Deno.test("(CSS) Media Queries", () => {
   @media (prefers-reduced-motion: reduce) {
     .md\\:motion-reduce\\:mt-4 {
       margin-top: 1rem;
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    .md\\:dark\\:bg-gray-200 {
+      --bg-opacity: 1;
+      background-color: #edf2f7;
+      background-color: rgba(237, 242, 247, var(--bg-opacity));
     }
   }
 }
