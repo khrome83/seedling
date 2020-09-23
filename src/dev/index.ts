@@ -750,11 +750,18 @@ export default async (port: number, ws: number) => {
     } else {
       // Try Static Assets
       try {
-        const file = join(config.root, "/static", path);
-        const type = getFileMimeType(file);
+        // File and File Data
+        let file = join(config.root, "/static", path);
+        let fileData = await Deno.lstat(file);
 
-        // File Data
-        const fileData = await Deno.lstat(file);
+        // Handle Directories - defaults to index.html file
+        if (fileData.isDirectory) {
+          file = join(config.root, "/static", path, "index.html");
+          fileData = await Deno.lstat(file);
+        }
+
+        // Mime Type
+        const type = getFileMimeType(file);
 
         // Open stream to Static File
         const stream = await Deno.open(file);
