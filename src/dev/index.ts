@@ -342,14 +342,24 @@ const registerClientLib = async (port: number) => {
   // Prepare Source
   const prepareSource = async () => {
     // Needed File Paths
-    const path = join(config.root, "../client/index.ts");
+    const file = (new URL(join(import.meta.url, "..", "../client/index.ts")));
 
     // Prepare Source
-    let src = await Deno.readTextFile(path);
-    return src.replace(
-      "declare const __PORT__: number;",
-      `const __PORT__: number = ${port};`,
-    );
+    try {
+      let src;
+      if (file.protocol === "file:") {
+        src = await Deno.readTextFile(file);
+      } else {
+        src = await (await fetch(file)).text();
+      }
+
+      return src.replace(
+        "declare const __PORT__: number;",
+        `const __PORT__: number = ${port};`,
+      );
+    } catch (e) {
+      throw e;
+    }
   };
 
   // ES Build
