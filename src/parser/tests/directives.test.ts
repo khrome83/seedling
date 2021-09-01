@@ -158,6 +158,7 @@ Deno.test("Component Directive - Closing Tag", () => {
         children: [
           { type: "Text", data: "Dynamic Heading", start: 22, end: 37 },
         ],
+        classes: [],
         expression: { type: "Identifier", data: "tag", start: 17, end: 20 },
         slot: undefined,
         start: 0,
@@ -182,6 +183,7 @@ Deno.test("Component Directive - Self Closing", () => {
         data: ":component",
         attributes: [],
         children: [],
+        classes: [],
         expression: {
           type: "Literal",
           data: '"br"',
@@ -226,6 +228,7 @@ Deno.test("Implicit Component Directive", () => {
           },
         ],
         children: [{ type: "Text", data: "Content", start: 21, end: 28 }],
+        classes: [],
         expression: {
           type: "Literal",
           data: '"FooBar"',
@@ -256,6 +259,7 @@ Deno.test("Component Directive - Named Slot", () => {
         data: ":component",
         attributes: [],
         children: [],
+        classes: [],
         expression: {
           type: "Literal",
           data: '"br"',

@@ -396,20 +396,39 @@ const registerClientLib = async (port: number) => {
     const src = await prepareSource();
 
     try {
-      const result = await Deno.transpileOnly(
-        { "/client.ts": src },
-        {
+      const result = await Deno.emit("/client.ts", {
+        sources: {
+          "/client.ts": src,
+        },
+        check: false,
+        bundle: "module",
+        compilerOptions: {
           lib: ["dom", "esnext"],
           target: "esnext",
           removeComments: true,
-        },
-      );
+          sourceMap: true,
+        }
+      });
+      // const result = await Deno.transpileOnly(
+      //   { "/client.ts": src },
+      //   {
+      //     lib: ["dom", "esnext"],
+      //     target: "esnext",
+      //     removeComments: true,
+      //   },
+      // );
+
+      // Breaks out Source/Map since upgrade to Deno.emit()
+      const source = result.files["deno:///bundle.js"]
+      const map = result.files["deno:///bundle.js.map"];
 
       // Set Map for JS File
-      jsFiles.set("/client.js.map", result["/client.ts"].map);
+      jsFiles.set("/client.js.map", map);
+      // jsFiles.set("/client.js.map", result["/client.ts"].map);
 
       // Return Source
-      return result["/client.ts"].source;
+      return source;
+      // return result["/client.ts"].source;
     } catch (e) {
       throw e;
     }
@@ -424,6 +443,7 @@ const registerClientLib = async (port: number) => {
   // Deno Transpile Only (ES5)
   // Currently this use 'tsc' under the hood
   // In the future this should use 'swc' (native) code (70x performance gain)
+  // Note - 8.30.2021 - Upgraded to Deno.emit which sues 'swc'
   const denoTranspile = async () => {
     // ES6+ Version
     let output = jsFiles.get("/client.js");
@@ -435,24 +455,43 @@ const registerClientLib = async (port: number) => {
     }
 
     try {
-      const result = await Deno.transpileOnly(
-        {
-          "/client-legacy.ts": (typeof output === "string")
-            ? output
-            : new TextDecoder("utf-8").decode(output),
+      const result = await Deno.emit("/client-legacy.ts", {
+        sources: {
+          "/client-legacy.ts": (typeof output === "string") ? output : new TextDecoder("utf-8").decode(output),
         },
-        {
+        check: false,
+        bundle: "classic",
+        compilerOptions: {
           lib: ["dom", "es5"],
           target: "es5",
           removeComments: true,
-        },
-      );
+          sourceMap: true,
+        }
+      });
+      // const result = await Deno.transpileOnly(
+      //   {
+      //     "/client-legacy.ts": (typeof output === "string")
+      //       ? output
+      //       : new TextDecoder("utf-8").decode(output),
+      //   },
+      //   {
+      //     lib: ["dom", "es5"],
+      //     target: "es5",
+      //     removeComments: true,
+      //   },
+      // );
+
+      // Breaks out Source/Map since upgrade to Deno.emit()
+      const source = result.files["deno:///bundle.js"]
+      const map = result.files["deno:///bundle.js.map"];
 
       // Set Map for JS File
-      jsFiles.set("/client-legacy.js.map", result["/client-legacy.ts"].map);
+      jsFiles.set("/client-legacy.js.map", map);
+      // jsFiles.set("/client-legacy.js.map", result["/client-legacy.ts"].map);
 
       // Return Source
-      return result["/client-legacy.ts"].source;
+      return source;
+      // return result["/client-legacy.ts"].source;
     } catch (e) {
       throw e;
     }

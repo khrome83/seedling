@@ -784,6 +784,7 @@ Deno.test("Component Directive", async () => {
       },
     ],
     children: [{ type: "Text", data: "Dynamic Heading", start: 31, end: 46 }],
+    classes: [],
     expression: {
       type: "Literal",
       data: '"BaseHeading"',
@@ -847,6 +848,7 @@ Deno.test("Component Directive with Named Slot", async () => {
         end: 58,
       },
     ],
+    classes: [],
     expression: {
       type: "Literal",
       data: '"Slots"',

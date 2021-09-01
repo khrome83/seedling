@@ -51,6 +51,10 @@ if (import.meta.main) {
 
     const [junk, primary, secondary, tertiary] = Object.keys(args);
 
+    if (typeof subcommand !== 'string') {
+      return;
+    }
+
     switch (subcommand.toLowerCase()) {
       case "build":
         await build(rest, args);

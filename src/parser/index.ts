@@ -1459,6 +1459,7 @@ export class Parser {
       children,
       expression: expression as Identifier | Literal | MemberExpression,
       slot: slot as Literal | undefined,
+      classes: this.getClasses(attributes),
       start,
       end,
     };
@@ -1547,7 +1548,7 @@ export class Parser {
     };
   }
 
-  // Element Directive AST Object
+  // Layout Directive AST Object
   private getLayoutDirective(
     data: string,
     start: number,

@@ -10,7 +10,7 @@ Deno.test("Validate Loading Config", async () => {
     interval: 350,
     port: 3000,
     ws: 8080,
-    esbuild: true,
+    esbuild: false,
   };
   assertEquals(config, expected);
 });

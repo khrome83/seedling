@@ -660,6 +660,10 @@ const componentDirective = async (
       }
     }
 
+    if (node.classes.length) {
+      cb(["Classes", node.classes]);
+    }
+
     return await unionChildren(res.ast.html, localState, cb);
   } catch (e) {
     emitError(`Unable to process Component Directive ${bold(red(component))}.`);

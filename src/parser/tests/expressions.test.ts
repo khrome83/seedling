@@ -203,6 +203,7 @@ Deno.test("Attribute Identifier and Literal", () => {
           },
         ],
         children: [],
+        classes: [],
         expression: {
           type: "Literal",
           data: '"Map"',
@@ -258,6 +259,7 @@ Deno.test("Attribute Implicit Identifier", () => {
           },
         ],
         children: [],
+        classes: [],
         expression: {
           type: "Literal",
           data: '"Map"',
@@ -309,6 +311,7 @@ Deno.test("Attribute Spread Operator", () => {
           },
         ],
         children: [],
+        classes: ['foo'],
         expression: {
           type: "Literal",
           data: '"Map"',

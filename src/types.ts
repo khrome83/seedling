@@ -115,6 +115,7 @@ export interface ComponentDirective extends BaseTag {
   type: "ComponentDirective";
   expression: Identifier | Literal | MemberExpression;
   slot: Literal | undefined;
+  classes: string[];
 }
 
 export interface ElementDirective extends BaseTag {

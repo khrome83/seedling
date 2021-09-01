@@ -27,3 +27,23 @@ Need to set .deno/bin in fish to the path
 ```
 set -gx PATH $HOME/.deno/bin $PATH
 ```
+
+## Developing
+
+### Installation
+
+`deno install --unstable --allow-read --allow-write --allow-env --allow-net --allow-hrtime --allow-run -f -n seed cli.ts`
+
+### Running Tests
+
+`deno test --unstable --allow-read --allow-env --allow-net`
+
+### Validating Coverage
+
+Run tests and generate coverage.
+
+`deno test --unstable --allow-read --allow-env --allow-net --coverage=cov_profile`
+
+View coverage data.
+
+`deno coverage cov_profile`

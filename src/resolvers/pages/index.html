@@ -25,6 +25,10 @@
 {:else}
   <div>
     <h1>Home</h1>
+    <HeadingLevel level="1" class="mt-2 text-2xl font-bold text-green-700 bg-red-100">Home</HeadingLevel>
+    <:component use="HeadingLevel" class="mt-2 text-2xl font-bold text-purple-400">Dynamic Heading</:component>
+    <:element use="h2" class="text-green-500">Testing</:element>
+    <SampleComponent />
     <div>
       <p>About - {name}</p>
       <ul>
